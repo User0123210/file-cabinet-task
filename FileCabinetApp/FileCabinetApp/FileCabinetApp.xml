@@ -4,10 +4,5 @@
         <name>FileCabinetApp</name>
     </assembly>
     <members>
-        <member name="T:FileCabinetApp.Program">
-            <summary>
-            Creates and runs Console App.
-            </summary>
-        </member>
     </members>
 </doc>
