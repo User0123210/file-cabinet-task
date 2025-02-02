@@ -2,13 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.ObjectModel;
 
 namespace FileCabinetApp
 {
     public class FileCabinetService
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
+
+        public FileCabinetService()
+        {
+            this.list = new List<FileCabinetRecord>();
+        }
+
+        public FileCabinetService(Collection<FileCabinetRecord> list)
+        {
+            this.list = list.ToList<FileCabinetRecord>();
+        }
 
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth)
         {
@@ -24,8 +35,7 @@ namespace FileCabinetApp
 
         public int GetStat()
         {
-            // TODO: добавьте реализацию метода
-            return 0;
+            return this.list.Count;
         }
     }
 }
