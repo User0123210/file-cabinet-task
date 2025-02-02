@@ -1,4 +1,7 @@
-﻿namespace FileCabinetApp
+﻿using System.Globalization;
+using System.Runtime.Serialization;
+
+namespace FileCabinetApp
 {
     public static class Program
     {
@@ -15,6 +18,7 @@
             new Tuple<string, Action<string>>("help", PrintHelp),
             new Tuple<string, Action<string>>("exit", Exit),
             new Tuple<string, Action<string>>("stat", Stat),
+            new Tuple<string, Action<string>>("create", Create),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -22,6 +26,7 @@
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
             new string[] { "stat", "displays statistics on records", "The 'stat' command displays statistics on records." },
+            new string[] { "create", "creates a new record", "The 'create' command creates a new record." },
         };
 
         public static void Main(string[] args)
@@ -102,6 +107,58 @@
         {
             var recordsCount = Program.fileCabinetService.GetStat();
             Console.WriteLine($"{recordsCount} record(s).");
+        }
+
+        private static void Create(string parameters)
+        {
+            string firstName = string.Empty;
+
+            while (string.IsNullOrWhiteSpace(firstName))
+            {
+                Console.Write("First name: ");
+
+                if (Console.ReadLine() is string s && !string.IsNullOrWhiteSpace(s))
+                {
+                    firstName = s;
+                }
+                else
+                {
+                    Console.WriteLine("First name shouldn't be empty or whitespace");
+                }
+            }
+
+            string lastName = string.Empty;
+
+            while (string.IsNullOrWhiteSpace(lastName))
+            {
+               Console.Write("Last name: ");
+
+               if (Console.ReadLine() is string s && !string.IsNullOrWhiteSpace(s))
+               {
+                   lastName = s;
+               }
+               else
+               {
+                   Console.WriteLine("Last name shouldn't be empty or whitespace");
+               }
+            }
+
+            DateTime dateOfBirth = default;
+            bool isValid = false;
+
+            while (!isValid)
+            {
+                Console.Write("Date of birth: ");
+                isValid = DateTime.TryParseExact(Console.ReadLine(), "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfBirth);
+
+                if (!isValid)
+                {
+                    Console.WriteLine("Please, enter valid date of birth in format \"MM/dd/yyyy\".");
+                }
+            }
+
+            int recordId = Program.fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth);
+            Console.WriteLine($"Record #{recordId} is created.");
         }
     }
 }
