@@ -14,6 +14,7 @@ namespace FileCabinetApp
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
+        private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
 
         public FileCabinetService()
         {
@@ -58,6 +59,15 @@ namespace FileCabinetApp
                 this.lastNameDictionary.Add(lastName.ToUpperInvariant(), new List<FileCabinetRecord>() { record });
             }
 
+            if (this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
+            {
+                this.dateOfBirthDictionary[dateOfBirth].Add(record);
+            }
+            else
+            {
+                this.dateOfBirthDictionary.Add(dateOfBirth, new List<FileCabinetRecord>() { record });
+            }
+
             this.list.Add(record);
 
             return record.Id;
@@ -84,6 +94,7 @@ namespace FileCabinetApp
                 {
                     this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Remove(record);
                     this.lastNameDictionary[record.LastName.ToUpperInvariant()].Remove(record);
+                    this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
 
                     record.FirstName = firstName;
                     record.LastName = lastName;
@@ -109,6 +120,15 @@ namespace FileCabinetApp
                     else
                     {
                         this.lastNameDictionary.Add(lastName.ToUpperInvariant(), new List<FileCabinetRecord>() { record });
+                    }
+
+                    if (this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
+                    {
+                        this.dateOfBirthDictionary[dateOfBirth].Add(record);
+                    }
+                    else
+                    {
+                        this.dateOfBirthDictionary.Add(dateOfBirth, new List<FileCabinetRecord>() { record });
                     }
                 }
             }
@@ -147,12 +167,9 @@ namespace FileCabinetApp
         {
             List<FileCabinetRecord> foundRecords = new List<FileCabinetRecord>();
 
-            foreach (FileCabinetRecord record in this.list)
+            if (this.dateOfBirthDictionary.ContainsKey(date))
             {
-                if (DateTime.Equals(record.DateOfBirth, date))
-                {
-                    foundRecords.Add(record);
-                }
+                foundRecords = this.dateOfBirthDictionary[date];
             }
 
             return foundRecords.ToArray();

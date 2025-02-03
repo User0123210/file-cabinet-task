@@ -273,30 +273,34 @@ namespace FileCabinetApp
             string[] arguments = parameters is not null ? parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
             const int propertyIndex = 0;
             var property = arguments[propertyIndex];
-            var value = arguments[propertyIndex + 1];
-            FileCabinetRecord[] found = Array.Empty<FileCabinetRecord>();
 
-            if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
+            if (arguments.Length > 1)
             {
-                found = fileCabinetService.FindByFirstName(value);
-            }
-            else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
-            {
-                found = fileCabinetService.FindByLastName(value);
-            }
-            else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
-            {
-                bool isDate = DateTime.TryParse(value, out DateTime date);
+                var value = arguments[propertyIndex + 1];
+                FileCabinetRecord[] found = Array.Empty<FileCabinetRecord>();
 
-                if (isDate)
+                if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
                 {
-                    found = fileCabinetService.FindByDateOfBirth(date);
+                    found = fileCabinetService.FindByFirstName(value);
                 }
-            }
+                else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
+                {
+                    found = fileCabinetService.FindByLastName(value);
+                }
+                else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
+                {
+                    bool isDate = DateTime.TryParseExact(value, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
 
-            foreach (var record in found)
-            {
-                Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                    if (isDate)
+                    {
+                        found = fileCabinetService.FindByDateOfBirth(date);
+                    }
+                }
+
+                foreach (var record in found)
+                {
+                    Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                }
             }
         }
     }
