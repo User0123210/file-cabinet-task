@@ -23,6 +23,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("list", List),
             new Tuple<string, Action<string>>("edit", Edit),
+            new Tuple<string, Action<string>>("find", Find),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -33,6 +34,7 @@ namespace FileCabinetApp
             new string[] { "create", "creates a new record", "The 'create' command creates a new record." },
             new string[] { "list", "returns list of records from service", "The 'list' command returns list of records from service." },
             new string[] { "edit", "edits record with the specified id", "The 'edit' command edits record with the specified id." },
+            new string[] { "find", "finds records based on the specified property value", "The 'find' command finds record based on the specified property value." },
         };
 
         public static void Main(string[] args)
@@ -264,6 +266,25 @@ namespace FileCabinetApp
             }
 
             return (firstName, lastName, dateOfBirth, status, salary, permissions);
+        }
+
+        private static void Find(string parameters)
+        {
+            string[] arguments = parameters is not null ? parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+            const int propertyIndex = 0;
+            var property = arguments[propertyIndex];
+            var value = arguments[propertyIndex + 1];
+
+            if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
+            {
+                foreach (var record in fileCabinetService.FindByFirstName(value))
+                {
+                    Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                }
+            }
+            else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
+            {
+            }
         }
     }
 }
