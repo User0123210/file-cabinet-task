@@ -7,6 +7,9 @@ using System.Xml.Linq;
 
 namespace FileCabinetApp
 {
+    /// <summary>
+    /// Represents Console App to exchange information with the FileCabinet.
+    /// </summary>
     public static class Program
     {
         private const string DeveloperName = "Serafima Mochalova";
@@ -40,6 +43,10 @@ namespace FileCabinetApp
 
         private static bool isRunning = true;
 
+        /// <summary>
+        /// Runs Console Application.
+        /// </summary>
+        /// <param name="args">The arguments of the application.</param>
         public static void Main(string[] args)
         {
             Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");

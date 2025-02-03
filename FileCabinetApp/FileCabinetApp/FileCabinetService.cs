@@ -7,24 +7,42 @@ using System.Text;
 
 namespace FileCabinetApp
 {
+    /// <summary>
+    /// Manages information about the records in file cabinet.
+    /// </summary>
     public class FileCabinetService
     {
-        private readonly List<FileCabinetRecord> records = new ();
+        private readonly List<FileCabinetRecord> records;
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
         private readonly Dictionary<int, FileCabinetRecord> recordIdDictionary = new ();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// Initializes records with empty list of records.
+        /// </summary>
         public FileCabinetService()
         {
             this.records = new List<FileCabinetRecord>();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// Initializes records with the specified list of records.
+        /// </summary>
+        /// <param name="records">list of existing records to initialize records field.</param>
         public FileCabinetService(Collection<FileCabinetRecord> records)
         {
             this.records = records.ToList();
         }
 
+        /// <summary>
+        /// Gets information about the number of records in the service.
+        /// </summary>
+        /// <value>
+        /// <records.Count>Information about the number of records in the service.</records.Count>
+        /// </value>
         public int GetStat
         {
             get
@@ -33,6 +51,21 @@ namespace FileCabinetApp
             }
         }
 
+        /// <summary>
+        /// Creates a new record and adds it into the records list.
+        /// </summary>
+        /// <param name="firstName">First name of the user.</param>
+        /// <param name="lastName">Last name of the user.</param>
+        /// <param name="dateOfBirth">User's date of birth.</param>
+        /// <param name="status">Numerical representation of the user's status.</param>
+        /// <param name="salary">Decimal representation of the user's salary.</param>
+        /// <param name="permissions">Character representation of permissions, granted to the user.</param>
+        /// <exception cref="ArgumentNullException">Thrown when firstName or lastName is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
+        /// <exception cref="ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
+        /// <exception cref="ArgumentException">Thrown when salary less than 0.</exception>
+        /// <returns>Id of the created record.</returns>
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
         {
             ValidateParameters(firstName, lastName, dateOfBirth, status, salary, permissions);
@@ -58,11 +91,31 @@ namespace FileCabinetApp
             return record.Id;
         }
 
+        /// <summary>
+        /// Gets copy of the records as record array.
+        /// </summary>
+        /// <returns>Array of the records.</returns>
         public FileCabinetRecord[] GetRecords()
         {
             return this.records.ToArray();
         }
 
+        /// <summary>
+        /// Edits the existing record with the specified id.
+        /// </summary>
+        /// <param name="id">Id of the record to edit.</param>
+        /// <param name="firstName">First name of the user.</param>
+        /// <param name="lastName">Last name of the user.</param>
+        /// <param name="dateOfBirth">User's date of birth.</param>
+        /// <param name="status">Numerical representation of the user's status.</param>
+        /// <param name="salary">Decimal representation of the user's salary.</param>
+        /// <param name="permissions">Character representation of permissions, granted to the user.</param>
+        /// <exception cref="ArgumentNullException">Thrown when firstName or lastName is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
+        /// <exception cref="ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
+        /// <exception cref="ArgumentException">Thrown when salary less than 0.</exception>
+        /// <exception cref="ArgumentException">Thrown when record with the specified id isn't found.</exception>
         public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
         {
             ValidateParameters(firstName, lastName, dateOfBirth, status, salary, permissions);
@@ -92,6 +145,11 @@ namespace FileCabinetApp
             }
         }
 
+        /// <summary>
+        /// Looks for records with firstName property equal to the specified firstName parameter.
+        /// </summary>
+        /// <param name="firstName">First name of the records to seek.</param>
+        /// <returns>Array of the found records with the specified firstName.</returns>
         public FileCabinetRecord[] FindByFirstName(string firstName)
         {
             List<FileCabinetRecord> foundRecords = new ();
@@ -104,6 +162,11 @@ namespace FileCabinetApp
             return foundRecords.ToArray();
         }
 
+        /// <summary>
+        /// Looks for records with lastName property equal to the specified lastName parameter.
+        /// </summary>
+        /// <param name="lastName">Last name of the records to seek.</param>
+        /// <returns>Array of the found records with the specified lastName.</returns>
         public FileCabinetRecord[] FindByLastName(string lastName)
         {
             List<FileCabinetRecord> foundRecords = new ();
@@ -116,6 +179,11 @@ namespace FileCabinetApp
             return foundRecords.ToArray();
         }
 
+        /// <summary>
+        /// Looks for records with dateOfBirth property equal to the specified date parameter.
+        /// </summary>
+        /// <param name="date">Date of birth of the records to seek.</param>
+        /// <returns>Array of the found records with the specified dateOfBirth.</returns>
         public FileCabinetRecord[] FindByDateOfBirth(DateTime date)
         {
             List<FileCabinetRecord> foundRecords = new ();
