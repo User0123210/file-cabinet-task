@@ -13,6 +13,7 @@ namespace FileCabinetApp
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
+        private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
 
         public FileCabinetService()
         {
@@ -48,6 +49,15 @@ namespace FileCabinetApp
                 this.firstNameDictionary.Add(firstName.ToUpperInvariant(), new List<FileCabinetRecord>() { record });
             }
 
+            if (this.lastNameDictionary.ContainsKey(lastName.ToUpperInvariant()))
+            {
+                this.lastNameDictionary[lastName.ToUpperInvariant()].Add(record);
+            }
+            else
+            {
+                this.lastNameDictionary.Add(lastName.ToUpperInvariant(), new List<FileCabinetRecord>() { record });
+            }
+
             this.list.Add(record);
 
             return record.Id;
@@ -73,6 +83,7 @@ namespace FileCabinetApp
                 if (record.Id == id)
                 {
                     this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Remove(record);
+                    this.lastNameDictionary[record.LastName.ToUpperInvariant()].Remove(record);
 
                     record.FirstName = firstName;
                     record.LastName = lastName;
@@ -89,6 +100,15 @@ namespace FileCabinetApp
                     else
                     {
                         this.firstNameDictionary.Add(firstName.ToUpperInvariant(), new List<FileCabinetRecord>() { record });
+                    }
+
+                    if (this.lastNameDictionary.ContainsKey(lastName.ToUpperInvariant()))
+                    {
+                        this.lastNameDictionary[lastName.ToUpperInvariant()].Add(record);
+                    }
+                    else
+                    {
+                        this.lastNameDictionary.Add(lastName.ToUpperInvariant(), new List<FileCabinetRecord>() { record });
                     }
                 }
             }
@@ -115,12 +135,9 @@ namespace FileCabinetApp
         {
             List<FileCabinetRecord> foundRecords = new List<FileCabinetRecord>();
 
-            foreach (FileCabinetRecord record in this.list)
+            if (lastName is not null && this.lastNameDictionary.ContainsKey(lastName.ToUpperInvariant()))
             {
-                if (string.Equals(record.LastName, lastName, StringComparison.OrdinalIgnoreCase))
-                {
-                    foundRecords.Add(record);
-                }
+                foundRecords = this.lastNameDictionary[lastName.ToUpperInvariant()];
             }
 
             return foundRecords.ToArray();
