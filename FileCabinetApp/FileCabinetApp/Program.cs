@@ -284,6 +284,15 @@ namespace FileCabinetApp
             {
                 found = fileCabinetService.FindByLastName(value);
             }
+            else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
+            {
+                bool isDate = DateTime.TryParse(value, out DateTime date);
+
+                if (isDate)
+                {
+                    found = fileCabinetService.FindByDateOfBirth(date);
+                }
+            }
 
             foreach (var record in found)
             {
