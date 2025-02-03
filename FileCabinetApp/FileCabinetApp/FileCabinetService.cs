@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+
+#pragma warning disable CA1024
 
 namespace FileCabinetApp
 {
@@ -21,7 +22,7 @@ namespace FileCabinetApp
             this.list = list.ToList<FileCabinetRecord>();
         }
 
-        public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth)
+        public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
         {
             var record = new FileCabinetRecord
             {
@@ -29,6 +30,9 @@ namespace FileCabinetApp
                 FirstName = firstName,
                 LastName = lastName,
                 DateOfBirth = dateOfBirth,
+                Status = status,
+                Salary = salary,
+                Permissions = permissions,
             };
 
             this.list.Add(record);

@@ -28,7 +28,7 @@ namespace FileCabinetApp
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
             new string[] { "stat", "displays statistics on records", "The 'stat' command displays statistics on records." },
             new string[] { "create", "creates a new record", "The 'create' command creates a new record." },
-            new string[] { "list", "returns list of records from sevice", "The 'list' command returns list of records from service." },
+            new string[] { "list", "returns list of records from service", "The 'list' command returns list of records from service." },
         };
 
         public static void Main(string[] args)
@@ -51,7 +51,7 @@ namespace FileCabinetApp
                     continue;
                 }
 
-                var index = Array.FindIndex(commands, 0, commands.Length, i => i.Item1.Equals(command, StringComparison.InvariantCultureIgnoreCase));
+                var index = Array.FindIndex(commands, 0, commands.Length, i => i.Item1.Equals(command, StringComparison.OrdinalIgnoreCase));
                 if (index >= 0)
                 {
                     const int parametersIndex = 1;
@@ -76,7 +76,7 @@ namespace FileCabinetApp
         {
             if (!string.IsNullOrEmpty(parameters))
             {
-                var index = Array.FindIndex(helpMessages, 0, helpMessages.Length, i => string.Equals(i[Program.CommandHelpIndex], parameters, StringComparison.InvariantCultureIgnoreCase));
+                var index = Array.FindIndex(helpMessages, 0, helpMessages.Length, i => string.Equals(i[Program.CommandHelpIndex], parameters, StringComparison.OrdinalIgnoreCase));
                 if (index >= 0)
                 {
                     Console.WriteLine(helpMessages[index][Program.ExplanationHelpIndex]);
@@ -159,7 +159,49 @@ namespace FileCabinetApp
                 }
             }
 
-            int recordId = Program.fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth);
+            short status = default;
+            isValid = false;
+
+            while (!isValid)
+            {
+                Console.Write("Status: ");
+                isValid = short.TryParse(Console.ReadLine(), out status);
+
+                if (!isValid)
+                {
+                    Console.WriteLine("Please, enter valid status in range from -32 768 to 32 767.");
+                }
+            }
+
+            decimal salary = default;
+            isValid = false;
+
+            while (!isValid || salary < 0)
+            {
+                Console.Write("Salary: ");
+                isValid = decimal.TryParse(Console.ReadLine(), NumberStyles.Number, CultureInfo.InvariantCulture, out salary);
+
+                if (!isValid || salary < 0)
+                {
+                    Console.WriteLine("Please, enter valid numerical representation of salary.");
+                }
+            }
+
+            char permissions = default;
+            isValid = false;
+
+            while (!isValid)
+            {
+                Console.Write("Permissions: ");
+                isValid = char.TryParse(Console.ReadLine(), out permissions);
+
+                if (!isValid)
+                {
+                    Console.WriteLine("Please, enter valid character.");
+                }
+            }
+
+            int recordId = Program.fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth, status, salary, permissions);
             Console.WriteLine($"Record #{recordId} is created.");
         }
 
@@ -167,7 +209,7 @@ namespace FileCabinetApp
         {
             foreach (var record in Program.fileCabinetService.GetRecords())
             {
-                Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}");
+                Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
             }
         }
     }
