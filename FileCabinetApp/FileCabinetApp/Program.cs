@@ -22,6 +22,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("stat", Stat),
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("list", List),
+            new Tuple<string, Action<string>>("edit", Edit),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -31,6 +32,7 @@ namespace FileCabinetApp
             new string[] { "stat", "displays statistics on records", "The 'stat' command displays statistics on records." },
             new string[] { "create", "creates a new record", "The 'create' command creates a new record." },
             new string[] { "list", "returns list of records from service", "The 'list' command returns list of records from service." },
+            new string[] { "edit", "edits record with the specified id", "The 'edit' command edits record with the specified id." },
         };
 
         public static void Main(string[] args)
@@ -115,6 +117,44 @@ namespace FileCabinetApp
 
         private static void Create(string parameters)
         {
+            (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) = GetAndValidateData();
+            int recordId = Program.fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth, status, salary, permissions);
+            Console.WriteLine($"Record #{recordId} is created.");
+        }
+
+        private static void List(string parameters)
+        {
+            foreach (var record in Program.fileCabinetService.GetRecords())
+            {
+                Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+            }
+        }
+
+        private static void Edit(string parameters)
+        {
+            bool isValid = int.TryParse(parameters, out int recordId);
+
+            if (!isValid)
+            {
+                    Console.WriteLine("Id is not valid.");
+            }
+            else
+            {
+                (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) = GetAndValidateData();
+                try
+                {
+                    Program.fileCabinetService.EditRecord(recordId, firstName, lastName, dateOfBirth, status, salary, permissions);
+                    Console.WriteLine($"Record #{recordId} is updated.");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine($"#{recordId} record is not found.");
+                }
+            }
+        }
+
+        private static (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) GetAndValidateData()
+        {
             string firstName = string.Empty;
 
             while (string.IsNullOrWhiteSpace(firstName))
@@ -142,10 +182,10 @@ namespace FileCabinetApp
 
             while (string.IsNullOrWhiteSpace(lastName))
             {
-               Console.Write("Last name: ");
+                Console.Write("Last name: ");
 
-               if (Console.ReadLine() is string s && !string.IsNullOrWhiteSpace(s))
-               {
+                if (Console.ReadLine() is string s && !string.IsNullOrWhiteSpace(s))
+                {
                     if (s.Length < 2 || s.Length > 60)
                     {
                         Console.WriteLine("Last name's length should be more or equal 2 and less or equal 60");
@@ -155,10 +195,10 @@ namespace FileCabinetApp
                         lastName = s;
                     }
                 }
-               else
-               {
-                   Console.WriteLine("Last name shouldn't be empty or whitespace");
-               }
+                else
+                {
+                    Console.WriteLine("Last name shouldn't be empty or whitespace");
+                }
             }
 
             DateTime dateOfBirth = default;
@@ -223,16 +263,7 @@ namespace FileCabinetApp
                 }
             }
 
-            int recordId = Program.fileCabinetService.CreateRecord(firstName, lastName, dateOfBirth, status, salary, permissions);
-            Console.WriteLine($"Record #{recordId} is created.");
-        }
-
-        private static void List(string parameters)
-        {
-            foreach (var record in Program.fileCabinetService.GetRecords())
-            {
-                Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
-            }
+            return (firstName, lastName, dateOfBirth, status, salary, permissions);
         }
     }
 }

@@ -25,39 +25,7 @@ namespace FileCabinetApp
 
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
         {
-            ArgumentNullException.ThrowIfNull(firstName);
-
-            if (string.IsNullOrWhiteSpace(firstName))
-            {
-                throw new ArgumentException("First name shouldn't be empty or whitespace", nameof(firstName));
-            }
-
-            if (firstName.Length < 2 || firstName.Length > 60)
-            {
-                throw new ArgumentException("First name's length should be more or equal 2 and less or equal 60", nameof(firstName));
-            }
-
-            ArgumentNullException.ThrowIfNull(lastName);
-
-            if (string.IsNullOrWhiteSpace(lastName))
-            {
-                throw new ArgumentException("Last name shouldn't be empty or whitespace", nameof(lastName));
-            }
-
-            if (lastName.Length < 2 || lastName.Length > 60)
-            {
-                throw new ArgumentException("Last name's length should be more or equal 2 and less or equal 60", nameof(lastName));
-            }
-
-            if (dateOfBirth < DateTime.ParseExact("01-01-1950", "dd-MM-yyyy", CultureInfo.InvariantCulture,  DateTimeStyles.None) || dateOfBirth > DateTime.Now)
-            {
-                throw new ArgumentException("Date of birth shouldn't be less than 01-Jan-1950 or more than current date.", nameof(dateOfBirth));
-            }
-
-            if (salary < 0)
-            {
-                throw new ArgumentException("Salary value shouldn't be less than 0", nameof(salary));
-            }
+            ValidateParameters(firstName, lastName, dateOfBirth, status, salary, permissions);
 
             var record = new FileCabinetRecord
             {
@@ -83,6 +51,70 @@ namespace FileCabinetApp
         public int GetStat()
         {
             return this.list.Count;
+        }
+
+        public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
+        {
+            ValidateParameters(firstName, lastName, dateOfBirth, status, salary, permissions);
+            bool isExistent = false;
+
+            foreach (var record in this.list)
+            {
+                if (record.Id == id)
+                {
+                    record.FirstName = firstName;
+                    record.LastName = lastName;
+                    record.DateOfBirth = dateOfBirth;
+                    record.Status = status;
+                    record.Salary = salary;
+                    record.Permissions = permissions;
+                    isExistent = true;
+                }
+            }
+
+            if (!isExistent)
+            {
+                throw new ArgumentException("Record with the specified id doesn't exist.");
+            }
+        }
+
+        private static (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) ValidateParameters(string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
+        {
+            ArgumentNullException.ThrowIfNull(firstName);
+
+            if (string.IsNullOrWhiteSpace(firstName))
+            {
+                throw new ArgumentException("First name shouldn't be empty or whitespace", nameof(firstName));
+            }
+
+            if (firstName.Length < 2 || firstName.Length > 60)
+            {
+                throw new ArgumentException("First name's length should be more or equal 2 and less or equal 60", nameof(firstName));
+            }
+
+            ArgumentNullException.ThrowIfNull(lastName);
+
+            if (string.IsNullOrWhiteSpace(lastName))
+            {
+                throw new ArgumentException("Last name shouldn't be empty or whitespace", nameof(lastName));
+            }
+
+            if (lastName.Length < 2 || lastName.Length > 60)
+            {
+                throw new ArgumentException("Last name's length should be more or equal 2 and less or equal 60", nameof(lastName));
+            }
+
+            if (dateOfBirth < DateTime.ParseExact("01-01-1950", "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None) || dateOfBirth > DateTime.Now)
+            {
+                throw new ArgumentException("Date of birth shouldn't be less than 01-Jan-1950 or more than current date.", nameof(dateOfBirth));
+            }
+
+            if (salary < 0)
+            {
+                throw new ArgumentException("Salary value shouldn't be less than 0", nameof(salary));
+            }
+
+            return (firstName, lastName, dateOfBirth, status, salary, permissions);
         }
     }
 }
