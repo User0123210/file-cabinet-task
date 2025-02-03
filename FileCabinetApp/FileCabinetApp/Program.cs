@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
+using System.Xml.Linq;
 
 namespace FileCabinetApp
 {
@@ -121,7 +123,14 @@ namespace FileCabinetApp
 
                 if (Console.ReadLine() is string s && !string.IsNullOrWhiteSpace(s))
                 {
-                    firstName = s;
+                    if (s.Length < 2 || s.Length > 60)
+                    {
+                        Console.WriteLine("First name's length should be more or equal 2 and less or equal 60");
+                    }
+                    else
+                    {
+                        firstName = s;
+                    }
                 }
                 else
                 {
@@ -137,8 +146,15 @@ namespace FileCabinetApp
 
                if (Console.ReadLine() is string s && !string.IsNullOrWhiteSpace(s))
                {
-                   lastName = s;
-               }
+                    if (s.Length < 2 || s.Length > 60)
+                    {
+                        Console.WriteLine("Last name's length should be more or equal 2 and less or equal 60");
+                    }
+                    else
+                    {
+                        lastName = s;
+                    }
+                }
                else
                {
                    Console.WriteLine("Last name shouldn't be empty or whitespace");
@@ -156,6 +172,12 @@ namespace FileCabinetApp
                 if (!isValid)
                 {
                     Console.WriteLine("Please, enter valid date of birth in format \"MM/dd/yyyy\".");
+                }
+
+                if (isValid && (dateOfBirth < DateTime.ParseExact("01-01-1950", "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None) || dateOfBirth > DateTime.Now))
+                {
+                    Console.WriteLine("Date of birth shouldn't be less than 01-Jan-1950 or more than current date.");
+                    isValid = false;
                 }
             }
 
@@ -183,7 +205,7 @@ namespace FileCabinetApp
 
                 if (!isValid || salary < 0)
                 {
-                    Console.WriteLine("Please, enter valid numerical representation of salary.");
+                    Console.WriteLine("Please, enter valid numerical representation of salary. Salary should be more than 0.");
                 }
             }
 
