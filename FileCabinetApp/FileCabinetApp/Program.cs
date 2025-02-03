@@ -274,16 +274,20 @@ namespace FileCabinetApp
             const int propertyIndex = 0;
             var property = arguments[propertyIndex];
             var value = arguments[propertyIndex + 1];
+            FileCabinetRecord[] found = Array.Empty<FileCabinetRecord>();
 
             if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
             {
-                foreach (var record in fileCabinetService.FindByFirstName(value))
-                {
-                    Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
-                }
+                found = fileCabinetService.FindByFirstName(value);
             }
             else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
             {
+                found = fileCabinetService.FindByLastName(value);
+            }
+
+            foreach (var record in found)
+            {
+                Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
             }
         }
     }

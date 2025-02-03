@@ -93,6 +93,21 @@ namespace FileCabinetApp
             return foundRecords.ToArray();
         }
 
+        public FileCabinetRecord[] FindByLastName(string lastName)
+        {
+            List<FileCabinetRecord> foundRecords = new List<FileCabinetRecord>();
+
+            foreach (FileCabinetRecord record in this.list)
+            {
+                if (string.Equals(record.LastName, lastName, StringComparison.OrdinalIgnoreCase))
+                {
+                    foundRecords.Add(record);
+                }
+            }
+
+            return foundRecords.ToArray();
+        }
+
         private static (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) ValidateParameters(string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
         {
             ArgumentNullException.ThrowIfNull(firstName);
