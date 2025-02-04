@@ -19,7 +19,7 @@ namespace FileCabinetApp
         private const int CommandHelpIndex = 0;
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
-        private static readonly FileCabinetService FileCabinetService = new (new DefaultValidator());
+        private static readonly IFileCabinetService FileCabinetService = new FileCabinetService(new DefaultValidator());
 
         private static readonly Tuple<string, Action<string>>[] Commands = new Tuple<string, Action<string>>[]
         {
@@ -272,6 +272,7 @@ namespace FileCabinetApp
                 {
                     isValid = false;
                     Console.WriteLine("Name should contain only letters.");
+                    break;
                 }
             }
 

@@ -347,6 +347,94 @@
             Creates a copy of the FileCabinetService as FileCabinetCustomService.
             </summary>
         </member>
+        <member name="T:FileCabinetApp.IFileCabinetService">
+            <summary>
+            Provides basic structure and methods of the file cabinet.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.IFileCabinetService.MinNameLength">
+            <summary>
+            Gets minimal possible length of the name.
+            </summary>
+            <value>this.minNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.IFileCabinetService.MaxNameLength">
+            <summary>
+            Gets maximum possible length of the name.
+            </summary>
+            <value>this.maxNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.IFileCabinetService.MinDate">
+            <summary>
+            Gets minimum possible date.
+            </summary>
+            <value>this.minDate.</value>
+        </member>
+        <member name="P:FileCabinetApp.IFileCabinetService.GetStat">
+            <summary>
+            Gets information about the number of records in the service.
+            </summary>
+            <value>
+            <records.Count>Information about the number of records in the service.</records.Count>
+            </value>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.GetValidPermissions">
+            <summary>
+            Gets array of valid permissions.
+            </summary>
+            <returns>An array of valid permissions.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.CreateRecord(FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Creates a new record and adds it into the records list.
+            </summary>
+            <param name="recordParameters">Parameters of the record to change.</param>
+            <returns>Id of the created record.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.GetRecords">
+            <summary>
+            Gets copy of the records as record array.
+            </summary>
+            <returns>Array of the records.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Edits the existing record with the specified id.
+            </summary>
+            <param name="id">Id of the record to edit.</param>
+            <param name="recordParameters">Parameters of the record to change.</param>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.FindByFirstName(System.String)">
+            <summary>
+            Looks for records with firstName property equal to the specified firstName parameter.
+            </summary>
+            <param name="firstName">First name of the records to seek.</param>
+            <returns>Array of the found records with the specified firstName.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.FindByLastName(System.String)">
+            <summary>
+            Looks for records with lastName property equal to the specified lastName parameter.
+            </summary>
+            <param name="lastName">Last name of the records to seek.</param>
+            <returns>Array of the found records with the specified lastName.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.FindByDateOfBirth(System.DateTime)">
+            <summary>
+            Looks for records with dateOfBirth property equal to the specified date parameter.
+            </summary>
+            <param name="date">Date of birth of the records to seek.</param>
+            <returns>Array of the found records with the specified dateOfBirth.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.ChangeValidatorToCustom">
+            <summary>
+            Creates a copy of the FileCabinetService as FileCabinetDefaultService.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.ChangeValidatorToDefault">
+            <summary>
+            Creates a copy of the FileCabinetService as FileCabinetCustomService.
+            </summary>
+        </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>
             Validator of the record parameters.

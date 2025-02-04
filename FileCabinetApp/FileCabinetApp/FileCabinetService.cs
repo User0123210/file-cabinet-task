@@ -11,7 +11,7 @@ namespace FileCabinetApp
     /// <summary>
     /// Manages information about the records in file cabinet.
     /// </summary>
-    public class FileCabinetService
+    public class FileCabinetService : IFileCabinetService
     {
         private readonly List<FileCabinetRecord> records = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
