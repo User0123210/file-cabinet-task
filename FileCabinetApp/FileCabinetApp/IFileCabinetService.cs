@@ -25,6 +25,18 @@ namespace FileCabinetApp
         public int MaxNameLength { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the name should contain only letter characters or not.
+        /// </summary>
+        /// <value>isOnlyLetterName.</value>
+        public bool IsOnlyLetterName { get; }
+
+        /// <summary>
+        /// Gets a value of the date format.
+        /// </summary>
+        /// <value>dateFormat.</value>
+        public string DateFormat { get; }
+
+        /// <summary>
         /// Gets minimum possible date.
         /// </summary>
         /// <value>this.minDate.</value>

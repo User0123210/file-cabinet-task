@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -156,7 +157,25 @@ namespace FileCabinetApp
 
         private static void Create(string parameters)
         {
-            FileCabinetRecordParameterObject recordParameters = GetAndValidateRecordData();
+            Console.Write("First name: ");
+            var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), NameValidator);
+
+            Console.Write("Last name: ");
+            var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), NameValidator);
+
+            Console.Write("Date of birth: ");
+            var dateOfBirth = ReadInput(DateConverter, DateOfBirthValidator);
+
+            Console.Write("Status: ");
+            var status = ReadInput(ShortConverter, (short status) => new Tuple<bool, string>(true, "Everything alright"));
+
+            Console.Write("Salary: ");
+            var salary = ReadInput(DecimalConverter, SalaryValidator);
+
+            Console.Write("Permissions: ");
+            var permissions = ReadInput(CharConverter, PermissionsValidator);
+
+            FileCabinetRecordParameterObject recordParameters = new () { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
             int recordId = Program.FileCabinetService.CreateRecord(recordParameters);
             Console.WriteLine($"Record #{recordId} is created.");
         }
@@ -179,7 +198,26 @@ namespace FileCabinetApp
             }
             else
             {
-                FileCabinetRecordParameterObject recordParameters = GetAndValidateRecordData();
+                Console.Write("First name: ");
+                var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), NameValidator);
+
+                Console.Write("Last name: ");
+                var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), NameValidator);
+
+                Console.Write("Date of birth: ");
+                var dateOfBirth = ReadInput(DateConverter, DateOfBirthValidator);
+
+                Console.Write("Status: ");
+                var status = ReadInput(ShortConverter, (short status) => new Tuple<bool, string>(true, "Everything alright"));
+
+                Console.Write("Salary: ");
+                var salary = ReadInput(DecimalConverter, SalaryValidator);
+
+                Console.Write("Permissions: ");
+                var permissions = ReadInput(CharConverter, PermissionsValidator);
+
+                FileCabinetRecordParameterObject recordParameters = new () { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
+
                 try
                 {
                     FileCabinetService.EditRecord(recordId, recordParameters);
@@ -192,58 +230,36 @@ namespace FileCabinetApp
             }
         }
 
-        private static FileCabinetRecordParameterObject GetAndValidateRecordData()
+        private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
         {
-            string firstName = GetParameterInput("First name", GetAndValidateName);
-            string lastName = GetParameterInput("Last name", GetAndValidateName);
-            DateTime dateOfBirth = GetParameterInput("Date of birth", GetAndValidateDateOfBirth);
-
-            short status = GetParameterInput("Status", (string? parameterInput) =>
+            do
             {
-                bool isValid = short.TryParse(parameterInput, out short newStatus);
+                T value;
 
-                if (!isValid)
+                var input = Console.ReadLine();
+                var conversionResult = converter(input!);
+
+                if (!conversionResult.Item1)
                 {
-                    Console.WriteLine($"Please, enter valid status in range from {short.MinValue} to {short.MaxValue}.");
+                    Console.WriteLine($"Conversion failed: {conversionResult.Item2}. Please, correct your input.");
+                    continue;
                 }
 
-                return (isValid, newStatus);
-            });
+                value = conversionResult.Item3;
 
-            decimal salary = GetParameterInput("Salary", (string? parameterInput) =>
-            {
-                bool isValid = decimal.TryParse(parameterInput, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newSalary);
-
-                if (!isValid || newSalary < 0)
+                var validationResult = validator(value);
+                if (!validationResult.Item1)
                 {
-                    isValid = false;
-                    Console.WriteLine("Please, enter valid numerical representation of salary. Salary should be more than 0.");
+                    Console.WriteLine($"Validation failed: {validationResult.Item2}. Please, correct your input.");
+                    continue;
                 }
 
-                return (isValid, newSalary);
-            });
-
-            char permissions = GetParameterInput("Permissions", GetAndValidatePermissions);
-
-            return new FileCabinetRecordParameterObject() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
-        }
-
-        private static T GetParameterInput<T>(string parametersName, Func<string?, (bool, T)> validatorFunction)
-        {
-            bool isValid = false;
-            T? parameter = default;
-
-            while (!isValid)
-            {
-                Console.Write($"{parametersName}: ");
-                string? parameterInput = Console.ReadLine();
-                (isValid, parameter) = validatorFunction(parameterInput);
+                return value;
             }
-
-            return parameter!;
+            while (true);
         }
 
-        private static (bool, string) GetAndValidateName(string? name)
+        private static Tuple<bool, string> NameValidator(string name)
         {
             int minLength = FileCabinetService.MinNameLength;
             int maxLength = FileCabinetService.MaxNameLength;
@@ -253,7 +269,7 @@ namespace FileCabinetApp
             {
                 if (name.Length < minLength || name.Length > maxLength)
                 {
-                    Console.WriteLine($"Name's length should be more or equal {minLength} and less or equal {maxLength}");
+                    return new Tuple<bool, string>(isValid, $"Name's length should be more or equal {minLength} and less or equal {maxLength}");
                 }
                 else
                 {
@@ -262,74 +278,72 @@ namespace FileCabinetApp
             }
             else
             {
-                name = string.Empty;
-                Console.WriteLine($"Name shouldn't be empty or whitespace");
+                return new Tuple<bool, string>(isValid, $"Name shouldn't be empty or whitespace");
             }
 
-            foreach (char character in name)
+            if (FileCabinetService.IsOnlyLetterName)
             {
-                if (!char.IsLetter(character))
+                foreach (char character in name)
                 {
-                    isValid = false;
-                    Console.WriteLine("Name should contain only letters.");
-                    break;
+                    if (!char.IsLetter(character))
+                    {
+                        isValid = false;
+                        return new Tuple<bool, string>(isValid, "Name should contain only letters.");
+                    }
                 }
             }
 
-            return (isValid, name);
+            return new Tuple<bool, string>(isValid, "Everything alright.");
         }
 
-        private static (bool, DateTime) GetAndValidateDateOfBirth(string? date)
+        private static Tuple<bool, string> DateOfBirthValidator(DateTime date)
         {
-            bool isValid;
             DateTime minDate = FileCabinetService.MinDate;
 
-            isValid = DateTime.TryParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
-
-            if (!isValid)
+            if (date < minDate || date > DateTime.Now)
             {
-                Console.WriteLine($"Please, enter valid date of birth in format \"MM/dd/yyyy\".");
+                return new Tuple<bool, string>(false, $"Date of birth shouldn't be less than {minDate} or more than current date");
             }
 
-            if (isValid && (dateOfBirth < minDate || dateOfBirth > DateTime.Now))
-            {
-                Console.WriteLine($"Date of birth shouldn't be less than {minDate} or more than current date.");
-                isValid = false;
-            }
-
-            return (isValid, dateOfBirth);
+            return new Tuple<bool, string>(true, "Everything alright");
         }
 
-        private static (bool, char) GetAndValidatePermissions(string? permissions)
+        private static Tuple<bool, string, DateTime> DateConverter(string date)
         {
-            bool isValid = char.TryParse(permissions, out char newPermissions);
+            bool isValid = DateTime.TryParseExact(date, FileCabinetService.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
 
             if (!isValid)
             {
-                Console.WriteLine("Please, enter valid character.");
-                return (isValid, newPermissions);
+                return new Tuple<bool, string, DateTime>(isValid, $"Please, enter valid date of birth in format \"{FileCabinetService.DateFormat}\"", default);
             }
 
+            return new Tuple<bool, string, DateTime>(isValid, "Everything alright", dateOfBirth);
+        }
+
+        private static Tuple<bool, string, short> ShortConverter(string value) => short.TryParse(value, out short newValue) ? new Tuple<bool, string, short>(true, "Everything alright", newValue) : new Tuple<bool, string, short>(false, $"Please, enter valid number in range from {short.MinValue} to {short.MaxValue}", default);
+
+        private static Tuple<bool, string, decimal> DecimalConverter(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newValue) ? new Tuple<bool, string, decimal>(true, "Everything alright", newValue) : new Tuple<bool, string, decimal>(false, "Please, enter valid decimal number", default);
+
+        private static Tuple<bool, string> SalaryValidator(decimal salary) => salary >= 0 ? new Tuple<bool, string>(true, "Everything alright") : new Tuple<bool, string>(false, "Salary should be more than 0");
+
+        private static Tuple<bool, string, char> CharConverter(string value) => char.TryParse(value, out char newValue) ? new Tuple<bool, string, char>(true, "Everything alright", newValue) : new Tuple<bool, string, char>(false, "Please, enter valid character", default);
+
+        private static Tuple<bool, string> PermissionsValidator(char permissions)
+        {
             if (FileCabinetService.GetValidPermissions().Count > 0)
             {
-                isValid = false;
-
                 foreach (char permission in FileCabinetService.GetValidPermissions())
                 {
-                    if (char.Equals(char.ToLowerInvariant(newPermissions), permission))
+                    if (char.Equals(char.ToLowerInvariant(permissions), permission))
                     {
-                        isValid = true;
-                        break;
+                        return new Tuple<bool, string>(true, "Everything alright");
                     }
                 }
 
-                if (!isValid)
-                {
-                    Console.WriteLine($"Permissions should be one of {string.Join(", ", FileCabinetService.GetValidPermissions())}.");
-                }
+                return new Tuple<bool, string>(false, $"Permissions should be one of {string.Join(", ", FileCabinetService.GetValidPermissions())}");
             }
 
-            return (isValid, newPermissions);
+            return new Tuple<bool, string>(true, "Everything alright");
         }
 
         private static void Find(string parameters)
@@ -353,7 +367,7 @@ namespace FileCabinetApp
                 }
                 else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
                 {
-                    bool isDate = DateTime.TryParseExact(value, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+                    bool isDate = DateTime.TryParseExact(value, FileCabinetService.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
 
                     if (isDate)
                     {

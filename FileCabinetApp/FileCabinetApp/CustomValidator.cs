@@ -56,6 +56,18 @@ namespace FileCabinetApp
         public DateTime MinDate { get; init; } = new (1908, 6, 8);
 
         /// <summary>
+        /// Gets a value indicating whether the name should contain only letter characters or not.
+        /// </summary>
+        /// <value>isOnlyLetterName.</value>
+        public bool IsOnlyLetterName { get; init; } = true;
+
+        /// <summary>
+        /// Gets a value of the date format.
+        /// </summary>
+        /// <value>dateFormat.</value>
+        public string DateFormat { get; init; } = "MM/dd/yyyy";
+
+        /// <summary>
         /// Gets array of valid permissions.
         /// </summary>
         /// <returns>An array of valid permissions.</returns>

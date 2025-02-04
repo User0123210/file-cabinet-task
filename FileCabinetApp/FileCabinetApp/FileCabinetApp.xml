@@ -41,6 +41,18 @@
             </summary>
             <value>minDate.</value>
         </member>
+        <member name="P:FileCabinetApp.CustomValidator.IsOnlyLetterName">
+            <summary>
+            Gets a value indicating whether the name should contain only letter characters or not.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
+        <member name="P:FileCabinetApp.CustomValidator.DateFormat">
+            <summary>
+            Gets a value of the date format.
+            </summary>
+            <value>dateFormat.</value>
+        </member>
         <member name="M:FileCabinetApp.CustomValidator.GetValidPermissions">
             <summary>
             Gets array of valid permissions.
@@ -95,6 +107,18 @@
             Gets minimum possible date.
             </summary>
             <value>minDate.</value>
+        </member>
+        <member name="P:FileCabinetApp.DefaultValidator.IsOnlyLetterName">
+            <summary>
+            Gets a value indicating whether the name should contain only letter characters or not.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
+        <member name="P:FileCabinetApp.DefaultValidator.DateFormat">
+            <summary>
+            Gets a value of the date format.
+            </summary>
+            <value>dateFormat.</value>
         </member>
         <member name="M:FileCabinetApp.DefaultValidator.GetValidPermissions">
             <summary>
@@ -263,6 +287,18 @@
             </summary>
             <value>this.maxNameLength.</value>
         </member>
+        <member name="P:FileCabinetApp.FileCabinetService.IsOnlyLetterName">
+            <summary>
+            Gets a value indicating whether the name should contain only letter characters or not.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetService.DateFormat">
+            <summary>
+            Gets a value of the date format.
+            </summary>
+            <value>dateFormat.</value>
+        </member>
         <member name="P:FileCabinetApp.FileCabinetService.MinDate">
             <summary>
             Gets minimum possible date.
@@ -364,6 +400,18 @@
             </summary>
             <value>this.maxNameLength.</value>
         </member>
+        <member name="P:FileCabinetApp.IFileCabinetService.IsOnlyLetterName">
+            <summary>
+            Gets a value indicating whether the name should contain only letter characters or not.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
+        <member name="P:FileCabinetApp.IFileCabinetService.DateFormat">
+            <summary>
+            Gets a value of the date format.
+            </summary>
+            <value>dateFormat.</value>
+        </member>
         <member name="P:FileCabinetApp.IFileCabinetService.MinDate">
             <summary>
             Gets minimum possible date.
@@ -457,6 +505,18 @@
             Gets minimum possible date.
             </summary>
             <value>minDate.</value>
+        </member>
+        <member name="P:FileCabinetApp.IRecordValidator.IsOnlyLetterName">
+            <summary>
+            Gets a value indicating whether the name should contain only letter characters or not.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
+        <member name="P:FileCabinetApp.IRecordValidator.DateFormat">
+            <summary>
+            Gets a value of the date format.
+            </summary>
+            <value>dateFormat.</value>
         </member>
         <member name="M:FileCabinetApp.IRecordValidator.GetValidPermissions">
             <summary>
