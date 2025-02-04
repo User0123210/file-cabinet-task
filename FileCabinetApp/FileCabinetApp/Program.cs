@@ -18,7 +18,6 @@ namespace FileCabinetApp
         private const int CommandHelpIndex = 0;
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
-        private static readonly FileCabinetCustomService FileCabinetService = new ();
 
         private static readonly Tuple<string, Action<string>>[] Commands = new Tuple<string, Action<string>>[]
         {
@@ -28,6 +27,7 @@ namespace FileCabinetApp
             new ("create", Create),
             new ("list", List),
             new ("edit", Edit),
+            new ("find", Find),
             new ("find", Find),
         };
 
@@ -43,6 +43,8 @@ namespace FileCabinetApp
         };
 
         private static bool isRunning = true;
+        private static string validationRules = "default";
+        private static FileCabinetService fileCabinetService = new FileCabinetDefaultService();
 
         /// <summary>
         /// Runs Console Application.
@@ -51,6 +53,7 @@ namespace FileCabinetApp
         public static void Main(string[] args)
         {
             Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");
+            Console.WriteLine($"Using {validationRules} validation rules.");
             Console.WriteLine(Program.HintMessage);
             Console.WriteLine();
 
@@ -58,13 +61,31 @@ namespace FileCabinetApp
             {
                 Console.Write("> ");
                 var line = Console.ReadLine();
-                var inputs = line != null ? line.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+                var inputs = line != null ? line.Split(new char[] { '=', ' ' }, 2) : new string[] { string.Empty, string.Empty };
                 const int commandIndex = 0;
                 var command = inputs[commandIndex];
 
                 if (string.IsNullOrEmpty(command))
                 {
                     Console.WriteLine(Program.HintMessage);
+                    continue;
+                }
+
+                if (command == "--validation-rules" || command == "-v")
+                {
+                    if (inputs.Length > 1)
+                    {
+                        switch (inputs[commandIndex + 1].ToUpperInvariant())
+                        {
+                            case "DEFAULT":
+                                (fileCabinetService, validationRules) = (fileCabinetService.CopyAsFileCabinetDefaultService(), "default");
+                                break;
+                            case "CUSTOM":
+                                (fileCabinetService, validationRules) = (fileCabinetService.CopyAsFileCabinetCustomService(), "custom");
+                                break;
+                        }
+                    }
+
                     continue;
                 }
 
@@ -124,20 +145,20 @@ namespace FileCabinetApp
 
         private static void Stat(string parameters)
         {
-            var recordsCount = Program.FileCabinetService.GetStat;
+            var recordsCount = Program.fileCabinetService.GetStat;
             Console.WriteLine($"{recordsCount} record(s).");
         }
 
         private static void Create(string parameters)
         {
             FileCabinetRecordParameterObject recordParameters = GetAndValidateRecordData();
-            int recordId = Program.FileCabinetService.CreateRecord(recordParameters);
+            int recordId = Program.fileCabinetService.CreateRecord(recordParameters);
             Console.WriteLine($"Record #{recordId} is created.");
         }
 
         private static void List(string parameters)
         {
-            foreach (var record in Program.FileCabinetService.GetRecords())
+            foreach (var record in Program.fileCabinetService.GetRecords())
             {
                 Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
             }
@@ -156,7 +177,7 @@ namespace FileCabinetApp
                 FileCabinetRecordParameterObject recordParameters = GetAndValidateRecordData();
                 try
                 {
-                    FileCabinetService.EditRecord(recordId, recordParameters);
+                    fileCabinetService.EditRecord(recordId, recordParameters);
                     Console.WriteLine($"Record #{recordId} is updated.");
                 }
                 catch (ArgumentException)
@@ -219,8 +240,8 @@ namespace FileCabinetApp
 
         private static (bool, string) GetAndValidateName(string? name)
         {
-            int minLength = FileCabinetService.MinNameLength;
-            int maxLength = FileCabinetService.MaxNameLength;
+            int minLength = fileCabinetService.MinNameLength;
+            int maxLength = fileCabinetService.MaxNameLength;
             bool isValid = false;
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -255,7 +276,7 @@ namespace FileCabinetApp
         private static (bool, DateTime) GetAndValidateDateOfBirth(string? date)
         {
             bool isValid;
-            DateTime minDate = FileCabinetService.MinDate;
+            DateTime minDate = fileCabinetService.MinDate;
 
             isValid = DateTime.TryParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
 
@@ -283,11 +304,11 @@ namespace FileCabinetApp
                 return (isValid, newPermissions);
             }
 
-            if (FileCabinetService.GetType() == typeof(FileCabinetCustomService))
+            if (fileCabinetService.GetType() == typeof(FileCabinetCustomService))
             {
                 isValid = false;
 
-                foreach (char permission in FileCabinetService.GetValidPermissions())
+                foreach (char permission in fileCabinetService.GetValidPermissions())
                 {
                     if (char.Equals(char.ToLowerInvariant(newPermissions), permission))
                     {
@@ -298,7 +319,7 @@ namespace FileCabinetApp
 
                 if (!isValid)
                 {
-                    Console.WriteLine($"Permissions should be one of {string.Join(", ", FileCabinetService.GetValidPermissions())}.");
+                    Console.WriteLine($"Permissions should be one of {string.Join(", ", fileCabinetService.GetValidPermissions())}.");
                 }
             }
 
@@ -318,11 +339,11 @@ namespace FileCabinetApp
 
                 if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
                 {
-                    found = FileCabinetService.FindByFirstName(value);
+                    found = fileCabinetService.FindByFirstName(value);
                 }
                 else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
                 {
-                    found = FileCabinetService.FindByLastName(value);
+                    found = fileCabinetService.FindByLastName(value);
                 }
                 else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
                 {
@@ -330,7 +351,7 @@ namespace FileCabinetApp
 
                     if (isDate)
                     {
-                        found = FileCabinetService.FindByDateOfBirth(date);
+                        found = fileCabinetService.FindByDateOfBirth(date);
                     }
                 }
 

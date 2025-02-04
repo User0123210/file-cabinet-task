@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace FileCabinetApp
@@ -17,6 +18,31 @@ namespace FileCabinetApp
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
         private readonly Dictionary<int, FileCabinetRecord> recordIdDictionary = new ();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// </summary>
+        protected FileCabinetService()
+        {
+            this.records = new List<FileCabinetRecord>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// </summary>
+        /// <param name="records">Parameter to assign to records list.</param>
+        /// <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
+        /// <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
+        /// <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
+        /// <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
+        protected FileCabinetService(IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
+        {
+            this.records = records.ToList();
+            this.firstNameDictionary = firstNameDictionary;
+            this.lastNameDictionary = lastNameDictionary;
+            this.dateOfBirthDictionary = dateOfBirthDictionary;
+            this.recordIdDictionary = recordIdDictionary;
+        }
 
         /// <summary>
         /// Gets minimal possible length of the name.
@@ -193,6 +219,26 @@ namespace FileCabinetApp
             }
 
             return foundRecords.ToArray();
+        }
+
+        /// <summary>
+        /// Creates a copy of the FileCabinetService as FileCabinetDefaultService.
+        /// </summary>
+        /// <returns>Copy of the FileCabinetService as FileCabinetDefaultService.</returns>
+        public FileCabinetDefaultService CopyAsFileCabinetDefaultService()
+        {
+            FileCabinetDefaultService fileCabinetService = new (this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
+            return fileCabinetService;
+        }
+
+        /// <summary>
+        /// Creates a copy of the FileCabinetService as FileCabinetCustomService.
+        /// </summary>
+        /// <returns>Copy of the FileCabinetService as FileCabinetCustomService.</returns>
+        public FileCabinetCustomService CopyAsFileCabinetCustomService()
+        {
+            FileCabinetCustomService fileCabinetService = new (this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
+            return fileCabinetService;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,27 @@ namespace FileCabinetApp
         private readonly int maxNameLength = 35;
         private readonly DateTime minDate = new (1908, 6, 8);
         private readonly char[] validPermissions = { 'r', 'w', 'x', 'd', 'c', 'm', 'f', 'l', 'a' };
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetCustomService"/> class.
+        /// </summary>
+        public FileCabinetCustomService()
+            : base()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetCustomService"/> class.
+        /// </summary>
+        /// <param name="records">Parameter to assign to records list.</param>
+        /// <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
+        /// <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
+        /// <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
+        /// <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
+        public FileCabinetCustomService(IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
+            : base(records, firstNameDictionary, lastNameDictionary, dateOfBirthDictionary, recordIdDictionary)
+        {
+        }
 
         /// <summary>
         /// Gets minimal possible length of the name.

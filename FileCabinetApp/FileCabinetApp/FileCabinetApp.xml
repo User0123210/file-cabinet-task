@@ -9,6 +9,21 @@
             Manages information about the records in file cabinet with custom parameters validation.
             </summary>
         </member>
+        <member name="M:FileCabinetApp.FileCabinetCustomService.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetCustomService"/> class.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetCustomService.#ctor(System.Collections.Generic.IList{FileCabinetApp.FileCabinetRecord},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.DateTime,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.Int32,FileCabinetApp.FileCabinetRecord})">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetCustomService"/> class.
+            </summary>
+            <param name="records">Parameter to assign to records list.</param>
+            <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
+            <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
+            <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
+            <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
+        </member>
         <member name="P:FileCabinetApp.FileCabinetCustomService.MinNameLength">
             <summary>
             Gets minimal possible length of the name.
@@ -50,6 +65,21 @@
             <summary>
             Manages information about the records in file cabinet with default parameters validation.
             </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetDefaultService.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetDefaultService"/> class.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetDefaultService.#ctor(System.Collections.Generic.IList{FileCabinetApp.FileCabinetRecord},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.DateTime,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.Int32,FileCabinetApp.FileCabinetRecord})">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetDefaultService"/> class.
+            </summary>
+            <param name="records">Parameter to assign to records list.</param>
+            <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
+            <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
+            <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
+            <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
         </member>
         <member name="P:FileCabinetApp.FileCabinetDefaultService.MinNameLength">
             <summary>
@@ -207,6 +237,21 @@
             Manages information about the records in file cabinet.
             </summary>
         </member>
+        <member name="M:FileCabinetApp.FileCabinetService.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetService"/> class.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.#ctor(System.Collections.Generic.IList{FileCabinetApp.FileCabinetRecord},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.DateTime,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.Int32,FileCabinetApp.FileCabinetRecord})">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetService"/> class.
+            </summary>
+            <param name="records">Parameter to assign to records list.</param>
+            <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
+            <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
+            <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
+            <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
+        </member>
         <member name="P:FileCabinetApp.FileCabinetService.MinNameLength">
             <summary>
             Gets minimal possible length of the name.
@@ -292,6 +337,18 @@
             </summary>
             <param name="date">Date of birth of the records to seek.</param>
             <returns>Array of the found records with the specified dateOfBirth.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.CopyAsFileCabinetDefaultService">
+            <summary>
+            Creates a copy of the FileCabinetService as FileCabinetDefaultService.
+            </summary>
+            <returns>Copy of the FileCabinetService as FileCabinetDefaultService.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.CopyAsFileCabinetCustomService">
+            <summary>
+            Creates a copy of the FileCabinetService as FileCabinetCustomService.
+            </summary>
+            <returns>Copy of the FileCabinetService as FileCabinetCustomService.</returns>
         </member>
         <member name="M:FileCabinetApp.FileCabinetService.ValidateParameters(FileCabinetApp.FileCabinetRecordParameterObject)">
             <summary>
