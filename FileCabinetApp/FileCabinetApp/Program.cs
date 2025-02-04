@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -308,7 +309,7 @@ namespace FileCabinetApp
                 return (isValid, newPermissions);
             }
 
-            if (FileCabinetService.GetValidPermissions().Length > 0)
+            if (FileCabinetService.GetValidPermissions().Count > 0)
             {
                 isValid = false;
 
@@ -339,7 +340,7 @@ namespace FileCabinetApp
             if (arguments.Length > 1)
             {
                 var value = arguments[propertyIndex + 1];
-                FileCabinetRecord[] found = Array.Empty<FileCabinetRecord>();
+                ReadOnlyCollection<FileCabinetRecord> found = new (Array.Empty<FileCabinetRecord>());
 
                 if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
                 {

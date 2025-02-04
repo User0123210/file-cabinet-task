@@ -85,7 +85,7 @@ namespace FileCabinetApp
         /// Gets array of valid permissions.
         /// </summary>
         /// <returns>An array of valid permissions.</returns>
-        public char[] GetValidPermissions() => this.validator.GetValidPermissions();
+        public ReadOnlyCollection<char> GetValidPermissions() => this.validator.GetValidPermissions();
 
         /// <summary>
         /// Creates a new record and adds it into the records list.
@@ -129,9 +129,9 @@ namespace FileCabinetApp
         /// Gets copy of the records as record array.
         /// </summary>
         /// <returns>Array of the records.</returns>
-        public FileCabinetRecord[] GetRecords()
+        public ReadOnlyCollection<FileCabinetRecord> GetRecords()
         {
-            return this.records.ToArray();
+            return this.records.AsReadOnly();
         }
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="firstName">First name of the records to seek.</param>
         /// <returns>Array of the found records with the specified firstName.</returns>
-        public FileCabinetRecord[] FindByFirstName(string firstName)
+        public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string firstName)
         {
             List<FileCabinetRecord> foundRecords = new ();
 
@@ -189,7 +189,7 @@ namespace FileCabinetApp
                 foundRecords = this.firstNameDictionary[firstName.ToUpperInvariant()];
             }
 
-            return foundRecords.ToArray();
+            return foundRecords.AsReadOnly();
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="lastName">Last name of the records to seek.</param>
         /// <returns>Array of the found records with the specified lastName.</returns>
-        public FileCabinetRecord[] FindByLastName(string lastName)
+        public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string lastName)
         {
             List<FileCabinetRecord> foundRecords = new ();
 
@@ -206,7 +206,7 @@ namespace FileCabinetApp
                 foundRecords = this.lastNameDictionary[lastName.ToUpperInvariant()];
             }
 
-            return foundRecords.ToArray();
+            return foundRecords.AsReadOnly();
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="date">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public FileCabinetRecord[] FindByDateOfBirth(DateTime date)
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date)
         {
             List<FileCabinetRecord> foundRecords = new ();
 
@@ -223,7 +223,7 @@ namespace FileCabinetApp
                 foundRecords = this.dateOfBirthDictionary[date];
             }
 
-            return foundRecords.ToArray();
+            return foundRecords.AsReadOnly();
         }
 
         /// <summary>

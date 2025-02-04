@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +35,7 @@ namespace FileCabinetApp
         /// Gets array of valid permissions.
         /// </summary>
         /// <returns>An array of valid permissions.</returns>
-        public char[] GetValidPermissions();
+        public ReadOnlyCollection<char> GetValidPermissions();
 
         /// <summary>
         /// Validates record parameters for creation or editing of a new record.
