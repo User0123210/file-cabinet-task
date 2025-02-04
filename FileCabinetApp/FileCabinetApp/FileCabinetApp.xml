@@ -4,6 +4,90 @@
         <name>FileCabinetApp</name>
     </assembly>
     <members>
+        <member name="T:FileCabinetApp.FileCabinetCustomService">
+            <summary>
+            Manages information about the records in file cabinet with custom parameters validation.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetCustomService.MinNameLength">
+            <summary>
+            Gets minimal possible length of the name.
+            </summary>
+            <value>this.minNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetCustomService.MaxNameLength">
+            <summary>
+            Gets maximum possible length of the name.
+            </summary>
+            <value>this.maxNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetCustomService.MinDate">
+            <summary>
+            Gets minimum possible date.
+            </summary>
+            <value>this.minDate.</value>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetCustomService.GetValidPermissions">
+            <summary>
+            Gets array of valid permissions.
+            </summary>
+            <returns>An array of valid permissions.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetCustomService.ValidateParameters(FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Validates record parameters for creation or editing of a new record.
+            </summary>
+            <param name="recordParameters">Parameters of the record to validate.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when record with the specified id isn't found.</exception>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetDefaultService">
+            <summary>
+            Manages information about the records in file cabinet with default parameters validation.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetDefaultService.MinNameLength">
+            <summary>
+            Gets minimal possible length of the name.
+            </summary>
+            <value>this.minNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetDefaultService.MaxNameLength">
+            <summary>
+            Gets maximum possible length of the name.
+            </summary>
+            <value>this.maxNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetDefaultService.MinDate">
+            <summary>
+            Gets minimum possible date.
+            </summary>
+            <value>this.minDate.</value>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetDefaultService.GetValidPermissions">
+            <summary>
+            Gets array of valid permissions.
+            </summary>
+            <returns>An array of valid permissions.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetDefaultService.ValidateParameters(FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Validates record parameters for creation or editing of a new record.
+            </summary>
+            <param name="recordParameters">Parameters of the record to validate.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when record with the specified id isn't found.</exception>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetRecord">
             <summary>
             Represents user's record in the FileCabinet.
@@ -123,18 +207,23 @@
             Manages information about the records in file cabinet.
             </summary>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.#ctor">
+        <member name="P:FileCabinetApp.FileCabinetService.MinNameLength">
             <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetService"/> class.
-            Initializes records with empty list of records.
+            Gets minimal possible length of the name.
             </summary>
+            <value>this.minNameLength.</value>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.#ctor(System.Collections.ObjectModel.Collection{FileCabinetApp.FileCabinetRecord})">
+        <member name="P:FileCabinetApp.FileCabinetService.MaxNameLength">
             <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetService"/> class.
-            Initializes records with the specified list of records.
+            Gets maximum possible length of the name.
             </summary>
-            <param name="records">list of existing records to initialize records field.</param>
+            <value>this.maxNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetService.MinDate">
+            <summary>
+            Gets minimum possible date.
+            </summary>
+            <value>this.minDate.</value>
         </member>
         <member name="P:FileCabinetApp.FileCabinetService.GetStat">
             <summary>
@@ -143,6 +232,12 @@
             <value>
             <records.Count>Information about the number of records in the service.</records.Count>
             </value>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.GetValidPermissions">
+            <summary>
+            Gets array of valid permissions.
+            </summary>
+            <returns>An array of valid permissions.</returns>
         </member>
         <member name="M:FileCabinetApp.FileCabinetService.CreateRecord(FileCabinetApp.FileCabinetRecordParameterObject)">
             <summary>
@@ -197,6 +292,12 @@
             </summary>
             <param name="date">Date of birth of the records to seek.</param>
             <returns>Array of the found records with the specified dateOfBirth.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetService.ValidateParameters(FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Validates record parameters for creation or editing of a new record.
+            </summary>
+            <param name="recordParameters">Parameters to validate.</param>
         </member>
         <member name="T:FileCabinetApp.Program">
             <summary>

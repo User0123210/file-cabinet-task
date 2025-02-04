@@ -10,32 +10,31 @@ namespace FileCabinetApp
     /// <summary>
     /// Manages information about the records in file cabinet.
     /// </summary>
-    public class FileCabinetService
+    public abstract class FileCabinetService
     {
-        private readonly List<FileCabinetRecord> records;
+        private readonly List<FileCabinetRecord> records = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
         private readonly Dictionary<int, FileCabinetRecord> recordIdDictionary = new ();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
-        /// Initializes records with empty list of records.
+        /// Gets minimal possible length of the name.
         /// </summary>
-        public FileCabinetService()
-        {
-            this.records = new List<FileCabinetRecord>();
-        }
+        /// <value>this.minNameLength.</value>
+        public abstract int MinNameLength { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
-        /// Initializes records with the specified list of records.
+        /// Gets maximum possible length of the name.
         /// </summary>
-        /// <param name="records">list of existing records to initialize records field.</param>
-        public FileCabinetService(Collection<FileCabinetRecord> records)
-        {
-            this.records = records.ToList();
-        }
+        /// <value>this.maxNameLength.</value>
+        public abstract int MaxNameLength { get; }
+
+        /// <summary>
+        /// Gets minimum possible date.
+        /// </summary>
+        /// <value>this.minDate.</value>
+        public abstract DateTime MinDate { get; }
 
         /// <summary>
         /// Gets information about the number of records in the service.
@@ -52,6 +51,12 @@ namespace FileCabinetApp
         }
 
         /// <summary>
+        /// Gets array of valid permissions.
+        /// </summary>
+        /// <returns>An array of valid permissions.</returns>
+        public abstract char[] GetValidPermissions();
+
+        /// <summary>
         /// Creates a new record and adds it into the records list.
         /// </summary>
         /// <param name="recordParameters">Parameters of the record to change.</param>
@@ -64,7 +69,9 @@ namespace FileCabinetApp
         /// <returns>Id of the created record.</returns>
         public int CreateRecord(FileCabinetRecordParameterObject recordParameters)
         {
-            ValidateParameters(recordParameters);
+            this.ValidateParameters(recordParameters);
+
+            ArgumentNullException.ThrowIfNull(recordParameters);
 
             var record = new FileCabinetRecord
             {
@@ -110,10 +117,10 @@ namespace FileCabinetApp
         /// <exception cref="ArgumentException">Thrown when record with the specified id isn't found.</exception>
         public void EditRecord(int id, FileCabinetRecordParameterObject recordParameters)
         {
-            ValidateParameters(recordParameters);
+            this.ValidateParameters(recordParameters);
             bool isExistent = this.recordIdDictionary.ContainsKey(id);
 
-            if (isExistent)
+            if (isExistent && recordParameters is not null)
             {
                 FileCabinetRecord record = this.recordIdDictionary[id];
                 this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Remove(record);
@@ -188,48 +195,11 @@ namespace FileCabinetApp
             return foundRecords.ToArray();
         }
 
-        private static void ValidateParameters(FileCabinetRecordParameterObject? recordParameters)
-        {
-            int minLength = 2;
-            int maxLength = 60;
-
-            ArgumentNullException.ThrowIfNull(recordParameters);
-            ArgumentNullException.ThrowIfNull(recordParameters.FirstName);
-
-            if (string.IsNullOrWhiteSpace(recordParameters.FirstName))
-            {
-                throw new ArgumentException("First name shouldn't be empty or whitespace", nameof(recordParameters));
-            }
-
-            if (recordParameters.FirstName.Length < minLength || recordParameters.FirstName.Length > maxLength)
-            {
-                throw new ArgumentException($"First name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(recordParameters));
-            }
-
-            ArgumentNullException.ThrowIfNull(recordParameters.LastName);
-
-            if (string.IsNullOrWhiteSpace(recordParameters.LastName))
-            {
-                throw new ArgumentException("Last name shouldn't be empty or whitespace", nameof(recordParameters));
-            }
-
-            if (recordParameters.LastName.Length < minLength || recordParameters.LastName.Length > maxLength)
-            {
-                throw new ArgumentException($"Last name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(recordParameters));
-            }
-
-            DateTime minDate = DateTime.ParseExact("01-01-1950", "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
-
-            if (recordParameters.DateOfBirth < minDate || recordParameters.DateOfBirth > DateTime.Now)
-            {
-                throw new ArgumentException($"Date of birth shouldn't be less than {minDate} or more than current date.", nameof(recordParameters));
-            }
-
-            if (recordParameters.Salary < 0)
-            {
-                throw new ArgumentException("Salary value shouldn't be less than 0", nameof(recordParameters));
-            }
-        }
+        /// <summary>
+        /// Validates record parameters for creation or editing of a new record.
+        /// </summary>
+        /// <param name="recordParameters">Parameters to validate.</param>
+        protected abstract void ValidateParameters(FileCabinetRecordParameterObject? recordParameters);
 
         private static void AddToDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord record)
             where T : notnull

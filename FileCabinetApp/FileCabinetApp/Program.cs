@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 
@@ -17,7 +18,7 @@ namespace FileCabinetApp
         private const int CommandHelpIndex = 0;
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
-        private static readonly FileCabinetService FileCabinetService = new ();
+        private static readonly FileCabinetCustomService FileCabinetService = new ();
 
         private static readonly Tuple<string, Action<string>>[] Commands = new Tuple<string, Action<string>>[]
         {
@@ -155,7 +156,7 @@ namespace FileCabinetApp
                 FileCabinetRecordParameterObject recordParameters = GetAndValidateRecordData();
                 try
                 {
-                    Program.FileCabinetService.EditRecord(recordId, recordParameters);
+                    FileCabinetService.EditRecord(recordId, recordParameters);
                     Console.WriteLine($"Record #{recordId} is updated.");
                 }
                 catch (ArgumentException)
@@ -196,17 +197,7 @@ namespace FileCabinetApp
                 return (isValid, newSalary);
             });
 
-            char permissions = GetParameterInput("Permissions", (string? parameterInput) =>
-            {
-                bool isValid = char.TryParse(parameterInput, out char newPermissions);
-
-                if (!isValid)
-                {
-                    Console.WriteLine("Please, enter valid character.");
-                }
-
-                return (isValid, newPermissions);
-            });
+            char permissions = GetParameterInput("Permissions", GetAndValidatePermissions);
 
             return new FileCabinetRecordParameterObject() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
         }
@@ -228,8 +219,8 @@ namespace FileCabinetApp
 
         private static (bool, string) GetAndValidateName(string? name)
         {
-            int minLength = 2;
-            int maxLength = 60;
+            int minLength = FileCabinetService.MinNameLength;
+            int maxLength = FileCabinetService.MaxNameLength;
             bool isValid = false;
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -249,13 +240,22 @@ namespace FileCabinetApp
                 Console.WriteLine($"Name shouldn't be empty or whitespace");
             }
 
+            foreach (char character in name)
+            {
+                if (!char.IsLetter(character))
+                {
+                    isValid = false;
+                    Console.WriteLine("Name should contain only letters.");
+                }
+            }
+
             return (isValid, name);
         }
 
         private static (bool, DateTime) GetAndValidateDateOfBirth(string? date)
         {
             bool isValid;
-            DateTime minDate = DateTime.ParseExact("01-01-1950", "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
+            DateTime minDate = FileCabinetService.MinDate;
 
             isValid = DateTime.TryParseExact(date, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
 
@@ -271,6 +271,38 @@ namespace FileCabinetApp
             }
 
             return (isValid, dateOfBirth);
+        }
+
+        private static (bool, char) GetAndValidatePermissions(string? permissions)
+        {
+            bool isValid = char.TryParse(permissions, out char newPermissions);
+
+            if (!isValid)
+            {
+                Console.WriteLine("Please, enter valid character.");
+                return (isValid, newPermissions);
+            }
+
+            if (FileCabinetService.GetType() == typeof(FileCabinetCustomService))
+            {
+                isValid = false;
+
+                foreach (char permission in FileCabinetService.GetValidPermissions())
+                {
+                    if (char.Equals(char.ToLowerInvariant(newPermissions), permission))
+                    {
+                        isValid = true;
+                        break;
+                    }
+                }
+
+                if (!isValid)
+                {
+                    Console.WriteLine($"Permissions should be one of {string.Join(", ", FileCabinetService.GetValidPermissions())}.");
+                }
+            }
+
+            return (isValid, newPermissions);
         }
 
         private static void Find(string parameters)
