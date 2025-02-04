@@ -109,5 +109,11 @@ namespace FileCabinetApp
         /// Creates a copy of the FileCabinetService as FileCabinetCustomService.
         /// </summary>
         public void ChangeValidatorToDefault();
+
+        /// <summary>
+        /// Makes snapshot of the IFileCabinetService with the copy of the records.
+        /// </summary>
+        /// <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
+        public FileCabinetServiceSnapshot MakeSnapshot();
     }
 }
