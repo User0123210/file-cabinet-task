@@ -84,6 +84,8 @@ namespace FileCabinetApp
                                 (fileCabinetService, validationRules) = (fileCabinetService.CopyAsFileCabinetCustomService(), "custom");
                                 break;
                         }
+
+                        Console.WriteLine($"Using {validationRules} validation rules.");
                     }
 
                     continue;

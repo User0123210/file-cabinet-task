@@ -18,49 +18,54 @@ namespace FileCabinetApp
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
         private readonly Dictionary<int, FileCabinetRecord> recordIdDictionary = new ();
+        private readonly IRecordValidator validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
         /// </summary>
-        protected FileCabinetService()
+        /// <param name="validator">Parameter of validator to use.</param>
+        protected FileCabinetService(IRecordValidator validator)
         {
             this.records = new List<FileCabinetRecord>();
+            this.validator = validator;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
         /// </summary>
+        /// <param name="validator">Parameter of validator to use.</param>
         /// <param name="records">Parameter to assign to records list.</param>
         /// <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
         /// <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
         /// <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
         /// <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
-        protected FileCabinetService(IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
+        protected FileCabinetService(IRecordValidator validator, IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
         {
             this.records = records.ToList();
             this.firstNameDictionary = firstNameDictionary;
             this.lastNameDictionary = lastNameDictionary;
             this.dateOfBirthDictionary = dateOfBirthDictionary;
             this.recordIdDictionary = recordIdDictionary;
+            this.validator = validator;
         }
 
         /// <summary>
         /// Gets minimal possible length of the name.
         /// </summary>
         /// <value>this.minNameLength.</value>
-        public abstract int MinNameLength { get; }
+        public int MinNameLength { get => this.validator.MinNameLength; }
 
         /// <summary>
         /// Gets maximum possible length of the name.
         /// </summary>
         /// <value>this.maxNameLength.</value>
-        public abstract int MaxNameLength { get; }
+        public int MaxNameLength { get => this.validator.MaxNameLength; }
 
         /// <summary>
         /// Gets minimum possible date.
         /// </summary>
         /// <value>this.minDate.</value>
-        public abstract DateTime MinDate { get; }
+        public DateTime MinDate { get => this.validator.MinDate; }
 
         /// <summary>
         /// Gets information about the number of records in the service.
@@ -80,7 +85,7 @@ namespace FileCabinetApp
         /// Gets array of valid permissions.
         /// </summary>
         /// <returns>An array of valid permissions.</returns>
-        public abstract char[] GetValidPermissions();
+        public char[] GetValidPermissions() => this.validator.GetValidPermissions();
 
         /// <summary>
         /// Creates a new record and adds it into the records list.
@@ -95,7 +100,7 @@ namespace FileCabinetApp
         /// <returns>Id of the created record.</returns>
         public int CreateRecord(FileCabinetRecordParameterObject recordParameters)
         {
-            this.ValidateParameters(recordParameters);
+            this.validator.ValidateParameters(recordParameters);
 
             ArgumentNullException.ThrowIfNull(recordParameters);
 
@@ -143,7 +148,7 @@ namespace FileCabinetApp
         /// <exception cref="ArgumentException">Thrown when record with the specified id isn't found.</exception>
         public void EditRecord(int id, FileCabinetRecordParameterObject recordParameters)
         {
-            this.ValidateParameters(recordParameters);
+            this.validator.ValidateParameters(recordParameters);
             bool isExistent = this.recordIdDictionary.ContainsKey(id);
 
             if (isExistent && recordParameters is not null)
@@ -227,7 +232,7 @@ namespace FileCabinetApp
         /// <returns>Copy of the FileCabinetService as FileCabinetDefaultService.</returns>
         public FileCabinetDefaultService CopyAsFileCabinetDefaultService()
         {
-            FileCabinetDefaultService fileCabinetService = new (this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
+            FileCabinetDefaultService fileCabinetService = new (new DefaultValidator(), this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
             return fileCabinetService;
         }
 
@@ -237,15 +242,9 @@ namespace FileCabinetApp
         /// <returns>Copy of the FileCabinetService as FileCabinetCustomService.</returns>
         public FileCabinetCustomService CopyAsFileCabinetCustomService()
         {
-            FileCabinetCustomService fileCabinetService = new (this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
+            FileCabinetCustomService fileCabinetService = new (new CustomValidator(), this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
             return fileCabinetService;
         }
-
-        /// <summary>
-        /// Validates record parameters for creation or editing of a new record.
-        /// </summary>
-        /// <param name="recordParameters">Parameters to validate.</param>
-        protected abstract void ValidateParameters(FileCabinetRecordParameterObject? recordParameters);
 
         private static void AddToDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord record)
             where T : notnull
