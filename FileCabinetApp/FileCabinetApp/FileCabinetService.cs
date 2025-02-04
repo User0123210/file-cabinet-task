@@ -11,20 +11,20 @@ namespace FileCabinetApp
     /// <summary>
     /// Manages information about the records in file cabinet.
     /// </summary>
-    public abstract class FileCabinetService
+    public class FileCabinetService
     {
         private readonly List<FileCabinetRecord> records = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new ();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
         private readonly Dictionary<int, FileCabinetRecord> recordIdDictionary = new ();
-        private readonly IRecordValidator validator;
+        private IRecordValidator validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
         /// </summary>
         /// <param name="validator">Parameter of validator to use.</param>
-        protected FileCabinetService(IRecordValidator validator)
+        public FileCabinetService(IRecordValidator validator)
         {
             this.records = new List<FileCabinetRecord>();
             this.validator = validator;
@@ -39,7 +39,7 @@ namespace FileCabinetApp
         /// <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
         /// <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
         /// <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
-        protected FileCabinetService(IRecordValidator validator, IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
+        public FileCabinetService(IRecordValidator validator, IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
         {
             this.records = records.ToList();
             this.firstNameDictionary = firstNameDictionary;
@@ -229,21 +229,17 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a copy of the FileCabinetService as FileCabinetDefaultService.
         /// </summary>
-        /// <returns>Copy of the FileCabinetService as FileCabinetDefaultService.</returns>
-        public FileCabinetDefaultService CopyAsFileCabinetDefaultService()
+        public void ChangeValidatorToCustom()
         {
-            FileCabinetDefaultService fileCabinetService = new (new DefaultValidator(), this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
-            return fileCabinetService;
+            this.validator = new CustomValidator();
         }
 
         /// <summary>
         /// Creates a copy of the FileCabinetService as FileCabinetCustomService.
         /// </summary>
-        /// <returns>Copy of the FileCabinetService as FileCabinetCustomService.</returns>
-        public FileCabinetCustomService CopyAsFileCabinetCustomService()
+        public void ChangeValidatorToDefault()
         {
-            FileCabinetCustomService fileCabinetService = new (new CustomValidator(), this.records, this.firstNameDictionary, this.lastNameDictionary, this.dateOfBirthDictionary, this.recordIdDictionary);
-            return fileCabinetService;
+            this.validator = new DefaultValidator();
         }
 
         private static void AddToDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord record)

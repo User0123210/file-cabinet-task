@@ -115,60 +115,6 @@
             <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
             <exception cref="T:System.ArgumentException">Thrown when record with the specified id isn't found.</exception>
         </member>
-        <member name="T:FileCabinetApp.FileCabinetCustomService">
-            <summary>
-            Manages information about the records in file cabinet with custom parameters validation.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetCustomService.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetCustomService"/> class.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetCustomService.#ctor(FileCabinetApp.IRecordValidator)">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetCustomService"/> class.
-            </summary>
-            <param name="validator">Parameter of validator to use.</param>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetCustomService.#ctor(FileCabinetApp.IRecordValidator,System.Collections.Generic.IList{FileCabinetApp.FileCabinetRecord},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.DateTime,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.Int32,FileCabinetApp.FileCabinetRecord})">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetCustomService"/> class.
-            </summary>
-            <param name="validator">Parameter of validator to use.</param>
-            <param name="records">Parameter to assign to records list.</param>
-            <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
-            <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
-            <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
-            <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
-        </member>
-        <member name="T:FileCabinetApp.FileCabinetDefaultService">
-            <summary>
-            Manages information about the records in file cabinet with default parameters validation.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetDefaultService.#ctor">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetDefaultService"/> class.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetDefaultService.#ctor(FileCabinetApp.IRecordValidator)">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetDefaultService"/> class.
-            </summary>
-            <param name="validator">Parameter of validator to use.</param>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetDefaultService.#ctor(FileCabinetApp.IRecordValidator,System.Collections.Generic.IList{FileCabinetApp.FileCabinetRecord},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.DateTime,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.Int32,FileCabinetApp.FileCabinetRecord})">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetDefaultService"/> class.
-            </summary>
-            <param name="validator">Parameter of validator to use.</param>
-            <param name="records">Parameter to assign to records list.</param>
-            <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
-            <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
-            <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
-            <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
-        </member>
         <member name="T:FileCabinetApp.FileCabinetRecord">
             <summary>
             Represents user's record in the FileCabinet.
@@ -391,17 +337,15 @@
             <param name="date">Date of birth of the records to seek.</param>
             <returns>Array of the found records with the specified dateOfBirth.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.CopyAsFileCabinetDefaultService">
+        <member name="M:FileCabinetApp.FileCabinetService.ChangeValidatorToCustom">
             <summary>
             Creates a copy of the FileCabinetService as FileCabinetDefaultService.
             </summary>
-            <returns>Copy of the FileCabinetService as FileCabinetDefaultService.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.CopyAsFileCabinetCustomService">
+        <member name="M:FileCabinetApp.FileCabinetService.ChangeValidatorToDefault">
             <summary>
             Creates a copy of the FileCabinetService as FileCabinetCustomService.
             </summary>
-            <returns>Copy of the FileCabinetService as FileCabinetCustomService.</returns>
         </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>
