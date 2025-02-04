@@ -200,6 +200,23 @@
             <Permissions>Permissions in the record.</Permissions>
             </value>
         </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordCsvWriter">
+            <summary>
+            Represents csv writer class for the file cabinet records.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvWriter.#ctor(System.IO.TextWriter)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetRecordCsvWriter"/> class.
+            </summary>
+            <param name="writer">Writer with which data should be written.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvWriter.Write(FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Writes record to the specified writer.
+            </summary>
+            <param name="record">Record to write.</param>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetRecordParameterObject">
             <summary>
             Represents parameter object of the record.
@@ -252,6 +269,23 @@
             <value>
             <Permissions>Permissions in the record.</Permissions>
             </value>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordXmlWriter">
+            <summary>
+            Represents xml writer class for the file cabinet records.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlWriter.#ctor(System.Xml.XmlWriter)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetRecordXmlWriter"/> class.
+            </summary>
+            <param name="writer">Writer with which data should be written.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlWriter.Write(FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Writes record to the specified writer.
+            </summary>
+            <param name="record">Record to write.</param>
         </member>
         <member name="T:FileCabinetApp.FileCabinetService">
             <summary>
@@ -383,6 +417,35 @@
             Creates a copy of the FileCabinetService as FileCabinetCustomService.
             </summary>
         </member>
+        <member name="M:FileCabinetApp.FileCabinetService.MakeSnapshot">
+            <summary>
+            Makes snapshot of the FileCabinetService with the copy of the records.
+            </summary>
+            <returns>FileCabinetServiceSnapshot of the current FileCabinetService instance.</returns>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetServiceSnapshot">
+            <summary>
+            Represent snapshot of the IFileCabinetService.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.#ctor(System.Collections.Generic.IReadOnlyCollection{FileCabinetApp.FileCabinetRecord})">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetServiceSnapshot"/> class.
+            </summary>
+            <param name="records">Records of the snapshotted IFileCabinetService instance.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.SaveToCsv(System.IO.StreamWriter)">
+            <summary>
+            Saves records of the snapshot into the specified csv file.
+            </summary>
+            <param name="writer">Writer to write the data.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.SaveToXml(System.IO.StreamWriter)">
+            <summary>
+            Saves records of the snapshot into the specified xml file.
+            </summary>
+            <param name="writer">Writer to write the data.</param>
+        </member>
         <member name="T:FileCabinetApp.IFileCabinetService">
             <summary>
             Provides basic structure and methods of the file cabinet.
@@ -482,6 +545,12 @@
             <summary>
             Creates a copy of the FileCabinetService as FileCabinetCustomService.
             </summary>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.MakeSnapshot">
+            <summary>
+            Makes snapshot of the IFileCabinetService with the copy of the records.
+            </summary>
+            <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
         </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>

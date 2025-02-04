@@ -2,11 +2,13 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 
 #pragma warning disable IDE0060
+#pragma warning disable CA1031
 
 namespace FileCabinetApp
 {
@@ -32,6 +34,7 @@ namespace FileCabinetApp
             new ("edit", Edit),
             new ("find", Find),
             new ("find", Find),
+            new ("export", Export),
         };
 
         private static readonly string[][] HelpMessages = new string[][]
@@ -43,6 +46,7 @@ namespace FileCabinetApp
             new string[] { "list", "returns list of records from service", "The 'list' command returns list of records from service." },
             new string[] { "edit", "edits record with the specified id", "The 'edit' command edits record with the specified id." },
             new string[] { "find", "finds records based on the specified property value", "The 'find' command finds record based on the specified property value." },
+            new string[] { "export", "exports data from the service into the specified format", "The 'export' command exports data from the service into the specified format." },
         };
 
         private static bool isRunning = true;
@@ -378,6 +382,38 @@ namespace FileCabinetApp
                 foreach (var record in found)
                 {
                     Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                }
+            }
+        }
+
+        private static void Export(string parameters)
+        {
+            string[] arguments = parameters is not null ? parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+            const int propertyIndex = 0;
+            var sourceName = arguments[propertyIndex];
+
+            if (arguments.Length > 1)
+            {
+                var destination = arguments[propertyIndex + 1];
+
+                try
+                {
+                    Stream stream = File.OpenWrite(destination);
+                    using StreamWriter writer = new (stream);
+                    FileCabinetServiceSnapshot snapshot = FileCabinetService.MakeSnapshot();
+
+                    if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
+                    {
+                        snapshot.SaveToCsv(writer);
+                    }
+                    else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        snapshot.SaveToXml(writer);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occured: {ex.Message}");
                 }
             }
         }

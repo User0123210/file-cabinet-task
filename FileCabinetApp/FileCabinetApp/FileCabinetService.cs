@@ -254,6 +254,15 @@ namespace FileCabinetApp
             this.validator = new DefaultValidator();
         }
 
+        /// <summary>
+        /// Makes snapshot of the FileCabinetService with the copy of the records.
+        /// </summary>
+        /// <returns>FileCabinetServiceSnapshot of the current FileCabinetService instance.</returns>
+        public FileCabinetServiceSnapshot MakeSnapshot()
+        {
+            return new FileCabinetServiceSnapshot(this.records);
+        }
+
         private static void AddToDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord record)
             where T : notnull
         {
