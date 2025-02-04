@@ -54,38 +54,34 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a new record and adds it into the records list.
         /// </summary>
-        /// <param name="firstName">First name of the user.</param>
-        /// <param name="lastName">Last name of the user.</param>
-        /// <param name="dateOfBirth">User's date of birth.</param>
-        /// <param name="status">Numerical representation of the user's status.</param>
-        /// <param name="salary">Decimal representation of the user's salary.</param>
-        /// <param name="permissions">Character representation of permissions, granted to the user.</param>
+        /// <param name="recordParameters">Parameters of the record to change.</param>
+        /// <exception cref="ArgumentNullException">Thrown when recordParameters are null.</exception>
         /// <exception cref="ArgumentNullException">Thrown when firstName or lastName is null.</exception>
         /// <exception cref="ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
         /// <exception cref="ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
         /// <exception cref="ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
         /// <exception cref="ArgumentException">Thrown when salary less than 0.</exception>
         /// <returns>Id of the created record.</returns>
-        public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
+        public int CreateRecord(FileCabinetRecordParameterObject recordParameters)
         {
-            ValidateParameters(firstName, lastName, dateOfBirth, status, salary, permissions);
+            ValidateParameters(recordParameters);
 
             var record = new FileCabinetRecord
             {
                 Id = this.records.Count + 1,
-                FirstName = firstName,
-                LastName = lastName,
-                DateOfBirth = dateOfBirth,
-                Status = status,
-                Salary = salary,
-                Permissions = permissions,
+                FirstName = recordParameters.FirstName,
+                LastName = recordParameters.LastName,
+                DateOfBirth = recordParameters.DateOfBirth,
+                Status = recordParameters.Status,
+                Salary = recordParameters.Salary,
+                Permissions = recordParameters.Permissions,
             };
 
             this.recordIdDictionary.Add(record.Id, record);
 
-            AddToDictionary(this.firstNameDictionary, firstName.ToUpperInvariant(), record);
-            AddToDictionary(this.lastNameDictionary, lastName.ToUpperInvariant(), record);
-            AddToDictionary(this.dateOfBirthDictionary, dateOfBirth, record);
+            AddToDictionary(this.firstNameDictionary, recordParameters.FirstName.ToUpperInvariant(), record);
+            AddToDictionary(this.lastNameDictionary, recordParameters.LastName.ToUpperInvariant(), record);
+            AddToDictionary(this.dateOfBirthDictionary, recordParameters.DateOfBirth, record);
             this.records.Add(record);
 
             return record.Id;
@@ -104,21 +100,17 @@ namespace FileCabinetApp
         /// Edits the existing record with the specified id.
         /// </summary>
         /// <param name="id">Id of the record to edit.</param>
-        /// <param name="firstName">First name of the user.</param>
-        /// <param name="lastName">Last name of the user.</param>
-        /// <param name="dateOfBirth">User's date of birth.</param>
-        /// <param name="status">Numerical representation of the user's status.</param>
-        /// <param name="salary">Decimal representation of the user's salary.</param>
-        /// <param name="permissions">Character representation of permissions, granted to the user.</param>
+        /// <param name="recordParameters">Parameters of the record to change.</param>
+        /// <exception cref="ArgumentNullException">Thrown when recordParameters are null.</exception>
         /// <exception cref="ArgumentNullException">Thrown when firstName or lastName is null.</exception>
         /// <exception cref="ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
         /// <exception cref="ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
         /// <exception cref="ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
         /// <exception cref="ArgumentException">Thrown when salary less than 0.</exception>
         /// <exception cref="ArgumentException">Thrown when record with the specified id isn't found.</exception>
-        public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
+        public void EditRecord(int id, FileCabinetRecordParameterObject recordParameters)
         {
-            ValidateParameters(firstName, lastName, dateOfBirth, status, salary, permissions);
+            ValidateParameters(recordParameters);
             bool isExistent = this.recordIdDictionary.ContainsKey(id);
 
             if (isExistent)
@@ -128,20 +120,20 @@ namespace FileCabinetApp
                 this.lastNameDictionary[record.LastName.ToUpperInvariant()].Remove(record);
                 this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
 
-                record.FirstName = firstName;
-                record.LastName = lastName;
-                record.DateOfBirth = dateOfBirth;
-                record.Status = status;
-                record.Salary = salary;
-                record.Permissions = permissions;
+                record.FirstName = recordParameters.FirstName;
+                record.LastName = recordParameters.LastName;
+                record.DateOfBirth = recordParameters.DateOfBirth;
+                record.Status = recordParameters.Status;
+                record.Salary = recordParameters.Salary;
+                record.Permissions = recordParameters.Permissions;
 
-                AddToDictionary(this.firstNameDictionary, firstName.ToUpperInvariant(), record);
-                AddToDictionary(this.lastNameDictionary, lastName.ToUpperInvariant(), record);
-                AddToDictionary(this.dateOfBirthDictionary, dateOfBirth, record);
+                AddToDictionary(this.firstNameDictionary, recordParameters.FirstName.ToUpperInvariant(), record);
+                AddToDictionary(this.lastNameDictionary, recordParameters.LastName.ToUpperInvariant(), record);
+                AddToDictionary(this.dateOfBirthDictionary, recordParameters.DateOfBirth, record);
             }
             else
             {
-                throw new ArgumentException("Record with the specified id doesn't exist.");
+                throw new ArgumentException("Record with the specified id doesn't exist.", nameof(id));
             }
         }
 
@@ -196,48 +188,47 @@ namespace FileCabinetApp
             return foundRecords.ToArray();
         }
 
-        private static (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) ValidateParameters(string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions)
+        private static void ValidateParameters(FileCabinetRecordParameterObject? recordParameters)
         {
             int minLength = 2;
             int maxLength = 60;
 
-            ArgumentNullException.ThrowIfNull(firstName);
+            ArgumentNullException.ThrowIfNull(recordParameters);
+            ArgumentNullException.ThrowIfNull(recordParameters.FirstName);
 
-            if (string.IsNullOrWhiteSpace(firstName))
+            if (string.IsNullOrWhiteSpace(recordParameters.FirstName))
             {
-                throw new ArgumentException("First name shouldn't be empty or whitespace", nameof(firstName));
+                throw new ArgumentException("First name shouldn't be empty or whitespace", nameof(recordParameters));
             }
 
-            if (firstName.Length < minLength || firstName.Length > maxLength)
+            if (recordParameters.FirstName.Length < minLength || recordParameters.FirstName.Length > maxLength)
             {
-                throw new ArgumentException($"First name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(firstName));
+                throw new ArgumentException($"First name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(recordParameters));
             }
 
-            ArgumentNullException.ThrowIfNull(lastName);
+            ArgumentNullException.ThrowIfNull(recordParameters.LastName);
 
-            if (string.IsNullOrWhiteSpace(lastName))
+            if (string.IsNullOrWhiteSpace(recordParameters.LastName))
             {
-                throw new ArgumentException("Last name shouldn't be empty or whitespace", nameof(lastName));
+                throw new ArgumentException("Last name shouldn't be empty or whitespace", nameof(recordParameters));
             }
 
-            if (lastName.Length < minLength || lastName.Length > maxLength)
+            if (recordParameters.LastName.Length < minLength || recordParameters.LastName.Length > maxLength)
             {
-                throw new ArgumentException($"Last name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(lastName));
+                throw new ArgumentException($"Last name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(recordParameters));
             }
 
             DateTime minDate = DateTime.ParseExact("01-01-1950", "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
 
-            if (dateOfBirth < minDate || dateOfBirth > DateTime.Now)
+            if (recordParameters.DateOfBirth < minDate || recordParameters.DateOfBirth > DateTime.Now)
             {
-                throw new ArgumentException($"Date of birth shouldn't be less than {minDate} or more than current date.", nameof(dateOfBirth));
+                throw new ArgumentException($"Date of birth shouldn't be less than {minDate} or more than current date.", nameof(recordParameters));
             }
 
-            if (salary < 0)
+            if (recordParameters.Salary < 0)
             {
-                throw new ArgumentException("Salary value shouldn't be less than 0", nameof(salary));
+                throw new ArgumentException("Salary value shouldn't be less than 0", nameof(recordParameters));
             }
-
-            return (firstName, lastName, dateOfBirth, status, salary, permissions);
         }
 
         private static void AddToDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord record)

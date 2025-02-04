@@ -65,6 +65,59 @@
             <Permissions>Permissions in the record.</Permissions>
             </value>
         </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordParameterObject">
+            <summary>
+            Represents parameter object of the record.
+            </summary>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordParameterObject.FirstName">
+            <summary>
+            Gets user's FirstName.
+            </summary>
+            <value>
+            <FirstName>First name in the record.</FirstName>
+            </value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordParameterObject.LastName">
+            <summary>
+            Gets user's LastName.
+            </summary>
+            <value>
+            <LastName>Last name in the record.</LastName>
+            </value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordParameterObject.DateOfBirth">
+            <summary>
+            Gets user's DateOfBirth.
+            </summary>
+            <value>
+            <DateOfBirth>Date of birth in the record.</DateOfBirth>
+            </value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordParameterObject.Status">
+            <summary>
+            Gets user's Status.
+            </summary>
+            <value>
+            <Status>Status in the record.</Status>
+            </value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordParameterObject.Salary">
+            <summary>
+            Gets user's Salary.
+            </summary>
+            <value>
+            <Salary>Salary in the record.</Salary>
+            </value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetRecordParameterObject.Permissions">
+            <summary>
+            Gets user's Permissions.
+            </summary>
+            <value>
+            <Permissions>Permissions in the record.</Permissions>
+            </value>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetService">
             <summary>
             Manages information about the records in file cabinet.
@@ -91,16 +144,12 @@
             <records.Count>Information about the number of records in the service.</records.Count>
             </value>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.CreateRecord(System.String,System.String,System.DateTime,System.Int16,System.Decimal,System.Char)">
+        <member name="M:FileCabinetApp.FileCabinetService.CreateRecord(FileCabinetApp.FileCabinetRecordParameterObject)">
             <summary>
             Creates a new record and adds it into the records list.
             </summary>
-            <param name="firstName">First name of the user.</param>
-            <param name="lastName">Last name of the user.</param>
-            <param name="dateOfBirth">User's date of birth.</param>
-            <param name="status">Numerical representation of the user's status.</param>
-            <param name="salary">Decimal representation of the user's salary.</param>
-            <param name="permissions">Character representation of permissions, granted to the user.</param>
+            <param name="recordParameters">Parameters of the record to change.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
             <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
             <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
             <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
@@ -114,17 +163,13 @@
             </summary>
             <returns>Array of the records.</returns>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetService.EditRecord(System.Int32,System.String,System.String,System.DateTime,System.Int16,System.Decimal,System.Char)">
+        <member name="M:FileCabinetApp.FileCabinetService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordParameterObject)">
             <summary>
             Edits the existing record with the specified id.
             </summary>
             <param name="id">Id of the record to edit.</param>
-            <param name="firstName">First name of the user.</param>
-            <param name="lastName">Last name of the user.</param>
-            <param name="dateOfBirth">User's date of birth.</param>
-            <param name="status">Numerical representation of the user's status.</param>
-            <param name="salary">Decimal representation of the user's salary.</param>
-            <param name="permissions">Character representation of permissions, granted to the user.</param>
+            <param name="recordParameters">Parameters of the record to change.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
             <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
             <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
             <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>

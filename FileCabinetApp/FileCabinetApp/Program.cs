@@ -129,8 +129,8 @@ namespace FileCabinetApp
 
         private static void Create(string parameters)
         {
-            (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) = GetAndValidateRecordData();
-            int recordId = Program.FileCabinetService.CreateRecord(firstName, lastName, dateOfBirth, status, salary, permissions);
+            FileCabinetRecordParameterObject recordParameters = GetAndValidateRecordData();
+            int recordId = Program.FileCabinetService.CreateRecord(recordParameters);
             Console.WriteLine($"Record #{recordId} is created.");
         }
 
@@ -152,10 +152,10 @@ namespace FileCabinetApp
             }
             else
             {
-                (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) = GetAndValidateRecordData();
+                FileCabinetRecordParameterObject recordParameters = GetAndValidateRecordData();
                 try
                 {
-                    Program.FileCabinetService.EditRecord(recordId, firstName, lastName, dateOfBirth, status, salary, permissions);
+                    Program.FileCabinetService.EditRecord(recordId, recordParameters);
                     Console.WriteLine($"Record #{recordId} is updated.");
                 }
                 catch (ArgumentException)
@@ -165,7 +165,7 @@ namespace FileCabinetApp
             }
         }
 
-        private static (string firstName, string lastName, DateTime dateOfBirth, short status, decimal salary, char permissions) GetAndValidateRecordData()
+        private static FileCabinetRecordParameterObject GetAndValidateRecordData()
         {
             string firstName = GetParameterInput("First name", GetAndValidateName);
             string lastName = GetParameterInput("Last name", GetAndValidateName);
@@ -208,7 +208,7 @@ namespace FileCabinetApp
                 return (isValid, newPermissions);
             });
 
-            return (firstName, lastName, dateOfBirth, status, salary, permissions);
+            return new FileCabinetRecordParameterObject() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
         }
 
         private static T GetParameterInput<T>(string parametersName, Func<string?, (bool, T)> validatorFunction)
