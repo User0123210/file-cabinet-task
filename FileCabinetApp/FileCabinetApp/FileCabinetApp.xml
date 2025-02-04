@@ -144,6 +144,11 @@
             Represent file cabinet service for work with filesytem.
             </summary>
         </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetFilesystemService"/> class.
+            </summary>
+        </member>
         <member name="P:FileCabinetApp.FileCabinetFilesystemService.MinNameLength">
             <summary>
             Gets minimal possible length of the name.

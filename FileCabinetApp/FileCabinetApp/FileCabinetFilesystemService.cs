@@ -13,6 +13,13 @@ namespace FileCabinetApp
     public class FileCabinetFilesystemService : IFileCabinetService
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetFilesystemService"/> class.
+        /// </summary>
+        public FileCabinetFilesystemService()
+        {
+        }
+
+        /// <summary>
         /// Gets minimal possible length of the name.
         /// </summary>
         /// <value>this.minNameLength.</value>
