@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace FileCabinetApp
 {
@@ -29,6 +31,8 @@ namespace FileCabinetApp
         public void SaveToCsv(StreamWriter writer)
         {
             FileCabinetRecordCsvWriter recordWriter = new (writer);
+            string propertyNames = string.Join(",", typeof(FileCabinetRecord).GetProperties().Select(p => p.Name));
+            writer?.WriteLine(propertyNames);
 
             foreach (var record in this.records)
             {
@@ -36,6 +40,30 @@ namespace FileCabinetApp
                 recordWriter.Write(record);
             }
 
+            writer?.Close();
+        }
+
+        /// <summary>
+        /// Saves records of the snapshot into the specified xml file.
+        /// </summary>
+        /// <param name="writer">Writer to write the data.</param>
+        public void SaveToXml(StreamWriter writer)
+        {
+            XmlWriter xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = true });
+            FileCabinetRecordXmlWriter recordWriter = new (xmlWriter);
+
+            xmlWriter.WriteStartDocument();
+            xmlWriter.WriteStartElement("records");
+
+            foreach (var record in this.records)
+            {
+                recordWriter.Write(record);
+            }
+
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndDocument();
+
+            xmlWriter.Close();
             writer?.Close();
         }
     }

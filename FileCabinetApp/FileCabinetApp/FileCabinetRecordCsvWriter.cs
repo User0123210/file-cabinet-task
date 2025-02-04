@@ -12,7 +12,6 @@ namespace FileCabinetApp
     public class FileCabinetRecordCsvWriter
     {
         private readonly TextWriter writer;
-        private bool isPropertiesWritten;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileCabinetRecordCsvWriter"/> class.
@@ -29,13 +28,6 @@ namespace FileCabinetApp
         /// <param name="record">Record to write.</param>
         public void Write(FileCabinetRecord record)
         {
-            if (!this.isPropertiesWritten)
-            {
-                string propertyNames = string.Join(",", typeof(FileCabinetRecord).GetProperties().Select(p => p.Name));
-                this.writer.WriteLine(propertyNames);
-                this.isPropertiesWritten = true;
-            }
-
             string propertyValues = string.Join(",", typeof(FileCabinetRecord).GetProperties().Select(p => p.GetValue(record) ?? string.Empty));
             this.writer.WriteLine(propertyValues);
         }

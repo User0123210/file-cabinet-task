@@ -396,20 +396,24 @@ namespace FileCabinetApp
             {
                 var destination = arguments[propertyIndex + 1];
 
-                if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
+                try
                 {
+                    Stream stream = File.OpenWrite(destination);
+                    using StreamWriter writer = new (stream);
                     FileCabinetServiceSnapshot snapshot = FileCabinetService.MakeSnapshot();
 
-                    try
+                    if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
                     {
-                        Stream stream = File.OpenWrite(destination);
-                        using StreamWriter writer = new (stream);
                         snapshot.SaveToCsv(writer);
                     }
-                    catch (Exception ex)
+                    else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
                     {
-                        Console.WriteLine($"An error occured: {ex.Message}");
+                        snapshot.SaveToXml(writer);
                     }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occured: {ex.Message}");
                 }
             }
         }

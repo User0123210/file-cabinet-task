@@ -270,6 +270,23 @@
             <Permissions>Permissions in the record.</Permissions>
             </value>
         </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordXmlWriter">
+            <summary>
+            Represents xml writer class for the file cabinet records.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlWriter.#ctor(System.Xml.XmlWriter)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetRecordXmlWriter"/> class.
+            </summary>
+            <param name="writer">Writer with which data should be written.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlWriter.Write(FileCabinetApp.FileCabinetRecord)">
+            <summary>
+            Writes record to the specified writer.
+            </summary>
+            <param name="record">Record to write.</param>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetService">
             <summary>
             Manages information about the records in file cabinet.
@@ -420,6 +437,12 @@
         <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.SaveToCsv(System.IO.StreamWriter)">
             <summary>
             Saves records of the snapshot into the specified csv file.
+            </summary>
+            <param name="writer">Writer to write the data.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.SaveToXml(System.IO.StreamWriter)">
+            <summary>
+            Saves records of the snapshot into the specified xml file.
             </summary>
             <param name="writer">Writer to write the data.</param>
         </member>
