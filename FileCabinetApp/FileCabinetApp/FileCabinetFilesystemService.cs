@@ -180,7 +180,46 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="id">Id of the value to edit.</param>
         /// <param name="recordParameters">Parameters of the value to change.</param>
-        public void EditRecord(int id, FileCabinetRecordParameterObject recordParameters) => throw new NotImplementedException();
+        public void EditRecord(int id, FileCabinetRecordParameterObject recordParameters)
+        {
+            if (recordParameters is not null)
+            {
+                byte[] buffer = new byte[RecordSize];
+                this.stream.Position = 0;
+                int recordId;
+
+                Span<int> copyDecimal = new (new int[4]);
+                decimal.GetBits(recordParameters.Salary, copyDecimal);
+                byte[] value = new byte[RecordSize - 6];
+
+                while (this.stream.Read(buffer, 0, RecordSize) != 0)
+                {
+                    recordId = BitConverter.ToInt32(buffer, 2);
+
+                    if (recordId == id)
+                    {
+                        Encoding.UTF8.GetBytes(recordParameters.FirstName.PadRight(120, '\0')).CopyTo(value, 0);
+                        Encoding.UTF8.GetBytes(recordParameters.LastName.PadRight(120, '\0')).CopyTo(value, 120);
+                        BitConverter.GetBytes(recordParameters.DateOfBirth.Year).CopyTo(value, 240);
+                        BitConverter.GetBytes(recordParameters.DateOfBirth.Month).CopyTo(value, 244);
+                        BitConverter.GetBytes(recordParameters.DateOfBirth.Day).CopyTo(value, 248);
+                        BitConverter.GetBytes(recordParameters.Status).CopyTo(value, 252);
+                        BitConverter.GetBytes(copyDecimal[0]).CopyTo(value, 268);
+                        BitConverter.GetBytes(copyDecimal[1]).CopyTo(value, 272);
+                        BitConverter.GetBytes(copyDecimal[2]).CopyTo(value, 276);
+                        BitConverter.GetBytes(copyDecimal[3]).CopyTo(value, 280);
+                        BitConverter.GetBytes(recordParameters.Permissions).CopyTo(value, 284);
+                        this.stream.Position -= RecordSize;
+                        this.stream.Position += 6;
+                        this.stream.Write(value, 0, RecordSize - 6);
+                        this.stream.Flush();
+                        break;
+                    }
+                }
+
+                this.stream.Position = 0;
+            }
+        }
 
         /// <summary>
         /// Looks for records with firstName property equal to the specified firstName parameter.
