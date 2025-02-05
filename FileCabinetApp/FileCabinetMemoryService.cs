@@ -263,6 +263,161 @@ namespace FileCabinetApp
             return new FileCabinetServiceSnapshot(this.records);
         }
 
+        /// <summary>
+        /// Compares data from snapshot and updates records.
+        /// </summary>
+        /// <param name="snapshot">Snapshot to compare with.</param>
+        public void Restore(FileCabinetServiceSnapshot snapshot)
+        {
+            if (snapshot is not null)
+            {
+                List<FileCabinetRecord> newRecords = snapshot.Records.ToList();
+
+                foreach (var rec in newRecords)
+                {
+                    if (string.IsNullOrWhiteSpace(rec.FirstName))
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace firstName, skips.");
+                        continue;
+                    }
+
+                    if (rec.FirstName.Length > this.validator.MaxNameLength || rec.FirstName.Length < this.validator.MinNameLength)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, firstName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.IsOnlyLetterName)
+                    {
+                        foreach (var letter in rec.FirstName)
+                        {
+                            if (!char.IsLetter(letter))
+                            {
+                                Console.WriteLine($"Record #{rec.Id}, firstName contains non letter characters, skips.");
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(rec.LastName))
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace lastName, skips.");
+                        continue;
+                    }
+
+                    if (rec.LastName.Length > this.validator.MaxNameLength || rec.LastName.Length < this.validator.MinNameLength)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, lastName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.IsOnlyLetterName)
+                    {
+                        foreach (var letter in rec.LastName)
+                        {
+                            if (!char.IsLetter(letter))
+                            {
+                                Console.WriteLine($"Record #{rec.Id}, lastName contains non letter characters, skips.");
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (rec.DateOfBirth < this.validator.MinDate || rec.DateOfBirth > DateTime.Now)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, dateOfBirth outside of range: ({this.validator.MinDate}) - ({DateTime.Now}), skips.");
+                        continue;
+                    }
+
+                    if (rec.Salary < 0)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, salary is less than zero, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.GetValidPermissions().Count > 0)
+                    {
+                        bool isValid = false;
+
+                        foreach (char c in this.validator.GetValidPermissions())
+                        {
+                            if (c == rec.Permissions)
+                            {
+                                isValid = true;
+                            }
+                        }
+
+                        if (!isValid)
+                        {
+                            Console.WriteLine($"Record #{rec.Id}, permissions is not one of valid permissions, skips.");
+                            continue;
+                        }
+                    }
+
+                    this.records.RemoveAll(r => r.Id == rec.Id);
+                    this.records.Add(rec);
+                    this.recordIdDictionary[rec.Id] = rec;
+
+                    if (this.firstNameDictionary.ContainsKey(rec.FirstName))
+                    {
+                        for (int i = 0; i < this.firstNameDictionary[rec.FirstName].Count; i++)
+                        {
+                            FileCabinetRecord fnameRec = this.firstNameDictionary[rec.FirstName][i];
+
+                            if (fnameRec.Id == rec.Id)
+                            {
+                                this.firstNameDictionary[rec.FirstName].Remove(fnameRec);
+                            }
+
+                            this.firstNameDictionary[rec.FirstName].Add(rec);
+                        }
+                    }
+                    else
+                    {
+                        this.firstNameDictionary.Add(rec.FirstName, new () { rec });
+                    }
+
+                    if (this.lastNameDictionary.ContainsKey(rec.LastName))
+                    {
+                        for (int i = 0; i < this.lastNameDictionary[rec.LastName].Count; i++)
+                        {
+                            FileCabinetRecord lnameRec = this.lastNameDictionary[rec.LastName][i];
+
+                            if (lnameRec.Id == rec.Id)
+                            {
+                                this.lastNameDictionary[rec.LastName].Remove(lnameRec);
+                            }
+
+                            this.lastNameDictionary[rec.LastName].Add(rec);
+                        }
+                    }
+                    else
+                    {
+                        this.lastNameDictionary.Add(rec.LastName, new () { rec });
+                    }
+
+                    if (this.dateOfBirthDictionary.ContainsKey(rec.DateOfBirth))
+                    {
+                        for (int i = 0; i < this.dateOfBirthDictionary[rec.DateOfBirth].Count; i++)
+                        {
+                            FileCabinetRecord dateRec = this.dateOfBirthDictionary[rec.DateOfBirth][i];
+
+                            if (dateRec.Id == rec.Id)
+                            {
+                                this.dateOfBirthDictionary[rec.DateOfBirth].Remove(dateRec);
+                            }
+
+                            this.dateOfBirthDictionary[rec.DateOfBirth].Add(rec);
+                        }
+                    }
+                    else
+                    {
+                        this.dateOfBirthDictionary.Add(rec.DateOfBirth, new () { rec });
+                    }
+                }
+            }
+        }
+
         private static void AddToDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord record)
             where T : notnull
         {

@@ -34,6 +34,7 @@ namespace FileCabinetApp
             new ("find", Find),
             new ("find", Find),
             new ("export", Export),
+            new ("import", Import),
         };
 
         private static readonly string[][] HelpMessages = new string[][]
@@ -45,7 +46,8 @@ namespace FileCabinetApp
             new string[] { "list", "returns list of records from service", "The 'list' command returns list of records from service." },
             new string[] { "edit", "edits record with the specified id", "The 'edit' command edits record with the specified id." },
             new string[] { "find", "finds records based on the specified property value", "The 'find' command finds record based on the specified property value." },
-            new string[] { "export", "exports data from the service into the specified format", "The 'export' command exports data from the service into the specified format." },
+            new string[] { "export", "exports data from the service into the specified format and file", "The 'export' command exports data from the service into the specified format and file." },
+            new string[] { "import", "imports data from the specified file in the specified format to the service", "The 'import' command imports data from the specified file in the specified format to the service." },
         };
 
         private static bool isRunning = true;
@@ -435,6 +437,40 @@ namespace FileCabinetApp
                     else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
                     {
                         snapshot.SaveToXml(writer);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occured: {ex.Message}");
+                }
+            }
+        }
+
+        private static void Import(string parameters)
+        {
+            string[] arguments = parameters is not null ? parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+            const int propertyIndex = 0;
+            var sourceName = arguments[propertyIndex];
+
+            if (arguments.Length > 1)
+            {
+                var source = arguments[propertyIndex + 1];
+
+                try
+                {
+                    Stream stream = File.OpenRead(source);
+                    using StreamReader reader = new (stream);
+                    FileCabinetServiceSnapshot snapshot = fileCabinetService.MakeSnapshot();
+
+                    if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
+                    {
+                        snapshot.LoadFromCsv(reader);
+                        fileCabinetService.Restore(snapshot);
+                    }
+                    else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        snapshot.LoadFromXml(reader);
+                        fileCabinetService.Restore(snapshot);
                     }
                 }
                 catch (Exception ex)

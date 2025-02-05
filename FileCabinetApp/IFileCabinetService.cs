@@ -115,5 +115,11 @@ namespace FileCabinetApp
         /// </summary>
         /// <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
         public FileCabinetServiceSnapshot MakeSnapshot();
+
+        /// <summary>
+        /// Compares data from snapshot and updates records.
+        /// </summary>
+        /// <param name="snapshot">Snapshot to compare with.</param>
+        public void Restore(FileCabinetServiceSnapshot snapshot);
     }
 }
