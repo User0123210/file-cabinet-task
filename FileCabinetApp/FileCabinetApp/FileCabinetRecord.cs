@@ -1,10 +1,12 @@
-﻿using System;
+﻿using System.Xml;
+using System.Xml.Serialization;
 
 namespace FileCabinetApp
 {
     /// <summary>
     /// Represents user's record in the FileCabinet.
     /// </summary>
+    [XmlRoot("record")]
     public class FileCabinetRecord
     {
         /// <summary>
@@ -13,6 +15,7 @@ namespace FileCabinetApp
         /// <value>
         /// <Id>Id of the record.</Id>
         /// </value>
+        [XmlAttribute("id")]
         public int Id { get; set; }
 
         /// <summary>
@@ -21,6 +24,7 @@ namespace FileCabinetApp
         /// <value>
         /// <FirstName>First name in the record.</FirstName>
         /// </value>
+        [XmlElement("firstName")]
         public string FirstName { get; set; } = string.Empty;
 
         /// <summary>
@@ -29,6 +33,7 @@ namespace FileCabinetApp
         /// <value>
         /// <LastName>Last name in the record.</LastName>
         /// </value>
+        [XmlElement("lastName")]
         public string LastName { get; set; } = string.Empty;
 
         /// <summary>
@@ -37,6 +42,7 @@ namespace FileCabinetApp
         /// <value>
         /// <DateOfBirth>Date of birth in the record.</DateOfBirth>
         /// </value>
+        [XmlElement("dateOfBirth")]
         public DateTime DateOfBirth { get; set; }
 
         /// <summary>
@@ -45,6 +51,7 @@ namespace FileCabinetApp
         /// <value>
         /// <Status>Status in the record.</Status>
         /// </value>
+        [XmlElement("status")]
         public short Status { get; set; }
 
         /// <summary>
@@ -53,6 +60,7 @@ namespace FileCabinetApp
         /// <value>
         /// <Salary>Salary in the record.</Salary>
         /// </value>
+        [XmlElement("salary")]
         public decimal Salary { get; set; }
 
         /// <summary>
@@ -61,6 +69,7 @@ namespace FileCabinetApp
         /// <value>
         /// <Permissions>Permissions in the record.</Permissions>
         /// </value>
+        [XmlElement("permissions")]
         public char Permissions { get; set; }
     }
 }

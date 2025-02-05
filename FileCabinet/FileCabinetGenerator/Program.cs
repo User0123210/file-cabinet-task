@@ -117,7 +117,16 @@ namespace FileCabinetGenerator
                     }
                     else if (parseInputs.Length <= 2)
                     {
-                        ExportToCsv(Generate());
+                        switch (outputType)
+                        {
+                            case "csv":
+                                ExportToCsv(Generate());
+                                break;
+                            case "xml":
+                                ExportToXml(Generate());
+                                break;
+                        }
+
                         Console.WriteLine($"{recordsAmount} records were written to {outputFile?.Name}");
                         parseInputs = Array.Empty<string>();
                     }
@@ -174,6 +183,15 @@ namespace FileCabinetGenerator
                 }
 
                 writer?.Close();
+            }
+        }
+
+        private static void ExportToXml(ReadOnlyCollection<FileCabinetRecord> records)
+        {
+            if (outputFile is not null)
+            {
+                XmlSerializer serializer = new (typeof(FileCabinetRecord[]), new XmlRootAttribute("Records"));
+                serializer.Serialize(outputFile, records.ToArray());
             }
         }
     }
