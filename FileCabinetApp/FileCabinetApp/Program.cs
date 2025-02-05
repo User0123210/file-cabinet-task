@@ -111,9 +111,9 @@ namespace FileCabinetApp
                                 storage = "memory";
                                 break;
                             case "FILE":
-                                fileCabinetService = new FileCabinetFilesystemService();
-                                storage = "file";
                                 fileStream = new (@"cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                                fileCabinetService = new FileCabinetFilesystemService(fileStream, new DefaultValidator());
+                                storage = "file";
                                 break;
                         }
 

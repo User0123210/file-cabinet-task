@@ -144,10 +144,12 @@
             Represent file cabinet service for work with filesytem.
             </summary>
         </member>
-        <member name="M:FileCabinetApp.FileCabinetFilesystemService.#ctor">
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.#ctor(System.IO.FileStream,FileCabinetApp.IRecordValidator)">
             <summary>
             Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetFilesystemService"/> class.
             </summary>
+            <param name="stream">Stream to write.</param>
+            <param name="validator">Validator to check record parameters.</param>
         </member>
         <member name="P:FileCabinetApp.FileCabinetFilesystemService.MinNameLength">
             <summary>
@@ -195,23 +197,23 @@
         </member>
         <member name="M:FileCabinetApp.FileCabinetFilesystemService.CreateRecord(FileCabinetApp.FileCabinetRecordParameterObject)">
             <summary>
-            Creates a new record and adds it into the records list.
+            Creates a new value and adds it into the records list.
             </summary>
-            <param name="recordParameters">Parameters of the record to change.</param>
-            <returns>Id of the created record.</returns>
+            <param name="recordParameters">Parameters of the value to change.</param>
+            <returns>Id of the created value.</returns>
         </member>
         <member name="M:FileCabinetApp.FileCabinetFilesystemService.GetRecords">
             <summary>
-            Gets copy of the records as record array.
+            Gets copy of the records as value array.
             </summary>
             <returns>Array of the records.</returns>
         </member>
         <member name="M:FileCabinetApp.FileCabinetFilesystemService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordParameterObject)">
             <summary>
-            Edits the existing record with the specified id.
+            Edits the existing value with the specified id.
             </summary>
-            <param name="id">Id of the record to edit.</param>
-            <param name="recordParameters">Parameters of the record to change.</param>
+            <param name="id">Id of the value to edit.</param>
+            <param name="recordParameters">Parameters of the value to change.</param>
         </member>
         <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindByFirstName(System.String)">
             <summary>
