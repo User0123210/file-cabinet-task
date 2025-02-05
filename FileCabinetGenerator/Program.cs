@@ -6,7 +6,7 @@ using Bogus;
 using Bogus.Extensions;
 using FileCabinetApp;
 
-#pragma warning disable CA1303, CA1031
+#pragma warning disable CA1303, CA1031, IDE0060
 
 namespace FileCabinetGenerator
 {

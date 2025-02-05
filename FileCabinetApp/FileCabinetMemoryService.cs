@@ -263,6 +263,82 @@ namespace FileCabinetApp
             return new FileCabinetServiceSnapshot(this.records);
         }
 
+        /// <summary>
+        /// Compares data from snapshot and updates records.
+        /// </summary>
+        /// <param name="snapshot">Snapshot to compare with.</param>
+        public void Restore(FileCabinetServiceSnapshot snapshot)
+        {
+            if (snapshot is not null)
+            {
+                List<FileCabinetRecord> newRecords = snapshot.Records.ToList();
+
+                foreach (var rec in newRecords)
+                {
+                    this.records.RemoveAll(r => r.Id == rec.Id);
+                    this.records.Add(rec);
+                    this.recordIdDictionary[rec.Id] = rec;
+
+                    if (this.firstNameDictionary.ContainsKey(rec.FirstName))
+                    {
+                        for (int i = 0; i < this.firstNameDictionary[rec.FirstName].Count; i++)
+                        {
+                            FileCabinetRecord fnameRec = this.firstNameDictionary[rec.FirstName][i];
+
+                            if (fnameRec.Id == rec.Id)
+                            {
+                                this.firstNameDictionary[rec.FirstName].Remove(fnameRec);
+                            }
+
+                            this.firstNameDictionary[rec.FirstName].Add(rec);
+                        }
+                    }
+                    else
+                    {
+                        this.firstNameDictionary.Add(rec.FirstName, new () { rec });
+                    }
+
+                    if (this.lastNameDictionary.ContainsKey(rec.LastName))
+                    {
+                        for (int i = 0; i < this.lastNameDictionary[rec.LastName].Count; i++)
+                        {
+                            FileCabinetRecord lnameRec = this.lastNameDictionary[rec.LastName][i];
+
+                            if (lnameRec.Id == rec.Id)
+                            {
+                                this.lastNameDictionary[rec.LastName].Remove(lnameRec);
+                            }
+
+                            this.lastNameDictionary[rec.LastName].Add(rec);
+                        }
+                    }
+                    else
+                    {
+                        this.lastNameDictionary.Add(rec.LastName, new () { rec });
+                    }
+
+                    if (this.dateOfBirthDictionary.ContainsKey(rec.DateOfBirth))
+                    {
+                        for (int i = 0; i < this.dateOfBirthDictionary[rec.DateOfBirth].Count; i++)
+                        {
+                            FileCabinetRecord dateRec = this.dateOfBirthDictionary[rec.DateOfBirth][i];
+
+                            if (dateRec.Id == rec.Id)
+                            {
+                                this.dateOfBirthDictionary[rec.DateOfBirth].Remove(dateRec);
+                            }
+
+                            this.dateOfBirthDictionary[rec.DateOfBirth].Add(rec);
+                        }
+                    }
+                    else
+                    {
+                        this.dateOfBirthDictionary.Add(rec.DateOfBirth, new () { rec });
+                    }
+                }
+            }
+        }
+
         private static void AddToDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord record)
             where T : notnull
         {

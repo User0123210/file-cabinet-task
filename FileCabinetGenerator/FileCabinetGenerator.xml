@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FileCabinetGenerator</name>
+    </assembly>
+    <members>
+        <member name="T:FileCabinetGenerator.Program">
+            <summary>
+            Represents FileCabinetGenerator Console App.
+            </summary>
+        </member>
+        <member name="M:FileCabinetGenerator.Program.Main(System.String[])">
+            <summary>
+            Runs Console Application.
+            </summary>
+            <param name="args">The arguments of the application.</param>
+        </member>
+    </members>
+</doc>

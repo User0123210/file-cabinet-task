@@ -252,6 +252,13 @@
             </summary>
             <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
         </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.Restore(FileCabinetApp.FileCabinetServiceSnapshot)">
+            <summary>
+            Compares data from snapshot and updates records.
+            </summary>
+            <param name="snapshot">Snapshot to compare with.</param>
+            <exception cref="T:System.NotImplementedException">Throws.</exception>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetMemoryService">
             <summary>
             Manages information about the records in file cabinet.
@@ -388,6 +395,12 @@
             </summary>
             <returns>FileCabinetServiceSnapshot of the current FileCabinetMemoryService instance.</returns>
         </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.Restore(FileCabinetApp.FileCabinetServiceSnapshot)">
+            <summary>
+            Compares data from snapshot and updates records.
+            </summary>
+            <param name="snapshot">Snapshot to compare with.</param>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetRecord">
             <summary>
             Represents user's record in the FileCabinet.
@@ -448,6 +461,23 @@
             <value>
             <Permissions>Permissions in the record.</Permissions>
             </value>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordCsvReader">
+            <summary>
+            Represents csv reader class for the file cabinet records.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvReader.#ctor(System.IO.StreamReader)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetRecordCsvReader"/> class.
+            </summary>
+            <param name="reader">Reader with which data should be reader.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordCsvReader.ReadAll">
+            <summary>
+            Reads all string via the specified reader.
+            </summary>
+            <returns>Read strings as FileCabinetRecord list.</returns>
         </member>
         <member name="T:FileCabinetApp.FileCabinetRecordCsvWriter">
             <summary>
@@ -547,6 +577,14 @@
             </summary>
             <param name="records">Records of the snapshotted IFileCabinetService instance.</param>
         </member>
+        <member name="P:FileCabinetApp.FileCabinetServiceSnapshot.Records">
+            <summary>
+            Gets collection of records.
+            </summary>
+            <value>
+            <Records>Collection of records.</Records>
+            </value>
+        </member>
         <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.SaveToCsv(System.IO.StreamWriter)">
             <summary>
             Saves records of the snapshot into the specified csv file.
@@ -558,6 +596,12 @@
             Saves records of the snapshot into the specified xml file.
             </summary>
             <param name="writer">Writer to write the data.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.LoadFromCsv(System.IO.StreamReader)">
+            <summary>
+            Replaces records of the snapshot with the records from specified csv file.
+            </summary>
+            <param name="reader">Reader of the csv file to read.</param>
         </member>
         <member name="T:FileCabinetApp.IFileCabinetService">
             <summary>
@@ -664,6 +708,12 @@
             Makes snapshot of the IFileCabinetService with the copy of the records.
             </summary>
             <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.Restore(FileCabinetApp.FileCabinetServiceSnapshot)">
+            <summary>
+            Compares data from snapshot and updates records.
+            </summary>
+            <param name="snapshot">Snapshot to compare with.</param>
         </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>

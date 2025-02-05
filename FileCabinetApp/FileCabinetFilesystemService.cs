@@ -382,5 +382,12 @@ namespace FileCabinetApp
         /// </summary>
         /// <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
         public FileCabinetServiceSnapshot MakeSnapshot() => throw new NotImplementedException();
+
+        /// <summary>
+        /// Compares data from snapshot and updates records.
+        /// </summary>
+        /// <param name="snapshot">Snapshot to compare with.</param>
+        /// <exception cref="NotImplementedException">Throws.</exception>
+        public void Restore(FileCabinetServiceSnapshot snapshot) => throw new NotImplementedException();
     }
 }

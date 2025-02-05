@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCabinetApp", "FileCabinetApp\FileCabinetApp.csproj", "{D1BC980F-9DEA-4F41-B10A-45EFA883CE1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileCabinetApp", "FileCabinetApp\FileCabinetApp.csproj", "{D1BC980F-9DEA-4F41-B10A-45EFA883CE1B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileCabinetGenerator", "FileCabinetGenerator\FileCabinetGenerator.csproj", "{92D0C959-0B5F-4C61-B376-541E6DB38622}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F0E9EDD1-D7E8-49A6-9E09-65E4D6F7C091}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +22,10 @@ Global
 		{D1BC980F-9DEA-4F41-B10A-45EFA883CE1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1BC980F-9DEA-4F41-B10A-45EFA883CE1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1BC980F-9DEA-4F41-B10A-45EFA883CE1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92D0C959-0B5F-4C61-B376-541E6DB38622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92D0C959-0B5F-4C61-B376-541E6DB38622}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92D0C959-0B5F-4C61-B376-541E6DB38622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92D0C959-0B5F-4C61-B376-541E6DB38622}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
