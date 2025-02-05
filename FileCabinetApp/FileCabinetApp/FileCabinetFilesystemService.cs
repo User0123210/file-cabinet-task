@@ -323,7 +323,49 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="date">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date) => throw new NotImplementedException();
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date)
+        {
+            List<FileCabinetRecord> records = new ();
+            byte[] buffer = new byte[RecordSize];
+            this.stream.Position = 0;
+            int id;
+            string firstName;
+            string lastName;
+            int year;
+            int month;
+            int day;
+            short status;
+            decimal salary;
+            char permissions;
+            int[] copyDecimal = new int[4];
+
+            while (this.stream.Read(buffer, 0, RecordSize) != 0)
+            {
+                year = BitConverter.ToInt32(buffer, 246);
+                month = BitConverter.ToInt32(buffer, 250);
+                day = BitConverter.ToInt32(buffer, 254);
+                DateTime dateOfBirth = new (year, month, day);
+
+                if (dateOfBirth == date)
+                {
+                    id = BitConverter.ToInt32(buffer, 2);
+                    firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
+                    lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
+                    status = BitConverter.ToInt16(buffer, 258);
+                    copyDecimal[0] = BitConverter.ToInt32(buffer, 274);
+                    copyDecimal[1] = BitConverter.ToInt32(buffer, 278);
+                    copyDecimal[2] = BitConverter.ToInt32(buffer, 282);
+                    copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
+                    salary = new decimal(copyDecimal);
+                    permissions = BitConverter.ToChar(buffer, 290);
+                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = date, Status = status, Salary = salary, Permissions = permissions });
+                }
+
+                this.stream.Position += RecordSize;
+            }
+
+            return records.AsReadOnly();
+        }
 
         /// <summary>
         /// Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
