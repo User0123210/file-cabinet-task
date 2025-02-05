@@ -326,11 +326,13 @@ namespace FileCabinetApp
                     if (rec.DateOfBirth < this.validator.MinDate || rec.DateOfBirth > DateTime.Now)
                     {
                         Console.WriteLine($"Record #{rec.Id}, dateOfBirth outside of range: ({this.validator.MinDate}) - ({DateTime.Now}), skips.");
+                        continue;
                     }
 
                     if (rec.Salary < 0)
                     {
                         Console.WriteLine($"Record #{rec.Id}, salary is less than zero, skips.");
+                        continue;
                     }
 
                     if (this.validator.GetValidPermissions().Count > 0)
@@ -348,6 +350,7 @@ namespace FileCabinetApp
                         if (!isValid)
                         {
                             Console.WriteLine($"Record #{rec.Id}, permissions is not one of valid permissions, skips.");
+                            continue;
                         }
                     }
 

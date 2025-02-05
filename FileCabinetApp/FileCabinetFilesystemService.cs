@@ -381,13 +381,114 @@ namespace FileCabinetApp
         /// Makes snapshot of the IFileCabinetService with the copy of the records.
         /// </summary>
         /// <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
-        public FileCabinetServiceSnapshot MakeSnapshot() => throw new NotImplementedException();
+        public FileCabinetServiceSnapshot MakeSnapshot()
+        {
+            return new FileCabinetServiceSnapshot(this.GetRecords());
+        }
 
         /// <summary>
         /// Compares data from snapshot and updates records.
         /// </summary>
         /// <param name="snapshot">Snapshot to compare with.</param>
         /// <exception cref="NotImplementedException">Throws.</exception>
-        public void Restore(FileCabinetServiceSnapshot snapshot) => throw new NotImplementedException();
+        public void Restore(FileCabinetServiceSnapshot snapshot)
+        {
+            if (snapshot is not null)
+            {
+                List<FileCabinetRecord> newRecords = snapshot.Records.ToList();
+                int[] existingIds = this.GetRecords().Select(r => r.Id).ToArray();
+
+                foreach (var rec in newRecords)
+                {
+                    if (string.IsNullOrWhiteSpace(rec.FirstName))
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace firstName, skips.");
+                        continue;
+                    }
+
+                    if (rec.FirstName.Length > this.validator.MaxNameLength || rec.FirstName.Length < this.validator.MinNameLength)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, firstName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.IsOnlyLetterName)
+                    {
+                        foreach (var letter in rec.FirstName)
+                        {
+                            if (!char.IsLetter(letter))
+                            {
+                                Console.WriteLine($"Record #{rec.Id}, firstName contains non letter characters, skips.");
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(rec.LastName))
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace lastName, skips.");
+                        continue;
+                    }
+
+                    if (rec.LastName.Length > this.validator.MaxNameLength || rec.LastName.Length < this.validator.MinNameLength)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, lastName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.IsOnlyLetterName)
+                    {
+                        foreach (var letter in rec.LastName)
+                        {
+                            if (!char.IsLetter(letter))
+                            {
+                                Console.WriteLine($"Record #{rec.Id}, lastName contains non letter characters, skips.");
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (rec.DateOfBirth < this.validator.MinDate || rec.DateOfBirth > DateTime.Now)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, dateOfBirth outside of range: ({this.validator.MinDate}) - ({DateTime.Now}), skips.");
+                        continue;
+                    }
+
+                    if (rec.Salary < 0)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, salary is less than zero, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.GetValidPermissions().Count > 0)
+                    {
+                        bool isValid = false;
+
+                        foreach (char c in this.validator.GetValidPermissions())
+                        {
+                            if (c == rec.Permissions)
+                            {
+                                isValid = true;
+                            }
+                        }
+
+                        if (!isValid)
+                        {
+                            Console.WriteLine($"Record #{rec.Id}, permissions is not one of valid permissions, skips.");
+                            continue;
+                        }
+                    }
+
+                    if (existingIds.Contains(rec.Id))
+                    {
+                        this.EditRecord(rec.Id, new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                    }
+                    else
+                    {
+                        this.CreateRecord(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                    }
+                }
+            }
+        }
     }
 }
