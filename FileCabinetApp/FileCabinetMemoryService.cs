@@ -116,9 +116,16 @@ namespace FileCabinetApp
 
             ArgumentNullException.ThrowIfNull(recordParameters);
 
+            int newId = 0;
+
+            while (this.GetRecords().Select(r => r.Id).Contains(newId))
+            {
+                newId++;
+            }
+
             var record = new FileCabinetRecord
             {
-                Id = this.records.Count + 1,
+                Id = newId,
                 FirstName = recordParameters.FirstName,
                 LastName = recordParameters.LastName,
                 DateOfBirth = recordParameters.DateOfBirth,
@@ -428,6 +435,59 @@ namespace FileCabinetApp
             else
             {
                 targetDictionary.Add(key, new List<FileCabinetRecord>() { record });
+            }
+        }
+
+        public void RemoveRecord(int id)
+        {
+            for (int j = 0; j < this.records.Count; j++)
+            {
+                var record = this.records[j];
+
+                if (record.Id == id)
+                {
+                    this.records.Remove(record);
+                    this.recordIdDictionary.Remove(record.Id);
+
+                    foreach (var dictElement in this.firstNameDictionary)
+                    {
+                        for (int i = 0; i < dictElement.Value.Count; i++)
+                        {
+                            var dictRecord = dictElement.Value[i];
+
+                            if (dictRecord.Id == id)
+                            {
+                                dictElement.Value.Remove(dictRecord);
+                            }
+                        }
+                    }
+
+                    foreach (var dictElement in this.lastNameDictionary)
+                    {
+                        for (int i = 0; i < dictElement.Value.Count; i++)
+                        {
+                            var dictRecord = dictElement.Value[i];
+
+                            if (dictRecord.Id == id)
+                            {
+                                dictElement.Value.Remove(dictRecord);
+                            }
+                        }
+                    }
+
+                    foreach (var dictElement in this.dateOfBirthDictionary)
+                    {
+                        for (int i = 0; i < dictElement.Value.Count; i++)
+                        {
+                            var dictRecord = dictElement.Value[i];
+
+                            if (dictRecord.Id == id)
+                            {
+                                dictElement.Value.Remove(dictRecord);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

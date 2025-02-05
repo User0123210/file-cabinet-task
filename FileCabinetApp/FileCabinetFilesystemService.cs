@@ -109,8 +109,15 @@ namespace FileCabinetApp
                 {
                 }
 
+                int newId = 0;
+
+                while (this.GetRecords().Select(r => r.Id).Contains(newId))
+                {
+                    newId++;
+                }
+
                 BitConverter.GetBytes(1).CopyTo(value, 0);
-                BitConverter.GetBytes(numberOfRecords + 1).CopyTo(value, 2);
+                BitConverter.GetBytes(newId).CopyTo(value, 2);
                 Encoding.UTF8.GetBytes(recordParameters.FirstName.PadRight(120, '\0')).CopyTo(value, 6);
                 Encoding.UTF8.GetBytes(recordParameters.LastName.PadRight(120, '\0')).CopyTo(value, 126);
                 BitConverter.GetBytes(recordParameters.DateOfBirth.Year).CopyTo(value, 246);
@@ -168,6 +175,12 @@ namespace FileCabinetApp
                 salary = new decimal(copyDecimal);
                 permissions = BitConverter.ToChar(buffer, 290);
                 this.stream.Position += RecordSize;
+
+                if ((buffer[0] & 4) != 0)
+                {
+                    continue;
+                }
+
                 records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status,  Salary = salary, Permissions = permissions });
             }
 
@@ -190,12 +203,13 @@ namespace FileCabinetApp
                 Span<int> copyDecimal = new (new int[4]);
                 decimal.GetBits(recordParameters.Salary, copyDecimal);
                 byte[] value = new byte[RecordSize - 6];
+                bool isFound = false;
 
                 while (this.stream.Read(buffer, 0, RecordSize) != 0)
                 {
                     recordId = BitConverter.ToInt32(buffer, 2);
 
-                    if (recordId == id)
+                    if (recordId == id && (buffer[0] & 4) == 0)
                     {
                         Encoding.UTF8.GetBytes(recordParameters.FirstName.PadRight(120, '\0')).CopyTo(value, 0);
                         Encoding.UTF8.GetBytes(recordParameters.LastName.PadRight(120, '\0')).CopyTo(value, 120);
@@ -212,8 +226,14 @@ namespace FileCabinetApp
                         this.stream.Position += 6;
                         this.stream.Write(value, 0, RecordSize - 6);
                         this.stream.Flush();
+                        isFound = true;
                         break;
                     }
+                }
+
+                if (!isFound)
+                {
+                    throw new ArgumentException("Record is not found");
                 }
 
                 this.stream.Position = 0;
@@ -245,7 +265,7 @@ namespace FileCabinetApp
             {
                 recordFirstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
 
-                if (recordFirstName == firstName)
+                if (recordFirstName == firstName && (buffer[0] & 4) == 0)
                 {
                     id = BitConverter.ToInt32(buffer, 2);
                     lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
@@ -294,7 +314,7 @@ namespace FileCabinetApp
             {
                 recordLastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
 
-                if (recordLastName == lastName)
+                if (recordLastName == lastName && (buffer[0] & 4) == 0)
                 {
                     id = BitConverter.ToInt32(buffer, 2);
                     firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
@@ -346,7 +366,7 @@ namespace FileCabinetApp
                 day = BitConverter.ToInt32(buffer, 254);
                 DateTime dateOfBirth = new (year, month, day);
 
-                if (dateOfBirth == date)
+                if (dateOfBirth == date && (buffer[0] & 4) == 0)
                 {
                     id = BitConverter.ToInt32(buffer, 2);
                     firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
@@ -489,6 +509,35 @@ namespace FileCabinetApp
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Removes record with the specified id.
+        /// </summary>
+        /// <param name="id">Id of the record to delete.</param>
+        public void RemoveRecord(int id)
+        {
+             byte[] buffer = new byte[RecordSize];
+             this.stream.Position = 0;
+             int recordId;
+
+             byte[] value = new byte[2];
+
+             while (this.stream.Read(buffer, 0, RecordSize) != 0)
+             {
+                recordId = BitConverter.ToInt32(buffer, 2);
+
+                if (recordId == id)
+                {
+                    value = buffer[0..2];
+                    value[0] |= 4;
+                    this.stream.Position -= RecordSize;
+                    this.stream.Write(value, 0, 2);
+                    this.stream.Flush();
+                }
+             }
+
+             this.stream.Position = 0;
         }
     }
 }

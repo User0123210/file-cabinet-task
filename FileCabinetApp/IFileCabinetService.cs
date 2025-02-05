@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -121,5 +122,11 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="snapshot">Snapshot to compare with.</param>
         public void Restore(FileCabinetServiceSnapshot snapshot);
+
+        /// <summary>
+        /// Removes record with the specified id.
+        /// </summary>
+        /// <param name="id">Id of the record to delete.</param>
+        public void RemoveRecord(int id);
     }
 }

@@ -35,6 +35,7 @@ namespace FileCabinetApp
             new ("find", Find),
             new ("export", Export),
             new ("import", Import),
+            new ("remove", Remove),
         };
 
         private static readonly string[][] HelpMessages = new string[][]
@@ -48,6 +49,7 @@ namespace FileCabinetApp
             new string[] { "find", "finds records based on the specified property value", "The 'find' command finds record based on the specified property value." },
             new string[] { "export", "exports data from the service into the specified format and file", "The 'export' command exports data from the service into the specified format and file." },
             new string[] { "import", "imports data from the specified file in the specified format to the service", "The 'import' command imports data from the specified file in the specified format to the service." },
+            new string[] { "remove", "removes record with the specified id from the service", "The 'remove' command removes record with the specified id from the service." },
         };
 
         private static bool isRunning = true;
@@ -226,7 +228,7 @@ namespace FileCabinetApp
 
             if (!isValid)
             {
-                    Console.WriteLine("Id is not valid.");
+                Console.WriteLine("Id is not valid.");
             }
             else
             {
@@ -477,6 +479,16 @@ namespace FileCabinetApp
                 {
                     Console.WriteLine($"An error occured: {ex.Message}");
                 }
+            }
+        }
+
+        private static void Remove(string parameters)
+        {
+            bool isValid = int.TryParse(parameters, out int recordId);
+
+            if (isValid)
+            {
+                fileCabinetService.RemoveRecord(recordId);
             }
         }
     }
