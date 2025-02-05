@@ -87,5 +87,19 @@ namespace FileCabinetApp
             FileCabinetRecordCsvReader csvReader = new (reader);
             this.records = csvReader.ReadAll().ToArray();
         }
+
+        /// <summary>
+        /// Replaces records of the snapshot with the records from specified xmlfile.
+        /// </summary>
+        /// <param name="reader">Reader of the xml file to read.</param>
+        public void LoadFromXml(StreamReader reader)
+        {
+            if (reader is not null)
+            {
+                reader.BaseStream.Position = 0;
+                FileCabinetRecordXmlReader xmlReader = new (XmlReader.Create(reader));
+                this.records = xmlReader.ReadAll().ToArray();
+            }
+        }
     }
 }

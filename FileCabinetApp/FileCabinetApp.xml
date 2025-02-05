@@ -549,6 +549,23 @@
             <Permissions>Permissions in the record.</Permissions>
             </value>
         </member>
+        <member name="T:FileCabinetApp.FileCabinetRecordXmlReader">
+            <summary>
+            Represents xml reader class for the file cabinet records.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlReader.#ctor(System.Xml.XmlReader)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetRecordXmlReader"/> class.
+            </summary>
+            <param name="reader">Reader with which data should be read.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetRecordXmlReader.ReadAll">
+            <summary>
+            Reads all string via the specified reader.
+            </summary>
+            <returns>Read strings as FileCabinetRecord list.</returns>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetRecordXmlWriter">
             <summary>
             Represents xml writer class for the file cabinet records.
@@ -602,6 +619,12 @@
             Replaces records of the snapshot with the records from specified csv file.
             </summary>
             <param name="reader">Reader of the csv file to read.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetServiceSnapshot.LoadFromXml(System.IO.StreamReader)">
+            <summary>
+            Replaces records of the snapshot with the records from specified xmlfile.
+            </summary>
+            <param name="reader">Reader of the xml file to read.</param>
         </member>
         <member name="T:FileCabinetApp.IFileCabinetService">
             <summary>

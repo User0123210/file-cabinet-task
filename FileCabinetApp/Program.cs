@@ -467,6 +467,11 @@ namespace FileCabinetApp
                         snapshot.LoadFromCsv(reader);
                         fileCabinetService.Restore(snapshot);
                     }
+                    else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        snapshot.LoadFromXml(reader);
+                        fileCabinetService.Restore(snapshot);
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -6,7 +6,7 @@ namespace FileCabinetApp
     /// <summary>
     /// Represents user's record in the FileCabinet.
     /// </summary>
-    [XmlRoot("record")]
+    [XmlType("record")]
     public class FileCabinetRecord
     {
         /// <summary>
