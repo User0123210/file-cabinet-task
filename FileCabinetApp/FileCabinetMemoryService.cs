@@ -275,6 +275,82 @@ namespace FileCabinetApp
 
                 foreach (var rec in newRecords)
                 {
+                    if (string.IsNullOrWhiteSpace(rec.FirstName))
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace firstName, skips.");
+                        continue;
+                    }
+
+                    if (rec.FirstName.Length > this.validator.MaxNameLength || rec.FirstName.Length < this.validator.MinNameLength)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, firstName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.IsOnlyLetterName)
+                    {
+                        foreach (var letter in rec.FirstName)
+                        {
+                            if (!char.IsLetter(letter))
+                            {
+                                Console.WriteLine($"Record #{rec.Id}, firstName contains non letter characters, skips.");
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(rec.LastName))
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace lastName, skips.");
+                        continue;
+                    }
+
+                    if (rec.LastName.Length > this.validator.MaxNameLength || rec.LastName.Length < this.validator.MinNameLength)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, lastName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
+                        continue;
+                    }
+
+                    if (this.validator.IsOnlyLetterName)
+                    {
+                        foreach (var letter in rec.LastName)
+                        {
+                            if (!char.IsLetter(letter))
+                            {
+                                Console.WriteLine($"Record #{rec.Id}, lastName contains non letter characters, skips.");
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (rec.DateOfBirth < this.validator.MinDate || rec.DateOfBirth > DateTime.Now)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, dateOfBirth outside of range: ({this.validator.MinDate}) - ({DateTime.Now}), skips.");
+                    }
+
+                    if (rec.Salary < 0)
+                    {
+                        Console.WriteLine($"Record #{rec.Id}, salary is less than zero, skips.");
+                    }
+
+                    if (this.validator.GetValidPermissions().Count > 0)
+                    {
+                        bool isValid = false;
+
+                        foreach (char c in this.validator.GetValidPermissions())
+                        {
+                            if (c == rec.Permissions)
+                            {
+                                isValid = true;
+                            }
+                        }
+
+                        if (!isValid)
+                        {
+                            Console.WriteLine($"Record #{rec.Id}, permissions is not one of valid permissions, skips.");
+                        }
+                    }
+
                     this.records.RemoveAll(r => r.Id == rec.Id);
                     this.records.Add(rec);
                     this.recordIdDictionary[rec.Id] = rec;
