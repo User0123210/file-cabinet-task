@@ -101,12 +101,12 @@ namespace FileCabinetApp
         public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date);
 
         /// <summary>
-        /// Creates a copy of the FileCabinetService as FileCabinetDefaultService.
+        /// Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
         /// </summary>
         public void ChangeValidatorToCustom();
 
         /// <summary>
-        /// Creates a copy of the FileCabinetService as FileCabinetCustomService.
+        /// Creates a copy of the FileCabinetMemoryService as FileCabinetCustomService.
         /// </summary>
         public void ChangeValidatorToDefault();
 

@@ -22,7 +22,6 @@ namespace FileCabinetApp
         private const int CommandHelpIndex = 0;
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
-        private static readonly IFileCabinetService FileCabinetService = new FileCabinetService(new DefaultValidator());
 
         private static readonly Tuple<string, Action<string>>[] Commands = new Tuple<string, Action<string>>[]
         {
@@ -51,6 +50,8 @@ namespace FileCabinetApp
 
         private static bool isRunning = true;
         private static string validationRules = "default";
+        private static string storage = "memory";
+        private static IFileCabinetService fileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
 
         /// <summary>
         /// Runs Console Application.
@@ -62,6 +63,7 @@ namespace FileCabinetApp
             Console.WriteLine($"Using {validationRules} validation rules.");
             Console.WriteLine(Program.HintMessage);
             Console.WriteLine();
+            FileStream? fileStream = null;
 
             do
             {
@@ -84,16 +86,38 @@ namespace FileCabinetApp
                         switch (inputs[commandIndex + 1].ToUpperInvariant())
                         {
                             case "DEFAULT":
-                                FileCabinetService.ChangeValidatorToDefault();
+                                fileCabinetService.ChangeValidatorToDefault();
                                 validationRules = "default";
                                 break;
                             case "CUSTOM":
-                                FileCabinetService.ChangeValidatorToCustom();
+                                fileCabinetService.ChangeValidatorToCustom();
                                 validationRules = "custom";
                                 break;
                         }
 
                         Console.WriteLine($"Using {validationRules} validation rules.");
+                    }
+
+                    continue;
+                }
+                else if (command == "--storage" || command == "-s")
+                {
+                    if (inputs.Length > 1)
+                    {
+                        switch (inputs[commandIndex + 1].ToUpperInvariant())
+                        {
+                            case "MEMORY":
+                                fileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
+                                storage = "memory";
+                                break;
+                            case "FILE":
+                                fileStream = new (@"cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                                fileCabinetService = new FileCabinetFilesystemService(fileStream, new DefaultValidator());
+                                storage = "file";
+                                break;
+                        }
+
+                        Console.WriteLine($"Using {storage} storage.");
                     }
 
                     continue;
@@ -112,6 +136,8 @@ namespace FileCabinetApp
                 }
             }
             while (isRunning);
+
+            fileStream?.Close();
         }
 
         private static void PrintMissedCommandInfo(string command)
@@ -155,7 +181,7 @@ namespace FileCabinetApp
 
         private static void Stat(string parameters)
         {
-            var recordsCount = Program.FileCabinetService.GetStat;
+            var recordsCount = Program.fileCabinetService.GetStat;
             Console.WriteLine($"{recordsCount} record(s).");
         }
 
@@ -180,13 +206,13 @@ namespace FileCabinetApp
             var permissions = ReadInput(CharConverter, PermissionsValidator);
 
             FileCabinetRecordParameterObject recordParameters = new () { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
-            int recordId = Program.FileCabinetService.CreateRecord(recordParameters);
+            int recordId = Program.fileCabinetService.CreateRecord(recordParameters);
             Console.WriteLine($"Record #{recordId} is created.");
         }
 
         private static void List(string parameters)
         {
-            foreach (var record in Program.FileCabinetService.GetRecords())
+            foreach (var record in Program.fileCabinetService.GetRecords())
             {
                 Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
             }
@@ -224,7 +250,7 @@ namespace FileCabinetApp
 
                 try
                 {
-                    FileCabinetService.EditRecord(recordId, recordParameters);
+                    fileCabinetService.EditRecord(recordId, recordParameters);
                     Console.WriteLine($"Record #{recordId} is updated.");
                 }
                 catch (ArgumentException)
@@ -265,8 +291,8 @@ namespace FileCabinetApp
 
         private static Tuple<bool, string> NameValidator(string name)
         {
-            int minLength = FileCabinetService.MinNameLength;
-            int maxLength = FileCabinetService.MaxNameLength;
+            int minLength = fileCabinetService.MinNameLength;
+            int maxLength = fileCabinetService.MaxNameLength;
             bool isValid = false;
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -285,7 +311,7 @@ namespace FileCabinetApp
                 return new Tuple<bool, string>(isValid, $"Name shouldn't be empty or whitespace");
             }
 
-            if (FileCabinetService.IsOnlyLetterName)
+            if (fileCabinetService.IsOnlyLetterName)
             {
                 foreach (char character in name)
                 {
@@ -302,7 +328,7 @@ namespace FileCabinetApp
 
         private static Tuple<bool, string> DateOfBirthValidator(DateTime date)
         {
-            DateTime minDate = FileCabinetService.MinDate;
+            DateTime minDate = fileCabinetService.MinDate;
 
             if (date < minDate || date > DateTime.Now)
             {
@@ -314,11 +340,11 @@ namespace FileCabinetApp
 
         private static Tuple<bool, string, DateTime> DateConverter(string date)
         {
-            bool isValid = DateTime.TryParseExact(date, FileCabinetService.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
+            bool isValid = DateTime.TryParseExact(date, fileCabinetService.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
 
             if (!isValid)
             {
-                return new Tuple<bool, string, DateTime>(isValid, $"Please, enter valid date of birth in format \"{FileCabinetService.DateFormat}\"", default);
+                return new Tuple<bool, string, DateTime>(isValid, $"Please, enter valid date of birth in format \"{fileCabinetService.DateFormat}\"", default);
             }
 
             return new Tuple<bool, string, DateTime>(isValid, "Everything alright", dateOfBirth);
@@ -334,9 +360,9 @@ namespace FileCabinetApp
 
         private static Tuple<bool, string> PermissionsValidator(char permissions)
         {
-            if (FileCabinetService.GetValidPermissions().Count > 0)
+            if (fileCabinetService.GetValidPermissions().Count > 0)
             {
-                foreach (char permission in FileCabinetService.GetValidPermissions())
+                foreach (char permission in fileCabinetService.GetValidPermissions())
                 {
                     if (char.Equals(char.ToLowerInvariant(permissions), permission))
                     {
@@ -344,7 +370,7 @@ namespace FileCabinetApp
                     }
                 }
 
-                return new Tuple<bool, string>(false, $"Permissions should be one of {string.Join(", ", FileCabinetService.GetValidPermissions())}");
+                return new Tuple<bool, string>(false, $"Permissions should be one of {string.Join(", ", fileCabinetService.GetValidPermissions())}");
             }
 
             return new Tuple<bool, string>(true, "Everything alright");
@@ -363,19 +389,19 @@ namespace FileCabinetApp
 
                 if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
                 {
-                    found = FileCabinetService.FindByFirstName(value);
+                    found = fileCabinetService.FindByFirstName(value);
                 }
                 else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
                 {
-                    found = FileCabinetService.FindByLastName(value);
+                    found = fileCabinetService.FindByLastName(value);
                 }
                 else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
                 {
-                    bool isDate = DateTime.TryParseExact(value, FileCabinetService.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+                    bool isDate = DateTime.TryParseExact(value, fileCabinetService.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
 
                     if (isDate)
                     {
-                        found = FileCabinetService.FindByDateOfBirth(date);
+                        found = fileCabinetService.FindByDateOfBirth(date);
                     }
                 }
 
@@ -400,7 +426,7 @@ namespace FileCabinetApp
                 {
                     Stream stream = File.OpenWrite(destination);
                     using StreamWriter writer = new (stream);
-                    FileCabinetServiceSnapshot snapshot = FileCabinetService.MakeSnapshot();
+                    FileCabinetServiceSnapshot snapshot = fileCabinetService.MakeSnapshot();
 
                     if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
                     {

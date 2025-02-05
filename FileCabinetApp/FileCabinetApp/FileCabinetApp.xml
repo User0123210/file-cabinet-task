@@ -139,6 +139,255 @@
             <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
             <exception cref="T:System.ArgumentException">Thrown when record with the specified id isn't found.</exception>
         </member>
+        <member name="T:FileCabinetApp.FileCabinetFilesystemService">
+            <summary>
+            Represent file cabinet service for work with filesytem.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.#ctor(System.IO.FileStream,FileCabinetApp.IRecordValidator)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetFilesystemService"/> class.
+            </summary>
+            <param name="stream">Stream to write.</param>
+            <param name="validator">Validator to check record parameters.</param>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetFilesystemService.MinNameLength">
+            <summary>
+            Gets minimal possible length of the name.
+            </summary>
+            <value>this.minNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetFilesystemService.MaxNameLength">
+            <summary>
+            Gets maximum possible length of the name.
+            </summary>
+            <value>this.maxNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetFilesystemService.IsOnlyLetterName">
+            <summary>
+            Gets a value indicating whether the name should contain only letter characters or not.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetFilesystemService.DateFormat">
+            <summary>
+            Gets a value of the date format.
+            </summary>
+            <value>dateFormat.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetFilesystemService.MinDate">
+            <summary>
+            Gets minimum possible date.
+            </summary>
+            <value>this.minDate.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetFilesystemService.GetStat">
+            <summary>
+            Gets information about the number of records in the service.
+            </summary>
+            <value>
+            <records.Count>Information about the number of records in the service.</records.Count>
+            </value>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.GetValidPermissions">
+            <summary>
+            Gets array of valid permissions.
+            </summary>
+            <returns>An array of valid permissions.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.CreateRecord(FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Creates a new value and adds it into the records list.
+            </summary>
+            <param name="recordParameters">Parameters of the value to change.</param>
+            <returns>Id of the created value.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.GetRecords">
+            <summary>
+            Gets copy of the records as value array.
+            </summary>
+            <returns>Array of the records.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Edits the existing value with the specified id.
+            </summary>
+            <param name="id">Id of the value to edit.</param>
+            <param name="recordParameters">Parameters of the value to change.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindByFirstName(System.String)">
+            <summary>
+            Looks for records with firstName property equal to the specified firstName parameter.
+            </summary>
+            <param name="firstName">First name of the records to seek.</param>
+            <returns>Array of the found records with the specified firstName.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindByLastName(System.String)">
+            <summary>
+            Looks for records with lastName property equal to the specified lastName parameter.
+            </summary>
+            <param name="lastName">Last name of the records to seek.</param>
+            <returns>Array of the found records with the specified lastName.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.FindByDateOfBirth(System.DateTime)">
+            <summary>
+            Looks for records with dateOfBirth property equal to the specified date parameter.
+            </summary>
+            <param name="date">Date of birth of the records to seek.</param>
+            <returns>Array of the found records with the specified dateOfBirth.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.ChangeValidatorToCustom">
+            <summary>
+            Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.ChangeValidatorToDefault">
+            <summary>
+            Creates a copy of the FileCabinetMemoryService as FileCabinetCustomService.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.MakeSnapshot">
+            <summary>
+            Makes snapshot of the IFileCabinetService with the copy of the records.
+            </summary>
+            <returns>FileCabinetServiceSnapshot of the current IFileCabinetService instance.</returns>
+        </member>
+        <member name="T:FileCabinetApp.FileCabinetMemoryService">
+            <summary>
+            Manages information about the records in file cabinet.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.#ctor(FileCabinetApp.IRecordValidator)">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetMemoryService"/> class.
+            </summary>
+            <param name="validator">Parameter of validator to use.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.#ctor(FileCabinetApp.IRecordValidator,System.Collections.Generic.IList{FileCabinetApp.FileCabinetRecord},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.DateTime,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.Int32,FileCabinetApp.FileCabinetRecord})">
+            <summary>
+            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetMemoryService"/> class.
+            </summary>
+            <param name="validator">Parameter of validator to use.</param>
+            <param name="records">Parameter to assign to records list.</param>
+            <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
+            <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
+            <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
+            <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetMemoryService.MinNameLength">
+            <summary>
+            Gets minimal possible length of the name.
+            </summary>
+            <value>this.minNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetMemoryService.MaxNameLength">
+            <summary>
+            Gets maximum possible length of the name.
+            </summary>
+            <value>this.maxNameLength.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetMemoryService.IsOnlyLetterName">
+            <summary>
+            Gets a value indicating whether the name should contain only letter characters or not.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetMemoryService.DateFormat">
+            <summary>
+            Gets a value of the date format.
+            </summary>
+            <value>dateFormat.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetMemoryService.MinDate">
+            <summary>
+            Gets minimum possible date.
+            </summary>
+            <value>this.minDate.</value>
+        </member>
+        <member name="P:FileCabinetApp.FileCabinetMemoryService.GetStat">
+            <summary>
+            Gets information about the number of records in the service.
+            </summary>
+            <value>
+            <records.Count>Information about the number of records in the service.</records.Count>
+            </value>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.GetValidPermissions">
+            <summary>
+            Gets array of valid permissions.
+            </summary>
+            <returns>An array of valid permissions.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.CreateRecord(FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Creates a new record and adds it into the records list.
+            </summary>
+            <param name="recordParameters">Parameters of the record to change.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
+            <returns>Id of the created record.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.GetRecords">
+            <summary>
+            Gets copy of the records as record array.
+            </summary>
+            <returns>Array of the records.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordParameterObject)">
+            <summary>
+            Edits the existing record with the specified id.
+            </summary>
+            <param name="id">Id of the record to edit.</param>
+            <param name="recordParameters">Parameters of the record to change.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
+            <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when record with the specified id isn't found.</exception>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.FindByFirstName(System.String)">
+            <summary>
+            Looks for records with firstName property equal to the specified firstName parameter.
+            </summary>
+            <param name="firstName">First name of the records to seek.</param>
+            <returns>Array of the found records with the specified firstName.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.FindByLastName(System.String)">
+            <summary>
+            Looks for records with lastName property equal to the specified lastName parameter.
+            </summary>
+            <param name="lastName">Last name of the records to seek.</param>
+            <returns>Array of the found records with the specified lastName.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.FindByDateOfBirth(System.DateTime)">
+            <summary>
+            Looks for records with dateOfBirth property equal to the specified date parameter.
+            </summary>
+            <param name="date">Date of birth of the records to seek.</param>
+            <returns>Array of the found records with the specified dateOfBirth.</returns>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.ChangeValidatorToCustom">
+            <summary>
+            Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.ChangeValidatorToDefault">
+            <summary>
+            Creates a copy of the FileCabinetMemoryService as FileCabinetCustomService.
+            </summary>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.MakeSnapshot">
+            <summary>
+            Makes snapshot of the FileCabinetMemoryService with the copy of the records.
+            </summary>
+            <returns>FileCabinetServiceSnapshot of the current FileCabinetMemoryService instance.</returns>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetRecord">
             <summary>
             Represents user's record in the FileCabinet.
@@ -287,142 +536,6 @@
             </summary>
             <param name="record">Record to write.</param>
         </member>
-        <member name="T:FileCabinetApp.FileCabinetService">
-            <summary>
-            Manages information about the records in file cabinet.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.#ctor(FileCabinetApp.IRecordValidator)">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetService"/> class.
-            </summary>
-            <param name="validator">Parameter of validator to use.</param>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.#ctor(FileCabinetApp.IRecordValidator,System.Collections.Generic.IList{FileCabinetApp.FileCabinetRecord},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.DateTime,System.Collections.Generic.List{FileCabinetApp.FileCabinetRecord}},System.Collections.Generic.Dictionary{System.Int32,FileCabinetApp.FileCabinetRecord})">
-            <summary>
-            Initializes a new instance of the <see cref="T:FileCabinetApp.FileCabinetService"/> class.
-            </summary>
-            <param name="validator">Parameter of validator to use.</param>
-            <param name="records">Parameter to assign to records list.</param>
-            <param name="firstNameDictionary">Parameter to assign to firstNameDictionary dictionary.</param>
-            <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
-            <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
-            <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetService.MinNameLength">
-            <summary>
-            Gets minimal possible length of the name.
-            </summary>
-            <value>this.minNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetService.MaxNameLength">
-            <summary>
-            Gets maximum possible length of the name.
-            </summary>
-            <value>this.maxNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetService.IsOnlyLetterName">
-            <summary>
-            Gets a value indicating whether the name should contain only letter characters or not.
-            </summary>
-            <value>isOnlyLetterName.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetService.DateFormat">
-            <summary>
-            Gets a value of the date format.
-            </summary>
-            <value>dateFormat.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetService.MinDate">
-            <summary>
-            Gets minimum possible date.
-            </summary>
-            <value>this.minDate.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetService.GetStat">
-            <summary>
-            Gets information about the number of records in the service.
-            </summary>
-            <value>
-            <records.Count>Information about the number of records in the service.</records.Count>
-            </value>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.GetValidPermissions">
-            <summary>
-            Gets array of valid permissions.
-            </summary>
-            <returns>An array of valid permissions.</returns>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.CreateRecord(FileCabinetApp.FileCabinetRecordParameterObject)">
-            <summary>
-            Creates a new record and adds it into the records list.
-            </summary>
-            <param name="recordParameters">Parameters of the record to change.</param>
-            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
-            <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
-            <returns>Id of the created record.</returns>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.GetRecords">
-            <summary>
-            Gets copy of the records as record array.
-            </summary>
-            <returns>Array of the records.</returns>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.EditRecord(System.Int32,FileCabinetApp.FileCabinetRecordParameterObject)">
-            <summary>
-            Edits the existing record with the specified id.
-            </summary>
-            <param name="id">Id of the record to edit.</param>
-            <param name="recordParameters">Parameters of the record to change.</param>
-            <exception cref="T:System.ArgumentNullException">Thrown when recordParameters are null.</exception>
-            <exception cref="T:System.ArgumentNullException">Thrown when firstName or lastName is null.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when salary less than 0.</exception>
-            <exception cref="T:System.ArgumentException">Thrown when record with the specified id isn't found.</exception>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.FindByFirstName(System.String)">
-            <summary>
-            Looks for records with firstName property equal to the specified firstName parameter.
-            </summary>
-            <param name="firstName">First name of the records to seek.</param>
-            <returns>Array of the found records with the specified firstName.</returns>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.FindByLastName(System.String)">
-            <summary>
-            Looks for records with lastName property equal to the specified lastName parameter.
-            </summary>
-            <param name="lastName">Last name of the records to seek.</param>
-            <returns>Array of the found records with the specified lastName.</returns>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.FindByDateOfBirth(System.DateTime)">
-            <summary>
-            Looks for records with dateOfBirth property equal to the specified date parameter.
-            </summary>
-            <param name="date">Date of birth of the records to seek.</param>
-            <returns>Array of the found records with the specified dateOfBirth.</returns>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.ChangeValidatorToCustom">
-            <summary>
-            Creates a copy of the FileCabinetService as FileCabinetDefaultService.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.ChangeValidatorToDefault">
-            <summary>
-            Creates a copy of the FileCabinetService as FileCabinetCustomService.
-            </summary>
-        </member>
-        <member name="M:FileCabinetApp.FileCabinetService.MakeSnapshot">
-            <summary>
-            Makes snapshot of the FileCabinetService with the copy of the records.
-            </summary>
-            <returns>FileCabinetServiceSnapshot of the current FileCabinetService instance.</returns>
-        </member>
         <member name="T:FileCabinetApp.FileCabinetServiceSnapshot">
             <summary>
             Represent snapshot of the IFileCabinetService.
@@ -538,12 +651,12 @@
         </member>
         <member name="M:FileCabinetApp.IFileCabinetService.ChangeValidatorToCustom">
             <summary>
-            Creates a copy of the FileCabinetService as FileCabinetDefaultService.
+            Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
             </summary>
         </member>
         <member name="M:FileCabinetApp.IFileCabinetService.ChangeValidatorToDefault">
             <summary>
-            Creates a copy of the FileCabinetService as FileCabinetCustomService.
+            Creates a copy of the FileCabinetMemoryService as FileCabinetCustomService.
             </summary>
         </member>
         <member name="M:FileCabinetApp.IFileCabinetService.MakeSnapshot">

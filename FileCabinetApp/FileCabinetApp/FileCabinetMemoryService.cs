@@ -11,7 +11,7 @@ namespace FileCabinetApp
     /// <summary>
     /// Manages information about the records in file cabinet.
     /// </summary>
-    public class FileCabinetService : IFileCabinetService
+    public class FileCabinetMemoryService : IFileCabinetService
     {
         private readonly List<FileCabinetRecord> records = new ();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new ();
@@ -21,17 +21,17 @@ namespace FileCabinetApp
         private IRecordValidator validator;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// Initializes a new instance of the <see cref="FileCabinetMemoryService"/> class.
         /// </summary>
         /// <param name="validator">Parameter of validator to use.</param>
-        public FileCabinetService(IRecordValidator validator)
+        public FileCabinetMemoryService(IRecordValidator validator)
         {
             this.records = new List<FileCabinetRecord>();
             this.validator = validator;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// Initializes a new instance of the <see cref="FileCabinetMemoryService"/> class.
         /// </summary>
         /// <param name="validator">Parameter of validator to use.</param>
         /// <param name="records">Parameter to assign to records list.</param>
@@ -39,7 +39,7 @@ namespace FileCabinetApp
         /// <param name="lastNameDictionary">Parameter to assign to lastNameDictionary dictionary.</param>
         /// <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
         /// <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
-        public FileCabinetService(IRecordValidator validator, IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
+        public FileCabinetMemoryService(IRecordValidator validator, IList<FileCabinetRecord> records, Dictionary<string, List<FileCabinetRecord>> firstNameDictionary, Dictionary<string, List<FileCabinetRecord>> lastNameDictionary, Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary, Dictionary<int, FileCabinetRecord> recordIdDictionary)
         {
             this.records = records.ToList();
             this.firstNameDictionary = firstNameDictionary;
@@ -239,7 +239,7 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Creates a copy of the FileCabinetService as FileCabinetDefaultService.
+        /// Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
         /// </summary>
         public void ChangeValidatorToCustom()
         {
@@ -247,7 +247,7 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Creates a copy of the FileCabinetService as FileCabinetCustomService.
+        /// Creates a copy of the FileCabinetMemoryService as FileCabinetCustomService.
         /// </summary>
         public void ChangeValidatorToDefault()
         {
@@ -255,9 +255,9 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Makes snapshot of the FileCabinetService with the copy of the records.
+        /// Makes snapshot of the FileCabinetMemoryService with the copy of the records.
         /// </summary>
-        /// <returns>FileCabinetServiceSnapshot of the current FileCabinetService instance.</returns>
+        /// <returns>FileCabinetServiceSnapshot of the current FileCabinetMemoryService instance.</returns>
         public FileCabinetServiceSnapshot MakeSnapshot()
         {
             return new FileCabinetServiceSnapshot(this.records);
