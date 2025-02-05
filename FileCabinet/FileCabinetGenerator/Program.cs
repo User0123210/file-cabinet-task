@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-#pragma warning disable CA1031, CA1801, IDE0060
+﻿#pragma warning disable CA1031, CA1801, IDE0060
 namespace FileCabinetGenerator
 {
+    using Bogus;
+    using Bogus.Extensions;
+    using FileCabinetApp;
+    using System.Globalization;
+
     /// <summary>
     /// Represents FileCabinetGenerator Console App.
     /// </summary>
@@ -19,6 +16,7 @@ namespace FileCabinetGenerator
         private static int recordsAmount;
         private static int startId = 1;
         private static bool isRunning = true;
+        private static IRecordValidator validator = new DefaultValidator();
 
         /// <summary>
         /// Runs Console Application.
@@ -92,7 +90,7 @@ namespace FileCabinetGenerator
                         }
                         else
                         {
-                            Console.WriteLine($"Records amount should be an integer.");
+                            Console.WriteLine("Records amount should be an integer.");
                         }
                     }
                     else if (command == "--start-id" || command == "-i")
@@ -104,7 +102,7 @@ namespace FileCabinetGenerator
                         }
                         else
                         {
-                            Console.WriteLine($"Start id should be an integer.");
+                            Console.WriteLine("Start id should be an integer.");
                         }
                     }
 
@@ -114,6 +112,7 @@ namespace FileCabinetGenerator
                     }
                     else if (parseInputs.Length <= 2)
                     {
+                        Generate();
                         Console.WriteLine($"{recordsAmount} records were written to {outputFile}");
                         parseInputs = Array.Empty<string>();
                     }
@@ -122,6 +121,35 @@ namespace FileCabinetGenerator
             while (isRunning);
 
             outputFile?.Close();
+        }
+
+        private static void Generate()
+        {
+            List<FileCabinetRecord> data = new ();
+
+            for (int i = 0; i < recordsAmount; i++)
+            {
+                FileCabinetRecord record = new Faker<FileCabinetRecord>().
+                    StrictMode(true).
+                    RuleFor(r => r.Id, i => startId++).
+                    RuleFor(r => r.FirstName, f => f.Name.FirstName().
+                    Trim().
+                    ClampLength(validator.MinNameLength, validator.MaxNameLength)).
+                    RuleFor(r => r.LastName, l => l.Name.LastName().
+                    Trim().
+                    ClampLength(validator.MinNameLength, validator.MaxNameLength)).
+                    RuleFor(r => r.DateOfBirth, d =>
+                    {
+                        DateTime data = d.Date.
+                                        Between(validator.MinDate, DateTime.Now);
+                        var result = DateTime.ParseExact(data.ToString(validator.DateFormat, CultureInfo.InvariantCulture), validator.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                        return result;
+                    }).
+                    RuleFor(r => r.Status, st => st.Random.Short()).
+                    RuleFor(r => r.Salary, s => s.Random.Decimal(0, decimal.MaxValue)).
+                    RuleFor(r => r.Permissions, p => (char)p.Random.Int(32, 126));
+                data.Add(record);
+            }
         }
     }
 }
