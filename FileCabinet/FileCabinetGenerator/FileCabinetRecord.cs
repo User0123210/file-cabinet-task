@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FileCabinetApp
+﻿namespace FileCabinetApp
 {
     /// <summary>
     /// Represents user's record in the FileCabinet.

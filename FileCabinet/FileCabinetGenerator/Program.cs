@@ -1,22 +1,27 @@
-﻿#pragma warning disable CA1031, CA1801, IDE0060
+﻿using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Xml;
+using System.Xml.Serialization;
+using Bogus;
+using Bogus.Extensions;
+using FileCabinetApp;
+
+#pragma warning disable CA1303, CA1031
+
 namespace FileCabinetGenerator
 {
-    using Bogus;
-    using Bogus.Extensions;
-    using FileCabinetApp;
-    using System.Globalization;
-
     /// <summary>
     /// Represents FileCabinetGenerator Console App.
     /// </summary>
     internal class Program
     {
         private const string DeveloperName = "Serafima Mochalova";
+        private static readonly IRecordValidator Validator = new DefaultValidator();
         private static string outputType = "csv";
         private static int recordsAmount;
         private static int startId = 1;
         private static bool isRunning = true;
-        private static IRecordValidator validator = new DefaultValidator();
+        private static FileStream? outputFile;
 
         /// <summary>
         /// Runs Console Application.
@@ -26,7 +31,6 @@ namespace FileCabinetGenerator
         {
             Console.WriteLine($"File Cabinet Generator, developed by {Program.DeveloperName}");
             Console.WriteLine();
-            FileStream? outputFile = null;
 
             do
             {
@@ -66,6 +70,7 @@ namespace FileCabinetGenerator
                     {
                         try
                         {
+                            outputFile?.Close();
                             outputFile = new (paramValue, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                             Console.WriteLine($"Using {paramValue} outputFile.");
                         }
@@ -112,8 +117,8 @@ namespace FileCabinetGenerator
                     }
                     else if (parseInputs.Length <= 2)
                     {
-                        Generate();
-                        Console.WriteLine($"{recordsAmount} records were written to {outputFile}");
+                        ExportToCsv(Generate());
+                        Console.WriteLine($"{recordsAmount} records were written to {outputFile?.Name}");
                         parseInputs = Array.Empty<string>();
                     }
                 }
@@ -123,7 +128,7 @@ namespace FileCabinetGenerator
             outputFile?.Close();
         }
 
-        private static void Generate()
+        private static ReadOnlyCollection<FileCabinetRecord> Generate()
         {
             List<FileCabinetRecord> data = new ();
 
@@ -134,21 +139,41 @@ namespace FileCabinetGenerator
                     RuleFor(r => r.Id, i => startId++).
                     RuleFor(r => r.FirstName, f => f.Name.FirstName().
                     Trim().
-                    ClampLength(validator.MinNameLength, validator.MaxNameLength)).
+                    ClampLength(Validator.MinNameLength, Validator.MaxNameLength)).
                     RuleFor(r => r.LastName, l => l.Name.LastName().
                     Trim().
-                    ClampLength(validator.MinNameLength, validator.MaxNameLength)).
+                    ClampLength(Validator.MinNameLength, Validator.MaxNameLength)).
                     RuleFor(r => r.DateOfBirth, d =>
                     {
                         DateTime data = d.Date.
-                                        Between(validator.MinDate, DateTime.Now);
-                        var result = DateTime.ParseExact(data.ToString(validator.DateFormat, CultureInfo.InvariantCulture), validator.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                                        Between(Validator.MinDate, DateTime.Now);
+                        var result = DateTime.ParseExact(data.ToString(Validator.DateFormat, CultureInfo.InvariantCulture), Validator.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None);
                         return result;
                     }).
                     RuleFor(r => r.Status, st => st.Random.Short()).
                     RuleFor(r => r.Salary, s => s.Random.Decimal(0, decimal.MaxValue)).
                     RuleFor(r => r.Permissions, p => (char)p.Random.Int(32, 126));
                 data.Add(record);
+            }
+
+            return data.AsReadOnly();
+        }
+
+        private static void ExportToCsv(ReadOnlyCollection<FileCabinetRecord> records)
+        {
+            if (outputFile is not null)
+            {
+                StreamWriter writer = new (outputFile);
+                string propertyNames = string.Join(",", typeof(FileCabinetRecord).GetProperties().Select(p => p.Name));
+                writer?.WriteLine(propertyNames);
+
+                foreach (var record in records)
+                {
+                    string propertyValues = string.Join(",", typeof(FileCabinetRecord).GetProperties().Select(p => p.GetValue(record) ?? string.Empty));
+                    writer?.WriteLine(propertyValues);
+                }
+
+                writer?.Close();
             }
         }
     }
