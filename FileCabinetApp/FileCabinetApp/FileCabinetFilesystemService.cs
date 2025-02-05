@@ -67,7 +67,20 @@ namespace FileCabinetApp
         /// </value>
         public int GetStat
         {
-            get;
+            get
+            {
+                int numberOfRecords = 0;
+                this.stream.Position = 0;
+                byte[] buffer = new byte[RecordSize];
+
+                while (this.stream.Read(buffer, 0, RecordSize) != 0)
+                {
+                    numberOfRecords++;
+                    this.stream.Position += RecordSize;
+                }
+
+                return numberOfRecords;
+            }
         }
 
         /// <summary>
@@ -85,17 +98,15 @@ namespace FileCabinetApp
         {
             if (recordParameters is not null)
             {
-                int numberOfRecords = 0;
+                int numberOfRecords = this.GetStat;
                 Span<int> copyDecimal = new (new int[4]);
                 decimal.GetBits(recordParameters.Salary, copyDecimal);
                 byte[] value = new byte[RecordSize];
+
                 byte[] buffer = new byte[RecordSize];
-                this.stream.Position = 0;
 
                 while (this.stream.Read(buffer, 0, RecordSize) != 0)
                 {
-                    numberOfRecords++;
-                    this.stream.Position += RecordSize;
                 }
 
                 BitConverter.GetBytes(1).CopyTo(value, 0);
@@ -127,7 +138,6 @@ namespace FileCabinetApp
         public ReadOnlyCollection<FileCabinetRecord> GetRecords()
         {
             List<FileCabinetRecord> records = new ();
-            int numberOfRecords = 0;
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
             int id;
@@ -143,7 +153,6 @@ namespace FileCabinetApp
 
             while (this.stream.Read(buffer, 0, RecordSize) != 0)
             {
-                numberOfRecords++;
                 this.stream.Position += RecordSize;
                 id = BitConverter.ToInt32(buffer, 2);
                 firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
