@@ -8,6 +8,13 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class ExitCommandHandler : CommandHandlerBase
     {
+        private readonly Action<bool> exit;
+
+        public ExitCommandHandler(Action<bool> exit)
+        {
+            this.exit = exit;
+        }
+
         public override void Handle(AppCommandRequest commandRequest)
         {
             if (commandRequest is not null)
@@ -15,7 +22,7 @@ namespace FileCabinetApp.CommandHandlers
                 if (commandRequest.Command == "exit")
                 {
                     Console.WriteLine("Exiting an application...");
-                    Program.IsRunning = false;
+                    this.exit(true);
                 }
                 else
                 {

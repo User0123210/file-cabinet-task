@@ -19,7 +19,7 @@ namespace FileCabinetApp
     {
         private const string DeveloperName = "Serafima Mochalova";
         private const string HintMessage = "Enter your command, or enter 'help' to get help.";
-        public static bool IsRunning = true;
+        private static bool isRunning = true;
         private static string validationRules = "default";
         private static string storage = "memory";
         private static IFileCabinetService fileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
@@ -98,7 +98,7 @@ namespace FileCabinetApp
 
                 handler.Handle(new AppCommandRequest(command, inputs.Length > 1 ? inputs[commandIndex + 1] : string.Empty));
             }
-            while (IsRunning);
+            while (isRunning);
 
             fileStream?.Close();
         }
@@ -115,7 +115,13 @@ namespace FileCabinetApp
             var removeHandler = new RemoveCommandHandler(fileCabinetService);
             var findHandler = new FindCommandHandler(fileCabinetService);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
-            var exitHandler = new ExitCommandHandler();
+            var exitHandler = new ExitCommandHandler(b =>
+            {
+                if (b)
+                {
+                    isRunning = false;
+                }
+            });
 
             purgeHandler.SetNext(exitHandler);
             findHandler.SetNext(purgeHandler);
