@@ -128,5 +128,10 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="id">Id of the record to delete.</param>
         public void RemoveRecord(int id);
+
+        /// <summary>
+        /// Removes deleted records from source database.
+        /// </summary>
+        public void Purge();
     }
 }

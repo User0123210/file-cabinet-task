@@ -116,7 +116,7 @@ namespace FileCabinetApp
 
             ArgumentNullException.ThrowIfNull(recordParameters);
 
-            int newId = 0;
+            int newId = 1;
 
             while (this.GetRecords().Select(r => r.Id).Contains(newId))
             {
@@ -489,6 +489,13 @@ namespace FileCabinetApp
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Removes deleted records from source database.
+        /// </summary>
+        public void Purge()
+        {
         }
     }
 }

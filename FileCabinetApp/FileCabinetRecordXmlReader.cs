@@ -32,15 +32,15 @@ namespace FileCabinetApp
         /// <returns>Read strings as FileCabinetRecord list.</returns>
         public IList<FileCabinetRecord> ReadAll()
         {
-            FileCabinetRecord[]? records = Array.Empty<FileCabinetRecord>();
+            FileCabinetRecord[] records = Array.Empty<FileCabinetRecord>();
 
             if (this.reader is not null)
             {
-                XmlSerializer serializer = new (typeof(FileCabinetRecord[]), new XmlRootAttribute("Records"));
-                records = serializer.Deserialize(this.reader) as FileCabinetRecord[];
+                XmlSerializer serializer = new (typeof(FileCabinetRecord[]), new XmlRootAttribute("records"));
+                records = serializer.Deserialize(this.reader) as FileCabinetRecord[] ?? Array.Empty<FileCabinetRecord>();
             }
 
-            return records is not null ? records.ToList() : new List<FileCabinetRecord>();
+            return records.ToList();
         }
     }
 }

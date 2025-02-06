@@ -36,6 +36,7 @@ namespace FileCabinetApp
             new ("export", Export),
             new ("import", Import),
             new ("remove", Remove),
+            new ("purge", Purge),
         };
 
         private static readonly string[][] HelpMessages = new string[][]
@@ -50,6 +51,7 @@ namespace FileCabinetApp
             new string[] { "export", "exports data from the service into the specified format and file", "The 'export' command exports data from the service into the specified format and file." },
             new string[] { "import", "imports data from the specified file in the specified format to the service", "The 'import' command imports data from the specified file in the specified format to the service." },
             new string[] { "remove", "removes record with the specified id from the service", "The 'remove' command removes record with the specified id from the service." },
+            new string[] { "purge", "purge removes deleted records from the database", "The 'purge' command purge removes deleted records from the database." },
         };
 
         private static bool isRunning = true;
@@ -490,6 +492,11 @@ namespace FileCabinetApp
             {
                 fileCabinetService.RemoveRecord(recordId);
             }
+        }
+
+        private static void Purge(string parameters)
+        {
+            fileCabinetService.Purge();
         }
     }
 }
