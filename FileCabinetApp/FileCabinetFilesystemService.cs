@@ -65,21 +65,26 @@ namespace FileCabinetApp
         /// <value>
         /// <records.Count>Information about the number of records in the service.</records.Count>
         /// </value>
-        public int GetStat
+        public (int, int) GetStat
         {
             get
             {
+                int numberOfDeleted = 0;
                 int numberOfRecords = 0;
                 this.stream.Position = 0;
                 byte[] buffer = new byte[RecordSize];
 
                 while (this.stream.Read(buffer, 0, RecordSize) != 0)
                 {
+                    if ((buffer[0] & 4) != 0)
+                    {
+                        numberOfDeleted++;
+                    }
+
                     numberOfRecords++;
-                    this.stream.Position += RecordSize;
                 }
 
-                return numberOfRecords;
+                return (numberOfRecords, numberOfDeleted);
             }
         }
 
@@ -112,10 +117,7 @@ namespace FileCabinetApp
                     newId++;
                 }
 
-                while (this.stream.Read(buffer, 0, RecordSize) != 0)
-                {
-                    this.stream.Position += RecordSize;
-                }
+                this.stream.Seek(0, SeekOrigin.End);
 
                 BitConverter.GetBytes(1).CopyTo(value, 0);
                 BitConverter.GetBytes(newId).CopyTo(value, 2);
@@ -160,8 +162,6 @@ namespace FileCabinetApp
 
             while (this.stream.Read(buffer, 0, RecordSize) != 0)
             {
-                this.stream.Position += RecordSize;
-
                 if ((buffer[0] & 4) != 0)
                 {
                     continue;
@@ -265,7 +265,7 @@ namespace FileCabinetApp
             {
                 recordFirstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
 
-                if (recordFirstName == firstName && ((buffer[0] & 4) == 0))
+                if (string.Equals(recordFirstName, firstName, StringComparison.OrdinalIgnoreCase) && ((buffer[0] & 4) == 0))
                 {
                     id = BitConverter.ToInt32(buffer, 2);
                     lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
@@ -280,10 +280,8 @@ namespace FileCabinetApp
                     copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
                     salary = new decimal(copyDecimal);
                     permissions = BitConverter.ToChar(buffer, 290);
-                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
+                    records.Add(new FileCabinetRecord() { Id = id, FirstName = recordFirstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
                 }
-
-                this.stream.Position += RecordSize;
             }
 
             return records.AsReadOnly();
@@ -314,7 +312,7 @@ namespace FileCabinetApp
             {
                 recordLastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
 
-                if (recordLastName == lastName && ((buffer[0] & 4) == 0))
+                if (string.Equals(recordLastName, lastName, StringComparison.OrdinalIgnoreCase) && ((buffer[0] & 4) == 0))
                 {
                     id = BitConverter.ToInt32(buffer, 2);
                     firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
@@ -329,10 +327,8 @@ namespace FileCabinetApp
                     copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
                     salary = new decimal(copyDecimal);
                     permissions = BitConverter.ToChar(buffer, 290);
-                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
+                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = recordLastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
                 }
-
-                this.stream.Position += RecordSize;
             }
 
             return records.AsReadOnly();
@@ -380,8 +376,6 @@ namespace FileCabinetApp
                     permissions = BitConverter.ToChar(buffer, 290);
                     records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = date, Status = status, Salary = salary, Permissions = permissions });
                 }
-
-                this.stream.Position += RecordSize;
             }
 
             return records.AsReadOnly();
@@ -561,8 +555,6 @@ namespace FileCabinetApp
 
             while (this.stream.Read(buffer, 0, RecordSize) != 0)
             {
-                this.stream.Position += RecordSize;
-
                 if ((buffer[0] & 4) != 0)
                 {
                     continue;
@@ -587,6 +579,8 @@ namespace FileCabinetApp
                 records.Add((recordStatus, new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions }));
             }
 
+            this.stream.Position = 0;
+
             foreach (var record in records)
             {
                 BitConverter.GetBytes(record.Item1[0]).CopyTo(value, 0);
@@ -609,7 +603,7 @@ namespace FileCabinetApp
             }
 
             this.stream.Position = 0;
-            this.stream.SetLength(RecordSize * records.Count * 2);
+            this.stream.SetLength(RecordSize * records.Count);
             this.stream.Flush(false);
         }
     }

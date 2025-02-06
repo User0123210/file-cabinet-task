@@ -49,7 +49,7 @@ namespace FileCabinetApp
         /// <value>
         /// <records.Count>Information about the number of records in the service.</records.Count>
         /// </value>
-        public int GetStat
+        public (int, int) GetStat
         {
             get;
         }
