@@ -8,8 +8,11 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class ImportCommandHandler : CommandHandlerBase
     {
-        public ImportCommandHandler()
+        private readonly IFileCabinetService service;
+
+        public ImportCommandHandler(IFileCabinetService service)
         {
+            this.service = service;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
@@ -26,17 +29,17 @@ namespace FileCabinetApp.CommandHandlers
                 {
                     Stream stream = File.OpenRead(source);
                     using StreamReader reader = new(stream);
-                    FileCabinetServiceSnapshot snapshot = Program.FileCabinetService.MakeSnapshot();
+                    FileCabinetServiceSnapshot snapshot = this.service.MakeSnapshot();
 
                     if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
                     {
                         snapshot.LoadFromCsv(reader);
-                        Program.FileCabinetService.Restore(snapshot);
+                        this.service.Restore(snapshot);
                     }
                     else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
                     {
                         snapshot.LoadFromXml(reader);
-                        Program.FileCabinetService.Restore(snapshot);
+                        this.service.Restore(snapshot);
                     }
                 }
                 catch (Exception ex)

@@ -8,13 +8,16 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class PurgeCommandHandler : CommandHandlerBase
     {
-        public PurgeCommandHandler()
+        private readonly IFileCabinetService service;
+
+        public PurgeCommandHandler(IFileCabinetService service)
         {
+            this.service = service;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            Program.FileCabinetService.Purge();
+            this.service.Purge();
         }
     }
 }

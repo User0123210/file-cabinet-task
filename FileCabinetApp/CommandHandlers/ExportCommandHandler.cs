@@ -8,8 +8,11 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class ExportCommandHandler : CommandHandlerBase
     {
-        public ExportCommandHandler()
+        private readonly IFileCabinetService service;
+
+        public ExportCommandHandler(IFileCabinetService service)
         {
+            this.service = service;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
@@ -26,7 +29,7 @@ namespace FileCabinetApp.CommandHandlers
                 {
                     Stream stream = File.OpenWrite(destination);
                     using StreamWriter writer = new(stream);
-                    FileCabinetServiceSnapshot snapshot = Program.FileCabinetService.MakeSnapshot();
+                    FileCabinetServiceSnapshot snapshot = this.service.MakeSnapshot();
 
                     if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
                     {

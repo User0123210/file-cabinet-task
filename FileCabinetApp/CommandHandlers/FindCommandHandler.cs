@@ -10,8 +10,11 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class FindCommandHandler : CommandHandlerBase
     {
-        public FindCommandHandler()
+        private readonly IFileCabinetService service;
+
+        public FindCommandHandler(IFileCabinetService service)
         {
+            this.service = service;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
@@ -27,19 +30,19 @@ namespace FileCabinetApp.CommandHandlers
 
                 if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
                 {
-                    found = Program.FileCabinetService.FindByFirstName(value);
+                    found = this.service.FindByFirstName(value);
                 }
                 else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
                 {
-                    found = Program.FileCabinetService.FindByLastName(value);
+                    found = this.service.FindByLastName(value);
                 }
                 else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
                 {
-                    bool isDate = DateTime.TryParseExact(value, Program.FileCabinetService.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+                    bool isDate = DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
 
                     if (isDate)
                     {
-                        found = Program.FileCabinetService.FindByDateOfBirth(date);
+                        found = this.service.FindByDateOfBirth(date);
                     }
                 }
 

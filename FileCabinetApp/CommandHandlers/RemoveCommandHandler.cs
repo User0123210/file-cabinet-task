@@ -8,8 +8,11 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class RemoveCommandHandler : CommandHandlerBase
     {
-        public RemoveCommandHandler()
+        private readonly IFileCabinetService service;
+
+        public RemoveCommandHandler(IFileCabinetService service)
         {
+            this.service = service;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
@@ -18,7 +21,7 @@ namespace FileCabinetApp.CommandHandlers
 
             if (isValid)
             {
-                Program.FileCabinetService.RemoveRecord(recordId);
+                this.service.RemoveRecord(recordId);
             }
         }
     }

@@ -22,7 +22,7 @@ namespace FileCabinetApp
         public static bool IsRunning = true;
         private static string validationRules = "default";
         private static string storage = "memory";
-        public static IFileCabinetService FileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
+        private static IFileCabinetService fileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
 
         /// <summary>
         /// Runs Console Application.
@@ -57,11 +57,11 @@ namespace FileCabinetApp
                         switch (inputs[commandIndex + 1].ToUpperInvariant())
                         {
                             case "DEFAULT":
-                                FileCabinetService.ChangeValidatorToDefault();
+                                fileCabinetService.ChangeValidatorToDefault();
                                 validationRules = "default";
                                 break;
                             case "CUSTOM":
-                                FileCabinetService.ChangeValidatorToCustom();
+                                fileCabinetService.ChangeValidatorToCustom();
                                 validationRules = "custom";
                                 break;
                         }
@@ -78,12 +78,12 @@ namespace FileCabinetApp
                         switch (inputs[commandIndex + 1].ToUpperInvariant())
                         {
                             case "MEMORY":
-                                FileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
+                                fileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
                                 storage = "memory";
                                 break;
                             case "FILE":
                                 fileStream = new (@"cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                                FileCabinetService = new FileCabinetFilesystemService(fileStream, new DefaultValidator());
+                                fileCabinetService = new FileCabinetFilesystemService(fileStream, new DefaultValidator());
                                 storage = "file";
                                 break;
                         }
@@ -106,15 +106,15 @@ namespace FileCabinetApp
         private static ICommandHandler CreateCommandHandlers()
         {
             var helpHandler = new HelpCommandHandler();
-            var createHandler = new CreateCommandHandler();
-            var listHandler = new ListCommandHandler();
-            var statHandler = new StatCommandHandler();
-            var editHandler = new EditCommandHandler();
-            var importHandler = new ImportCommandHandler();
-            var exportHandler = new ExportCommandHandler();
-            var removeHandler = new RemoveCommandHandler();
-            var findHandler = new FindCommandHandler();
-            var purgeHandler = new PurgeCommandHandler();
+            var createHandler = new CreateCommandHandler(fileCabinetService);
+            var listHandler = new ListCommandHandler(fileCabinetService);
+            var statHandler = new StatCommandHandler(fileCabinetService);
+            var editHandler = new EditCommandHandler(fileCabinetService);
+            var importHandler = new ImportCommandHandler(fileCabinetService);
+            var exportHandler = new ExportCommandHandler(fileCabinetService);
+            var removeHandler = new RemoveCommandHandler(fileCabinetService);
+            var findHandler = new FindCommandHandler(fileCabinetService);
+            var purgeHandler = new PurgeCommandHandler(fileCabinetService);
             var exitHandler = new ExitCommandHandler();
 
             purgeHandler.SetNext(exitHandler);

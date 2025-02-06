@@ -8,13 +8,16 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class StatCommandHandler : CommandHandlerBase
     {
-        public StatCommandHandler()
+        private readonly IFileCabinetService service;
+
+        public StatCommandHandler(IFileCabinetService service)
         {
+            this.service = service;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            var recordsCount = Program.FileCabinetService.GetStat;
+            var recordsCount = this.service.GetStat;
             Console.WriteLine($"{recordsCount.Item1} overall records number, {recordsCount.Item2} deleted records number.");
         }
     }
