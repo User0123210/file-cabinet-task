@@ -233,7 +233,7 @@
             <summary>
             Looks for records with dateOfBirth property equal to the specified date parameter.
             </summary>
-            <param name="date">Date of birth of the records to seek.</param>
+            <param name="dateOfBirth">Date of birth of the records to seek.</param>
             <returns>Array of the found records with the specified dateOfBirth.</returns>
         </member>
         <member name="M:FileCabinetApp.FileCabinetFilesystemService.ChangeValidatorToCustom">
@@ -387,7 +387,7 @@
             <summary>
             Looks for records with dateOfBirth property equal to the specified date parameter.
             </summary>
-            <param name="date">Date of birth of the records to seek.</param>
+            <param name="dateOfBirth">Date of birth of the records to seek.</param>
             <returns>Array of the found records with the specified dateOfBirth.</returns>
         </member>
         <member name="M:FileCabinetApp.FileCabinetMemoryService.ChangeValidatorToCustom">
@@ -729,7 +729,7 @@
             <summary>
             Looks for records with dateOfBirth property equal to the specified date parameter.
             </summary>
-            <param name="date">Date of birth of the records to seek.</param>
+            <param name="dateOfBirth">Date of birth of the records to seek.</param>
             <returns>Array of the found records with the specified dateOfBirth.</returns>
         </member>
         <member name="M:FileCabinetApp.IFileCabinetService.ChangeValidatorToCustom">

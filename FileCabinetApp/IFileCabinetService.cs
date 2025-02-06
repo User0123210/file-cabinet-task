@@ -11,7 +11,7 @@ namespace FileCabinetApp
     /// <summary>
     /// Provides basic structure and methods of the file cabinet.
     /// </summary>
-    internal interface IFileCabinetService
+    public interface IFileCabinetService
     {
         /// <summary>
         /// Gets minimal possible length of the name.
@@ -97,9 +97,9 @@ namespace FileCabinetApp
         /// <summary>
         /// Looks for records with dateOfBirth property equal to the specified date parameter.
         /// </summary>
-        /// <param name="date">Date of birth of the records to seek.</param>
+        /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date);
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth);
 
         /// <summary>
         /// Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.

@@ -231,15 +231,15 @@ namespace FileCabinetApp
         /// <summary>
         /// Looks for records with dateOfBirth property equal to the specified date parameter.
         /// </summary>
-        /// <param name="date">Date of birth of the records to seek.</param>
+        /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date)
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
         {
             List<FileCabinetRecord> foundRecords = new ();
 
-            if (this.dateOfBirthDictionary.ContainsKey(date))
+            if (this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
             {
-                foundRecords = this.dateOfBirthDictionary[date];
+                foundRecords = this.dateOfBirthDictionary[dateOfBirth];
             }
 
             return foundRecords.AsReadOnly();
@@ -365,42 +365,42 @@ namespace FileCabinetApp
                     this.records.Add(rec);
                     this.recordIdDictionary[rec.Id] = rec;
 
-                    if (this.firstNameDictionary.ContainsKey(rec.FirstName))
+                    if (this.firstNameDictionary.ContainsKey(rec.FirstName.ToUpperInvariant()))
                     {
-                        for (int i = 0; i < this.firstNameDictionary[rec.FirstName].Count; i++)
+                        for (int i = 0; i < this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Count; i++)
                         {
-                            FileCabinetRecord fnameRec = this.firstNameDictionary[rec.FirstName][i];
+                            FileCabinetRecord fnameRec = this.firstNameDictionary[rec.FirstName.ToUpperInvariant()][i];
 
                             if (fnameRec.Id == rec.Id)
                             {
-                                this.firstNameDictionary[rec.FirstName].Remove(fnameRec);
+                                this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Remove(fnameRec);
                             }
 
-                            this.firstNameDictionary[rec.FirstName].Add(rec);
+                            this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Add(rec);
                         }
                     }
                     else
                     {
-                        this.firstNameDictionary.Add(rec.FirstName, new () { rec });
+                        this.firstNameDictionary.Add(rec.FirstName.ToUpperInvariant(), new () { rec });
                     }
 
-                    if (this.lastNameDictionary.ContainsKey(rec.LastName))
+                    if (this.lastNameDictionary.ContainsKey(rec.LastName.ToUpperInvariant()))
                     {
-                        for (int i = 0; i < this.lastNameDictionary[rec.LastName].Count; i++)
+                        for (int i = 0; i < this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Count; i++)
                         {
-                            FileCabinetRecord lnameRec = this.lastNameDictionary[rec.LastName][i];
+                            FileCabinetRecord lnameRec = this.lastNameDictionary[rec.LastName.ToUpperInvariant()][i];
 
                             if (lnameRec.Id == rec.Id)
                             {
-                                this.lastNameDictionary[rec.LastName].Remove(lnameRec);
+                                this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Remove(lnameRec);
                             }
 
-                            this.lastNameDictionary[rec.LastName].Add(rec);
+                            this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Add(rec);
                         }
                     }
                     else
                     {
-                        this.lastNameDictionary.Add(rec.LastName, new () { rec });
+                        this.lastNameDictionary.Add(rec.LastName.ToUpperInvariant(), new () { rec });
                     }
 
                     if (this.dateOfBirthDictionary.ContainsKey(rec.DateOfBirth))

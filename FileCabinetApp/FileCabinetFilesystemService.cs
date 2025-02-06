@@ -337,9 +337,9 @@ namespace FileCabinetApp
         /// <summary>
         /// Looks for records with dateOfBirth property equal to the specified date parameter.
         /// </summary>
-        /// <param name="date">Date of birth of the records to seek.</param>
+        /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date)
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
         {
             List<FileCabinetRecord> records = new ();
             byte[] buffer = new byte[RecordSize];
@@ -360,9 +360,9 @@ namespace FileCabinetApp
                 year = BitConverter.ToInt32(buffer, 246);
                 month = BitConverter.ToInt32(buffer, 250);
                 day = BitConverter.ToInt32(buffer, 254);
-                DateTime dateOfBirth = new (year, month, day);
+                DateTime recordDateOfBirth = new (year, month, day);
 
-                if (dateOfBirth == date && ((buffer[0] & 4) == 0))
+                if (dateOfBirth == recordDateOfBirth && ((buffer[0] & 4) == 0))
                 {
                     id = BitConverter.ToInt32(buffer, 2);
                     firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
@@ -374,7 +374,7 @@ namespace FileCabinetApp
                     copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
                     salary = new decimal(copyDecimal);
                     permissions = BitConverter.ToChar(buffer, 290);
-                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = date, Status = status, Salary = salary, Permissions = permissions });
+                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = recordDateOfBirth, Status = status, Salary = salary, Permissions = permissions });
                 }
             }
 
