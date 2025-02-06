@@ -8,12 +8,12 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class ListCommandHandler : ServiceCommandHandlerBase
     {
-        private readonly IRecordPrinter printer;
+        private readonly Action<IEnumerable<FileCabinetRecord>> print;
 
-        public ListCommandHandler(IFileCabinetService service, IRecordPrinter printer)
+        public ListCommandHandler(IFileCabinetService service, Action<IEnumerable<FileCabinetRecord>> print)
             : base(service)
         {
-            this.printer = printer;
+            this.print = print;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
@@ -22,7 +22,7 @@ namespace FileCabinetApp.CommandHandlers
             {
                 if (commandRequest.Command == "list")
                 {
-                    this.printer.Print(this.service.GetRecords());
+                    this.print(this.service.GetRecords());
                 }
                 else
                 {

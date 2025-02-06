@@ -82,7 +82,7 @@ namespace FileCabinetApp
                                 storage = "memory";
                                 break;
                             case "FILE":
-                                fileStream = new (@"cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                                fileStream = new(@"cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
                                 fileCabinetService = new FileCabinetFilesystemService(fileStream, new DefaultValidator());
                                 storage = "file";
                                 break;
@@ -105,16 +105,15 @@ namespace FileCabinetApp
 
         private static ICommandHandler CreateCommandHandlers()
         {
-            var recordPrinter = new DefaultRecordPrinter();
             var helpHandler = new HelpCommandHandler();
             var createHandler = new CreateCommandHandler(fileCabinetService);
-            var listHandler = new ListCommandHandler(fileCabinetService, recordPrinter);
+            var listHandler = new ListCommandHandler(fileCabinetService, DefaultRecordPrint);
             var statHandler = new StatCommandHandler(fileCabinetService);
             var editHandler = new EditCommandHandler(fileCabinetService);
             var importHandler = new ImportCommandHandler(fileCabinetService);
             var exportHandler = new ExportCommandHandler(fileCabinetService);
             var removeHandler = new RemoveCommandHandler(fileCabinetService);
-            var findHandler = new FindCommandHandler(fileCabinetService, recordPrinter);
+            var findHandler = new FindCommandHandler(fileCabinetService, DefaultRecordPrint);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
             var exitHandler = new ExitCommandHandler(b =>
             {
@@ -135,6 +134,17 @@ namespace FileCabinetApp
             createHandler.SetNext(listHandler);
             helpHandler.SetNext(createHandler);
             return helpHandler;
+        }
+
+        private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> records)
+        {
+            if (records is not null)
+            {
+                foreach (var record in records)
+                {
+                    Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                }
+            }
         }
     }
 }
