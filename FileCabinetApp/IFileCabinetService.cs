@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,7 +49,7 @@ namespace FileCabinetApp
         /// <value>
         /// <records.Count>Information about the number of records in the service.</records.Count>
         /// </value>
-        public int GetStat
+        public (int, int) GetStat
         {
             get;
         }
@@ -121,5 +122,16 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="snapshot">Snapshot to compare with.</param>
         public void Restore(FileCabinetServiceSnapshot snapshot);
+
+        /// <summary>
+        /// Removes record with the specified id.
+        /// </summary>
+        /// <param name="id">Id of the record to delete.</param>
+        public void RemoveRecord(int id);
+
+        /// <summary>
+        /// Removes deleted records from source database.
+        /// </summary>
+        public void Purge();
     }
 }

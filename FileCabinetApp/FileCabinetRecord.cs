@@ -42,7 +42,7 @@ namespace FileCabinetApp
         /// <value>
         /// <DateOfBirth>Date of birth in the record.</DateOfBirth>
         /// </value>
-        [XmlElement("dateOfBirth")]
+        [XmlElement("dateOfBirth", DataType = "date")]
         public DateTime DateOfBirth { get; set; }
 
         /// <summary>

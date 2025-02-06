@@ -36,15 +36,12 @@ namespace FileCabinetApp
                 this.writer.WriteStartElement("record");
                 this.writer.WriteAttributeString("id", Convert.ToString(record.Id, CultureInfo.InvariantCulture));
 
-                this.writer.WriteStartElement("name");
-                this.writer.WriteAttributeString("first", record.FirstName);
-                this.writer.WriteAttributeString("last", record.LastName);
-                this.writer.WriteEndElement();
-
-                this.writer.WriteElementString("dateOfBirth", Convert.ToString(record.DateOfBirth, CultureInfo.InvariantCulture));
+                this.writer.WriteElementString("firstName", record.FirstName);
+                this.writer.WriteElementString("lastName", record.LastName);
+                this.writer.WriteElementString("dateOfBirth", string.Format(CultureInfo.InvariantCulture, $"{record.DateOfBirth.Date:yyyy-MM-dd}"));
                 this.writer.WriteElementString("status", Convert.ToString(record.Status, CultureInfo.InvariantCulture));
                 this.writer.WriteElementString("salary", Convert.ToString(record.Salary, CultureInfo.InvariantCulture));
-                this.writer.WriteElementString("permissions", Convert.ToString(record.Permissions, CultureInfo.InvariantCulture));
+                this.writer.WriteElementString("permissions", Convert.ToString((int)record.Permissions, CultureInfo.InvariantCulture));
                 this.writer.WriteEndElement();
             }
         }

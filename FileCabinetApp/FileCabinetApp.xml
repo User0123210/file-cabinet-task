@@ -259,6 +259,17 @@
             <param name="snapshot">Snapshot to compare with.</param>
             <exception cref="T:System.NotImplementedException">Throws.</exception>
         </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.RemoveRecord(System.Int32)">
+            <summary>
+            Removes record with the specified id.
+            </summary>
+            <param name="id">Id of the record to delete.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetFilesystemService.Purge">
+            <summary>
+            Removes deleted records from source database.
+            </summary>
+        </member>
         <member name="T:FileCabinetApp.FileCabinetMemoryService">
             <summary>
             Manages information about the records in file cabinet.
@@ -400,6 +411,11 @@
             Compares data from snapshot and updates records.
             </summary>
             <param name="snapshot">Snapshot to compare with.</param>
+        </member>
+        <member name="M:FileCabinetApp.FileCabinetMemoryService.Purge">
+            <summary>
+            Removes deleted records from source database.
+            </summary>
         </member>
         <member name="T:FileCabinetApp.FileCabinetRecord">
             <summary>
@@ -737,6 +753,17 @@
             Compares data from snapshot and updates records.
             </summary>
             <param name="snapshot">Snapshot to compare with.</param>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.RemoveRecord(System.Int32)">
+            <summary>
+            Removes record with the specified id.
+            </summary>
+            <param name="id">Id of the record to delete.</param>
+        </member>
+        <member name="M:FileCabinetApp.IFileCabinetService.Purge">
+            <summary>
+            Removes deleted records from source database.
+            </summary>
         </member>
         <member name="T:FileCabinetApp.IRecordValidator">
             <summary>

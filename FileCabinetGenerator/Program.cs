@@ -190,7 +190,7 @@ namespace FileCabinetGenerator
         {
             if (outputFile is not null)
             {
-                XmlSerializer serializer = new (typeof(FileCabinetRecord[]), new XmlRootAttribute("Records"));
+                XmlSerializer serializer = new (typeof(FileCabinetRecord[]), new XmlRootAttribute("records"));
                 serializer.Serialize(outputFile, records.ToArray());
             }
         }

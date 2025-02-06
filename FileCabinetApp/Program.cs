@@ -35,6 +35,8 @@ namespace FileCabinetApp
             new ("find", Find),
             new ("export", Export),
             new ("import", Import),
+            new ("remove", Remove),
+            new ("purge", Purge),
         };
 
         private static readonly string[][] HelpMessages = new string[][]
@@ -48,6 +50,8 @@ namespace FileCabinetApp
             new string[] { "find", "finds records based on the specified property value", "The 'find' command finds record based on the specified property value." },
             new string[] { "export", "exports data from the service into the specified format and file", "The 'export' command exports data from the service into the specified format and file." },
             new string[] { "import", "imports data from the specified file in the specified format to the service", "The 'import' command imports data from the specified file in the specified format to the service." },
+            new string[] { "remove", "removes record with the specified id from the service", "The 'remove' command removes record with the specified id from the service." },
+            new string[] { "purge", "purge removes deleted records from the database", "The 'purge' command purge removes deleted records from the database." },
         };
 
         private static bool isRunning = true;
@@ -184,7 +188,7 @@ namespace FileCabinetApp
         private static void Stat(string parameters)
         {
             var recordsCount = Program.fileCabinetService.GetStat;
-            Console.WriteLine($"{recordsCount} record(s).");
+            Console.WriteLine($"{recordsCount.Item1} overall records number, {recordsCount.Item2} deleted records number.");
         }
 
         private static void Create(string parameters)
@@ -226,7 +230,7 @@ namespace FileCabinetApp
 
             if (!isValid)
             {
-                    Console.WriteLine("Id is not valid.");
+                Console.WriteLine("Id is not valid.");
             }
             else
             {
@@ -478,6 +482,21 @@ namespace FileCabinetApp
                     Console.WriteLine($"An error occured: {ex.Message}");
                 }
             }
+        }
+
+        private static void Remove(string parameters)
+        {
+            bool isValid = int.TryParse(parameters, out int recordId);
+
+            if (isValid)
+            {
+                fileCabinetService.RemoveRecord(recordId);
+            }
+        }
+
+        private static void Purge(string parameters)
+        {
+            fileCabinetService.Purge();
         }
     }
 }
