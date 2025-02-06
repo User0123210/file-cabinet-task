@@ -33,29 +33,39 @@ namespace FileCabinetApp.CommandHandlers
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            if (!string.IsNullOrEmpty(commandRequest?.Parameters))
+            if (commandRequest is not null)
             {
-                var index = Array.FindIndex(HelpMessages, 0, HelpMessages.Length, i => string.Equals(i[CommandHelpIndex], commandRequest.Parameters, StringComparison.OrdinalIgnoreCase));
-                if (index >= 0)
+                if (commandRequest.Command == "help")
                 {
-                    Console.WriteLine(HelpMessages[index][ExplanationHelpIndex]);
+                    if (!string.IsNullOrEmpty(commandRequest.Parameters))
+                    {
+                        var index = Array.FindIndex(HelpMessages, 0, HelpMessages.Length, i => string.Equals(i[CommandHelpIndex], commandRequest.Parameters, StringComparison.OrdinalIgnoreCase));
+                        if (index >= 0)
+                        {
+                            Console.WriteLine(HelpMessages[index][ExplanationHelpIndex]);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"There is no explanation for '{commandRequest.Parameters}' command.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Available commands:");
+
+                        foreach (var helpMessage in HelpMessages)
+                        {
+                            Console.WriteLine("\t{0}\t- {1}", helpMessage[CommandHelpIndex], helpMessage[DescriptionHelpIndex]);
+                        }
+                    }
+
+                    Console.WriteLine();
                 }
                 else
                 {
-                    Console.WriteLine($"There is no explanation for '{commandRequest.Parameters}' command.");
+                    this.nextHandler?.Handle(commandRequest);
                 }
             }
-            else
-            {
-                Console.WriteLine("Available commands:");
-
-                foreach (var helpMessage in HelpMessages)
-                {
-                    Console.WriteLine("\t{0}\t- {1}", helpMessage[CommandHelpIndex], helpMessage[DescriptionHelpIndex]);
-                }
-            }
-
-            Console.WriteLine();
         }
     }
 }

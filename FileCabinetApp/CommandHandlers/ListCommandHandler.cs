@@ -17,9 +17,19 @@ namespace FileCabinetApp.CommandHandlers
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            foreach (var record in this.service.GetRecords())
+            if (commandRequest is not null)
             {
-                Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                if (commandRequest.Command == "list")
+                {
+                    foreach (var record in this.service.GetRecords())
+                    {
+                        Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                    }
+                }
+                else
+                {
+                    this.nextHandler?.Handle(commandRequest);
+                }
             }
         }
     }

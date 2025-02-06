@@ -19,36 +19,46 @@ namespace FileCabinetApp.CommandHandlers
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            string[] arguments = commandRequest?.Parameters is not null ? commandRequest.Parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
-            const int propertyIndex = 0;
-            var property = arguments[propertyIndex];
-
-            if (arguments.Length > 1)
+            if (commandRequest is not null)
             {
-                var value = arguments[propertyIndex + 1];
-                ReadOnlyCollection<FileCabinetRecord> found = new(Array.Empty<FileCabinetRecord>());
+                if (commandRequest.Command == "find")
+                {
+                    string[] arguments = commandRequest.Parameters is not null ? commandRequest.Parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+                    const int propertyIndex = 0;
+                    var property = arguments[propertyIndex];
 
-                if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
-                {
-                    found = this.service.FindByFirstName(value);
-                }
-                else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
-                {
-                    found = this.service.FindByLastName(value);
-                }
-                else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
-                {
-                    bool isDate = DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
-
-                    if (isDate)
+                    if (arguments.Length > 1)
                     {
-                        found = this.service.FindByDateOfBirth(date);
+                        var value = arguments[propertyIndex + 1];
+                        ReadOnlyCollection<FileCabinetRecord> found = new(Array.Empty<FileCabinetRecord>());
+
+                        if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
+                        {
+                            found = this.service.FindByFirstName(value);
+                        }
+                        else if (string.Equals(property, "LastName", StringComparison.OrdinalIgnoreCase))
+                        {
+                            found = this.service.FindByLastName(value);
+                        }
+                        else if (string.Equals(property, "DateOfBirth", StringComparison.OrdinalIgnoreCase))
+                        {
+                            bool isDate = DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+
+                            if (isDate)
+                            {
+                                found = this.service.FindByDateOfBirth(date);
+                            }
+                        }
+
+                        foreach (var record in found)
+                        {
+                            Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                        }
                     }
                 }
-
-                foreach (var record in found)
+                else
                 {
-                    Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
+                    this.nextHandler?.Handle(commandRequest);
                 }
             }
         }

@@ -10,8 +10,18 @@ namespace FileCabinetApp.CommandHandlers
     {
         public override void Handle(AppCommandRequest commandRequest)
         {
-            Console.WriteLine("Exiting an application...");
-            Program.IsRunning = false;
+            if (commandRequest is not null)
+            {
+                if (commandRequest.Command == "exit")
+                {
+                    Console.WriteLine("Exiting an application...");
+                    Program.IsRunning = false;
+                }
+                else
+                {
+                    this.nextHandler?.Handle(commandRequest);
+                }
+            }
         }
     }
 }

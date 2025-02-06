@@ -392,6 +392,7 @@ namespace FileCabinetApp
                 {
                     Func<object, Tuple<bool, string>>[] validationMethods = new Func<object, Tuple<bool, string>>[] { p => this.validator.ValidateName(p as string), p => this.validator.ValidateName(p as string), p => this.validator.ValidateDateOfBirth(p as DateTime?), p => this.validator.ValidateStatus(p as short?), p => this.validator.ValidateSalary(p as decimal?), p => this.validator.ValidatePermissions(p as char?) };
                     object[] parameters = new object[] { rec.FirstName, rec.LastName, rec.DateOfBirth, rec.Status, rec.Salary, rec.Permissions };
+                    bool isValid = true;
 
                     for (int i = 0; i < validationMethods.Length; i++)
                     {
@@ -400,17 +401,25 @@ namespace FileCabinetApp
                         if (!validationResult.Item1)
                         {
                             Console.WriteLine($"Record #{rec.Id}, {validationResult.Item2}, skips.");
-                            continue;
+                            isValid = false;
+                            break;
                         }
                     }
 
-                    if (existingIds.Contains(rec.Id))
+                    if (isValid)
                     {
-                        this.EditRecord(rec.Id, new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
-                    }
-                    else
-                    {
-                        this.CreateRecord(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                        if (existingIds.Contains(rec.Id))
+                        {
+                            this.EditRecord(rec.Id, new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                        }
+                        else
+                        {
+                            this.CreateRecord(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                            this.stream.Position -= RecordSize;
+                            this.stream.Position += 2;
+                            this.stream.Write(BitConverter.GetBytes(rec.Id), 0, 4);
+                            this.stream.Flush();
+                        }
                     }
                 }
             }

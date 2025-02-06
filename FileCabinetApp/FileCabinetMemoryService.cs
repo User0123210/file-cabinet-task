@@ -260,6 +260,7 @@ namespace FileCabinetApp
                 {
                     Func<object, Tuple<bool, string>>[] validationMethods = new Func<object, Tuple<bool, string>>[] { p => this.validator.ValidateName(p as string), p => this.validator.ValidateName(p as string), p => this.validator.ValidateDateOfBirth(p as DateTime?), p => this.validator.ValidateStatus(p as short?), p => this.validator.ValidateSalary(p as decimal?), p => this.validator.ValidatePermissions(p as char?) };
                     object[] parameters = new object[] { rec.FirstName, rec.LastName, rec.DateOfBirth, rec.Status, rec.Salary, rec.Permissions };
+                    bool isValid = true;
 
                     for (int i = 0; i < validationMethods.Length; i++)
                     {
@@ -268,69 +269,73 @@ namespace FileCabinetApp
                         if (!validationResult.Item1)
                         {
                             Console.WriteLine($"Record #{rec.Id}, {validationResult.Item2}, skips.");
-                            continue;
+                            isValid = false;
+                            break;
                         }
                     }
 
-                    this.records.RemoveAll(r => r.Id == rec.Id);
-                    this.records.Add(rec);
-                    this.recordIdDictionary[rec.Id] = rec;
-
-                    if (this.firstNameDictionary.ContainsKey(rec.FirstName.ToUpperInvariant()))
+                    if (isValid)
                     {
-                        for (int i = 0; i < this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Count; i++)
+                        this.records.RemoveAll(r => r.Id == rec.Id);
+                        this.records.Add(rec);
+                        this.recordIdDictionary[rec.Id] = rec;
+
+                        if (this.firstNameDictionary.ContainsKey(rec.FirstName.ToUpperInvariant()))
                         {
-                            FileCabinetRecord fnameRec = this.firstNameDictionary[rec.FirstName.ToUpperInvariant()][i];
-
-                            if (fnameRec.Id == rec.Id)
+                            for (int i = 0; i < this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Count; i++)
                             {
-                                this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Remove(fnameRec);
+                                FileCabinetRecord fnameRec = this.firstNameDictionary[rec.FirstName.ToUpperInvariant()][i];
+
+                                if (fnameRec.Id == rec.Id)
+                                {
+                                    this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Remove(fnameRec);
+                                }
+
+                                this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Add(rec);
                             }
-
-                            this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Add(rec);
                         }
-                    }
-                    else
-                    {
-                        this.firstNameDictionary.Add(rec.FirstName.ToUpperInvariant(), new () { rec });
-                    }
-
-                    if (this.lastNameDictionary.ContainsKey(rec.LastName.ToUpperInvariant()))
-                    {
-                        for (int i = 0; i < this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Count; i++)
+                        else
                         {
-                            FileCabinetRecord lnameRec = this.lastNameDictionary[rec.LastName.ToUpperInvariant()][i];
-
-                            if (lnameRec.Id == rec.Id)
-                            {
-                                this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Remove(lnameRec);
-                            }
-
-                            this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Add(rec);
+                            this.firstNameDictionary.Add(rec.FirstName.ToUpperInvariant(), new() { rec });
                         }
-                    }
-                    else
-                    {
-                        this.lastNameDictionary.Add(rec.LastName.ToUpperInvariant(), new () { rec });
-                    }
 
-                    if (this.dateOfBirthDictionary.ContainsKey(rec.DateOfBirth))
-                    {
-                        for (int i = 0; i < this.dateOfBirthDictionary[rec.DateOfBirth].Count; i++)
+                        if (this.lastNameDictionary.ContainsKey(rec.LastName.ToUpperInvariant()))
                         {
-                            FileCabinetRecord dateRec = this.dateOfBirthDictionary[rec.DateOfBirth][i];
-
-                            if (dateRec.Id == rec.Id)
+                            for (int i = 0; i < this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Count; i++)
                             {
-                                this.dateOfBirthDictionary[rec.DateOfBirth].Remove(dateRec);
-                            }
+                                FileCabinetRecord lnameRec = this.lastNameDictionary[rec.LastName.ToUpperInvariant()][i];
 
-                            this.dateOfBirthDictionary[rec.DateOfBirth].Add(rec);
+                                if (lnameRec.Id == rec.Id)
+                                {
+                                    this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Remove(lnameRec);
+                                }
+
+                                this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Add(rec);
+                            }
                         }
-                    }
-                    else
-                    {
-                        this.dateOfBirthDictionary.Add(rec.DateOfBirth, new () { rec });
+                        else
+                        {
+                            this.lastNameDictionary.Add(rec.LastName.ToUpperInvariant(), new() { rec });
+                        }
+
+                        if (this.dateOfBirthDictionary.ContainsKey(rec.DateOfBirth))
+                        {
+                            for (int i = 0; i < this.dateOfBirthDictionary[rec.DateOfBirth].Count; i++)
+                            {
+                                FileCabinetRecord dateRec = this.dateOfBirthDictionary[rec.DateOfBirth][i];
+
+                                if (dateRec.Id == rec.Id)
+                                {
+                                    this.dateOfBirthDictionary[rec.DateOfBirth].Remove(dateRec);
+                                }
+
+                                this.dateOfBirthDictionary[rec.DateOfBirth].Add(rec);
+                            }
+                        }
+                        else
+                        {
+                            this.dateOfBirthDictionary.Add(rec.DateOfBirth, new() { rec });
+                        }
                     }
                 }
             }

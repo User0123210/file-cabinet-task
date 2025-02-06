@@ -17,32 +17,42 @@ namespace FileCabinetApp.CommandHandlers
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            string[] arguments = commandRequest?.Parameters is not null ? commandRequest.Parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
-            const int propertyIndex = 0;
-            var sourceName = arguments[propertyIndex];
-
-            if (arguments.Length > 1)
+            if (commandRequest is not null)
             {
-                var destination = arguments[propertyIndex + 1];
-
-                try
+                if (commandRequest.Command == "export")
                 {
-                    Stream stream = File.OpenWrite(destination);
-                    using StreamWriter writer = new(stream);
-                    FileCabinetServiceSnapshot snapshot = this.service.MakeSnapshot();
+                    string[] arguments = commandRequest.Parameters is not null ? commandRequest.Parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
+                    const int propertyIndex = 0;
+                    var sourceName = arguments[propertyIndex];
 
-                    if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
+                    if (arguments.Length > 1)
                     {
-                        snapshot.SaveToCsv(writer);
-                    }
-                    else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
-                    {
-                        snapshot.SaveToXml(writer);
+                        var destination = arguments[propertyIndex + 1];
+
+                        try
+                        {
+                            Stream stream = File.OpenWrite(destination);
+                            using StreamWriter writer = new(stream);
+                            FileCabinetServiceSnapshot snapshot = this.service.MakeSnapshot();
+
+                            if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
+                            {
+                                snapshot.SaveToCsv(writer);
+                            }
+                            else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
+                            {
+                                snapshot.SaveToXml(writer);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"An error occured: {ex.Message}");
+                        }
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($"An error occured: {ex.Message}");
+                    this.nextHandler?.Handle(commandRequest);
                 }
             }
         }

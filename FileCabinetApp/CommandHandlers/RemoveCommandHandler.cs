@@ -17,11 +17,21 @@ namespace FileCabinetApp.CommandHandlers
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            bool isValid = int.TryParse(commandRequest?.Parameters, out int recordId);
-
-            if (isValid)
+            if (commandRequest is not null)
             {
-                this.service.RemoveRecord(recordId);
+                if (commandRequest.Command == "remove")
+                {
+                    bool isValid = int.TryParse(commandRequest.Parameters, out int recordId);
+
+                    if (isValid)
+                    {
+                        this.service.RemoveRecord(recordId);
+                    }
+                }
+                else
+                {
+                    this.nextHandler?.Handle(commandRequest);
+                }
             }
         }
     }

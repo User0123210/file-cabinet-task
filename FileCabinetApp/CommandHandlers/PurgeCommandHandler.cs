@@ -17,7 +17,17 @@ namespace FileCabinetApp.CommandHandlers
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            this.service.Purge();
+            if (commandRequest is not null)
+            {
+                if (commandRequest.Command == "purge")
+                {
+                    this.service.Purge();
+                }
+                else
+                {
+                    this.nextHandler?.Handle(commandRequest);
+                }
+            }
         }
     }
 }

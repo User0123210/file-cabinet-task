@@ -19,27 +19,37 @@ namespace FileCabinetApp.CommandHandlers
 
         public override void Handle(AppCommandRequest commandRequest)
         {
-            Console.Write("First name: ");
-            var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.NameValidator);
+            if (commandRequest is not null)
+            {
+                if (commandRequest.Command == "create")
+                {
+                    Console.Write("First name: ");
+                    var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.NameValidator);
 
-            Console.Write("Last name: ");
-            var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.NameValidator);
+                    Console.Write("Last name: ");
+                    var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.NameValidator);
 
-            Console.Write("Date of birth: ");
-            var dateOfBirth = ReadInput(this.DateConverter, this.DateOfBirthValidator);
+                    Console.Write("Date of birth: ");
+                    var dateOfBirth = ReadInput(this.DateConverter, this.DateOfBirthValidator);
 
-            Console.Write("Status: ");
-            var status = ReadInput(this.ShortConverter, this.StatusValidator);
+                    Console.Write("Status: ");
+                    var status = ReadInput(this.ShortConverter, this.StatusValidator);
 
-            Console.Write("Salary: ");
-            var salary = ReadInput(this.DecimalConverter, this.SalaryValidator);
+                    Console.Write("Salary: ");
+                    var salary = ReadInput(this.DecimalConverter, this.SalaryValidator);
 
-            Console.Write("Permissions: ");
-            var permissions = ReadInput(this.CharConverter, this.PermissionsValidator);
+                    Console.Write("Permissions: ");
+                    var permissions = ReadInput(this.CharConverter, this.PermissionsValidator);
 
-            FileCabinetRecordParameterObject recordParameters = new() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
-            int recordId = this.service.CreateRecord(recordParameters);
-            Console.WriteLine($"Record #{recordId} is created.");
+                    FileCabinetRecordParameterObject recordParameters = new() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
+                    int recordId = this.service.CreateRecord(recordParameters);
+                    Console.WriteLine($"Record #{recordId} is created.");
+                }
+                else
+                {
+                    this.nextHandler?.Handle(commandRequest);
+                }
+            }
         }
 
         private Tuple<bool, string> NameValidator(string name)
