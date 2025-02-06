@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using FileCabinetApp.CommandHandlers;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
@@ -104,8 +105,29 @@ namespace FileCabinetApp
 
         private static ICommandHandler CreateCommandHandlers()
         {
-            var commandHandler = new CommandHandler();
-            return commandHandler;
+            var helpHandler = new HelpCommandHandler();
+            var createHandler = new CreateCommandHandler();
+            var listHandler = new ListCommandHandler();
+            var statHandler = new StatCommandHandler();
+            var editHandler = new EditCommandHandler();
+            var importHandler = new ImportCommandHandler();
+            var exportHandler = new ExportCommandHandler();
+            var removeHandler = new RemoveCommandHandler();
+            var findHandler = new FindCommandHandler();
+            var purgeHandler = new PurgeCommandHandler();
+            var exitHandler = new ExitCommandHandler();
+
+            purgeHandler.SetNext(exitHandler);
+            findHandler.SetNext(purgeHandler);
+            removeHandler.SetNext(findHandler);
+            exportHandler.SetNext(removeHandler);
+            importHandler.SetNext(exportHandler);
+            editHandler.SetNext(importHandler);
+            statHandler.SetNext(editHandler);
+            listHandler.SetNext(statHandler);
+            createHandler.SetNext(listHandler);
+            helpHandler.SetNext(createHandler);
+            return helpHandler;
         }
     }
 }
