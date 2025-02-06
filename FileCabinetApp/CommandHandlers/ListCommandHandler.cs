@@ -8,9 +8,12 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class ListCommandHandler : ServiceCommandHandlerBase
     {
-        public ListCommandHandler(IFileCabinetService service)
+        private readonly IRecordPrinter printer;
+
+        public ListCommandHandler(IFileCabinetService service, IRecordPrinter printer)
             : base(service)
         {
+            this.printer = printer;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
@@ -19,10 +22,7 @@ namespace FileCabinetApp.CommandHandlers
             {
                 if (commandRequest.Command == "list")
                 {
-                    foreach (var record in this.service.GetRecords())
-                    {
-                        Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
-                    }
+                    this.printer.Print(this.service.GetRecords());
                 }
                 else
                 {

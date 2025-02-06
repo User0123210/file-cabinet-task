@@ -10,9 +10,12 @@ namespace FileCabinetApp.CommandHandlers
 {
     public class FindCommandHandler : ServiceCommandHandlerBase
     {
-        public FindCommandHandler(IFileCabinetService service)
+        private readonly IRecordPrinter printer;
+
+        public FindCommandHandler(IFileCabinetService service, IRecordPrinter printer)
             : base(service)
         {
+            this.printer = printer;
         }
 
         public override void Handle(AppCommandRequest commandRequest)
@@ -48,10 +51,7 @@ namespace FileCabinetApp.CommandHandlers
                             }
                         }
 
-                        foreach (var record in found)
-                        {
-                            Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
-                        }
+                        this.printer.Print(found);
                     }
                 }
                 else
