@@ -14,34 +14,10 @@ namespace FileCabinetApp
     public interface IFileCabinetService
     {
         /// <summary>
-        /// Gets minimal possible length of the name.
-        /// </summary>
-        /// <value>this.minNameLength.</value>
-        public int MinNameLength { get; }
-
-        /// <summary>
-        /// Gets maximum possible length of the name.
-        /// </summary>
-        /// <value>this.maxNameLength.</value>
-        public int MaxNameLength { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the name should contain only letter characters or not.
-        /// </summary>
-        /// <value>isOnlyLetterName.</value>
-        public bool IsOnlyLetterName { get; }
-
-        /// <summary>
         /// Gets a value of the date format.
         /// </summary>
         /// <value>dateFormat.</value>
         public string DateFormat { get; }
-
-        /// <summary>
-        /// Gets minimum possible date.
-        /// </summary>
-        /// <value>this.minDate.</value>
-        public DateTime MinDate { get; }
 
         /// <summary>
         /// Gets information about the number of records in the service.
@@ -133,5 +109,15 @@ namespace FileCabinetApp
         /// Removes deleted records from source database.
         /// </summary>
         public void Purge();
+
+        public Func<string?, Tuple<bool, string>> ValidateName();
+
+        public Func<DateTime?, Tuple<bool, string>> ValidateDateOfBirth();
+
+        public Func<short?, Tuple<bool, string>> ValidateStatus();
+
+        public Func<decimal?, Tuple<bool, string>> ValidateSalary();
+
+        public Func<char?, Tuple<bool, string>> ValidatePermissions();
     }
 }

@@ -30,34 +30,10 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Gets minimal possible length of the name.
-        /// </summary>
-        /// <value>this.minNameLength.</value>
-        public int MinNameLength { get => this.validator.MinNameLength; }
-
-        /// <summary>
-        /// Gets maximum possible length of the name.
-        /// </summary>
-        /// <value>this.maxNameLength.</value>
-        public int MaxNameLength { get => this.validator.MaxNameLength; }
-
-        /// <summary>
-        /// Gets a value indicating whether the name should contain only letter characters or not.
-        /// </summary>
-        /// <value>isOnlyLetterName.</value>
-        public bool IsOnlyLetterName { get => this.validator.IsOnlyLetterName; }
-
-        /// <summary>
         /// Gets a value of the date format.
         /// </summary>
         /// <value>dateFormat.</value>
         public string DateFormat { get => this.validator.DateFormat; }
-
-        /// <summary>
-        /// Gets minimum possible date.
-        /// </summary>
-        /// <value>this.minDate.</value>
-        public DateTime MinDate { get => this.validator.MinDate; }
 
         /// <summary>
         /// Gets information about the number of records in the service.
@@ -414,81 +390,16 @@ namespace FileCabinetApp
 
                 foreach (var rec in newRecords)
                 {
-                    if (string.IsNullOrWhiteSpace(rec.FirstName))
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace firstName, skips.");
-                        continue;
-                    }
+                    Func<object, Tuple<bool, string>>[] validationMethods = new Func<object, Tuple<bool, string>>[] { p => this.validator.ValidateName(p as string), p => this.validator.ValidateName(p as string), p => this.validator.ValidateDateOfBirth(p as DateTime?), p => this.validator.ValidateStatus(p as short?), p => this.validator.ValidateSalary(p as decimal?), p => this.validator.ValidatePermissions(p as char?) };
+                    object[] parameters = new object[] { rec.FirstName, rec.LastName, rec.DateOfBirth, rec.Status, rec.Salary, rec.Permissions };
 
-                    if (rec.FirstName.Length > this.validator.MaxNameLength || rec.FirstName.Length < this.validator.MinNameLength)
+                    for (int i = 0; i < validationMethods.Length; i++)
                     {
-                        Console.WriteLine($"Record #{rec.Id}, firstName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
-                        continue;
-                    }
+                        Tuple<bool, string> validationResult = validationMethods[i](parameters[i]);
 
-                    if (this.validator.IsOnlyLetterName)
-                    {
-                        foreach (var letter in rec.FirstName)
+                        if (!validationResult.Item1)
                         {
-                            if (!char.IsLetter(letter))
-                            {
-                                Console.WriteLine($"Record #{rec.Id}, firstName contains non letter characters, skips.");
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (string.IsNullOrWhiteSpace(rec.LastName))
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace lastName, skips.");
-                        continue;
-                    }
-
-                    if (rec.LastName.Length > this.validator.MaxNameLength || rec.LastName.Length < this.validator.MinNameLength)
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, lastName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
-                        continue;
-                    }
-
-                    if (this.validator.IsOnlyLetterName)
-                    {
-                        foreach (var letter in rec.LastName)
-                        {
-                            if (!char.IsLetter(letter))
-                            {
-                                Console.WriteLine($"Record #{rec.Id}, lastName contains non letter characters, skips.");
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (rec.DateOfBirth < this.validator.MinDate || rec.DateOfBirth > DateTime.Now)
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, dateOfBirth outside of range: ({this.validator.MinDate}) - ({DateTime.Now}), skips.");
-                        continue;
-                    }
-
-                    if (rec.Salary < 0)
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, salary is less than zero, skips.");
-                        continue;
-                    }
-
-                    if (this.validator.GetValidPermissions().Count > 0)
-                    {
-                        bool isValid = false;
-
-                        foreach (char c in this.validator.GetValidPermissions())
-                        {
-                            if (c == rec.Permissions)
-                            {
-                                isValid = true;
-                            }
-                        }
-
-                        if (!isValid)
-                        {
-                            Console.WriteLine($"Record #{rec.Id}, permissions is not one of valid permissions, skips.");
+                            Console.WriteLine($"Record #{rec.Id}, {validationResult.Item2}, skips.");
                             continue;
                         }
                     }
@@ -605,6 +516,31 @@ namespace FileCabinetApp
             this.stream.Position = 0;
             this.stream.SetLength(RecordSize * records.Count);
             this.stream.Flush(false);
+        }
+
+        public Func<string?, Tuple<bool, string>> ValidateName()
+        {
+            return this.validator.ValidateName;
+        }
+
+        public Func<DateTime?, Tuple<bool, string>> ValidateDateOfBirth()
+        {
+            return this.validator.ValidateDateOfBirth;
+        }
+
+        public Func<short?, Tuple<bool, string>> ValidateStatus()
+        {
+            return this.validator.ValidateStatus;
+        }
+
+        public Func<decimal?, Tuple<bool, string>> ValidateSalary()
+        {
+            return this.validator.ValidateSalary;
+        }
+
+        public Func<char?, Tuple<bool, string>> ValidatePermissions()
+        {
+            return this.validator.ValidatePermissions;
         }
     }
 }

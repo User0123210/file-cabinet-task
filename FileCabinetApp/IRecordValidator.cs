@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,6 +45,12 @@ namespace FileCabinetApp
         public string DateFormat { get; init; }
 
         /// <summary>
+        /// Gets a value indicating minimum salary value.
+        /// </summary>
+        /// <value>isOnlyLetterName.</value>
+        public decimal MinSalaryValue { get; init; }
+
+        /// <summary>
         /// Gets array of valid permissions.
         /// </summary>
         /// <returns>An array of valid permissions.</returns>
@@ -54,5 +61,15 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="recordParameters">Parameters of the record to validate.</param>
         public void ValidateParameters(FileCabinetRecordParameterObject? recordParameters);
+
+        public Tuple<bool, string> ValidateName(string? name);
+
+        public Tuple<bool, string> ValidateDateOfBirth(DateTime? dateOfBirth);
+
+        public Tuple<bool, string> ValidateStatus(short? status);
+
+        public Tuple<bool, string> ValidateSalary(decimal? salary);
+
+        public Tuple<bool, string> ValidatePermissions(char? permissions);
     }
 }

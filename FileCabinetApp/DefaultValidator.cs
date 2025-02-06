@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,11 +29,12 @@ namespace FileCabinetApp
         /// <param name="minNameLength">Minimal name length.</param>
         /// <param name="maxNameLength">Maximum name length.</param>
         /// <param name="minDate">Minimum date.</param>
-        public DefaultValidator(int minNameLength, int maxNameLength, DateTime minDate)
+        public DefaultValidator(int minNameLength, int maxNameLength, DateTime minDate, decimal minSalaryValue)
         {
             this.MinNameLength = minNameLength;
             this.MaxNameLength = maxNameLength;
             this.MinDate = minDate;
+            this.MinSalaryValue = minSalaryValue;
         }
 
         /// <summary>
@@ -66,6 +68,12 @@ namespace FileCabinetApp
         public string DateFormat { get; init; } = "MM/dd/yyyy";
 
         /// <summary>
+        /// Gets a value indicating minimum salary value.
+        /// </summary>
+        /// <value>isOnlyLetterName.</value>
+        public decimal MinSalaryValue { get; init; } = 0;
+
+        /// <summary>
         /// Gets array of valid permissions.
         /// </summary>
         /// <returns>An array of valid permissions.</returns>
@@ -87,45 +95,67 @@ namespace FileCabinetApp
         /// <exception cref="ArgumentException">Thrown when record with the specified id isn't found.</exception>
         public void ValidateParameters(FileCabinetRecordParameterObject? recordParameters)
         {
+            ArgumentNullException.ThrowIfNull(recordParameters);
+            ArgumentNullException.ThrowIfNull(recordParameters.FirstName);
+            ArgumentNullException.ThrowIfNull(recordParameters.LastName);
+
+            Tuple<bool, string> validationResult;
+
+            Func<object, Tuple<bool, string>>[] validationMethods = new Func<object, Tuple<bool, string>>[] { p => this.ValidateName(p as string), p => this.ValidateName(p as string), p => this.ValidateDateOfBirth(p as DateTime?), p => this.ValidateSalary(p as decimal?) };
+            object[] parameters = new object[] { recordParameters.FirstName, recordParameters.LastName, recordParameters.DateOfBirth, recordParameters.Salary };
+
+            for (int i = 0; i < validationMethods.Length; i++)
+            {
+                validationResult = validationMethods[i](parameters[i]);
+
+                if (!validationResult.Item1)
+                {
+                    throw new ArgumentException(validationResult.Item2, nameof(recordParameters));
+                }
+            }
+        }
+
+        public Tuple<bool, string> ValidateName(string? name)
+        {
             int minLength = this.MinNameLength;
             int maxLength = this.MaxNameLength;
 
-            ArgumentNullException.ThrowIfNull(recordParameters);
-            ArgumentNullException.ThrowIfNull(recordParameters.FirstName);
-
-            if (string.IsNullOrWhiteSpace(recordParameters.FirstName))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("First name shouldn't be empty or whitespace", nameof(recordParameters));
+                return new Tuple<bool, string>(false, "Name shouldn't be empty or whitespace");
             }
 
-            if (recordParameters.FirstName.Length < minLength || recordParameters.FirstName.Length > maxLength)
+            if (name.Length < minLength || name.Length > maxLength)
             {
-                throw new ArgumentException($"First name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(recordParameters));
+                return new Tuple<bool, string>(false, $"Name's length should be more or equal {minLength} and less or equal {maxLength}");
             }
 
-            ArgumentNullException.ThrowIfNull(recordParameters.LastName);
+            return new Tuple<bool, string>(true, name);
+        }
 
-            if (string.IsNullOrWhiteSpace(recordParameters.LastName))
+        public Tuple<bool, string> ValidateDateOfBirth(DateTime? dateOfBirth)
+        {
+            if (dateOfBirth < this.MinDate || dateOfBirth > DateTime.Now)
             {
-                throw new ArgumentException("Last name shouldn't be empty or whitespace", nameof(recordParameters));
+                return new Tuple<bool, string>(false, $"Date of birth shouldn't be less than {this.MinDate} or more than current date.");
             }
 
-            if (recordParameters.LastName.Length < minLength || recordParameters.LastName.Length > maxLength)
-            {
-                throw new ArgumentException($"Last name's length should be more or equal {minLength} and less or equal {maxLength}", nameof(recordParameters));
-            }
+            return new Tuple<bool, string>(true, "Everything is alright");
+        }
 
-            DateTime minDate = this.MinDate;
+        public Tuple<bool, string> ValidateStatus(short? status)
+        {
+            return new Tuple<bool, string>(true, "Everything is alright");
+        }
 
-            if (recordParameters.DateOfBirth < minDate || recordParameters.DateOfBirth > DateTime.Now)
-            {
-                throw new ArgumentException($"Date of birth shouldn't be less than {minDate} or more than current date.", nameof(recordParameters));
-            }
+        public Tuple<bool, string> ValidateSalary(decimal? salary)
+        {
+            return salary < this.MinSalaryValue ? new Tuple<bool, string>(false, "Salary value shouldn't be less than 0") : new Tuple<bool, string>(true, "Everything is alright");
+        }
 
-            if (recordParameters.Salary < 0)
-            {
-                throw new ArgumentException("Salary value shouldn't be less than 0", nameof(recordParameters));
-            }
+        public Tuple<bool, string> ValidatePermissions(char? permissions)
+        {
+            return new Tuple<bool, string>(true, "Everything is alright");
         }
     }
 }

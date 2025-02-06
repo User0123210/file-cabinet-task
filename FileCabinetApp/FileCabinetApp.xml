@@ -14,7 +14,7 @@
             Initializes a new instance of the <see cref="T:FileCabinetApp.CustomValidator"/> class.
             </summary>
         </member>
-        <member name="M:FileCabinetApp.CustomValidator.#ctor(System.Int32,System.Int32,System.DateTime,System.Char[])">
+        <member name="M:FileCabinetApp.CustomValidator.#ctor(System.Int32,System.Int32,System.Decimal,System.DateTime,System.Char[])">
             <summary>
             Initializes a new instance of the <see cref="T:FileCabinetApp.CustomValidator"/> class.
             </summary>
@@ -59,6 +59,12 @@
             </summary>
             <returns>An array of valid permissions.</returns>
         </member>
+        <member name="P:FileCabinetApp.CustomValidator.MinSalaryValue">
+            <summary>
+            Gets a value indicating minimum salary value.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
         <member name="M:FileCabinetApp.CustomValidator.ValidateParameters(FileCabinetApp.FileCabinetRecordParameterObject)">
             <summary>
             Validates record parameters for creation or editing of a new record.
@@ -82,7 +88,7 @@
             Initializes a new instance of the <see cref="T:FileCabinetApp.DefaultValidator"/> class.
             </summary>
         </member>
-        <member name="M:FileCabinetApp.DefaultValidator.#ctor(System.Int32,System.Int32,System.DateTime)">
+        <member name="M:FileCabinetApp.DefaultValidator.#ctor(System.Int32,System.Int32,System.DateTime,System.Decimal)">
             <summary>
             Initializes a new instance of the <see cref="T:FileCabinetApp.DefaultValidator"/> class.
             </summary>
@@ -120,6 +126,12 @@
             </summary>
             <value>dateFormat.</value>
         </member>
+        <member name="P:FileCabinetApp.DefaultValidator.MinSalaryValue">
+            <summary>
+            Gets a value indicating minimum salary value.
+            </summary>
+            <value>isOnlyLetterName.</value>
+        </member>
         <member name="M:FileCabinetApp.DefaultValidator.GetValidPermissions">
             <summary>
             Gets array of valid permissions.
@@ -151,35 +163,11 @@
             <param name="stream">Stream to write.</param>
             <param name="validator">Validator to check record parameters.</param>
         </member>
-        <member name="P:FileCabinetApp.FileCabinetFilesystemService.MinNameLength">
-            <summary>
-            Gets minimal possible length of the name.
-            </summary>
-            <value>this.minNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetFilesystemService.MaxNameLength">
-            <summary>
-            Gets maximum possible length of the name.
-            </summary>
-            <value>this.maxNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetFilesystemService.IsOnlyLetterName">
-            <summary>
-            Gets a value indicating whether the name should contain only letter characters or not.
-            </summary>
-            <value>isOnlyLetterName.</value>
-        </member>
         <member name="P:FileCabinetApp.FileCabinetFilesystemService.DateFormat">
             <summary>
             Gets a value of the date format.
             </summary>
             <value>dateFormat.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetFilesystemService.MinDate">
-            <summary>
-            Gets minimum possible date.
-            </summary>
-            <value>this.minDate.</value>
         </member>
         <member name="P:FileCabinetApp.FileCabinetFilesystemService.GetStat">
             <summary>
@@ -292,35 +280,11 @@
             <param name="dateOfBirthDictionary">Parameter to assign to dateOfBirthDictionary dictionary.</param>
             <param name="recordIdDictionary">Parameter to assign to recordIdDictionary dictionary.</param>
         </member>
-        <member name="P:FileCabinetApp.FileCabinetMemoryService.MinNameLength">
-            <summary>
-            Gets minimal possible length of the name.
-            </summary>
-            <value>this.minNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetMemoryService.MaxNameLength">
-            <summary>
-            Gets maximum possible length of the name.
-            </summary>
-            <value>this.maxNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetMemoryService.IsOnlyLetterName">
-            <summary>
-            Gets a value indicating whether the name should contain only letter characters or not.
-            </summary>
-            <value>isOnlyLetterName.</value>
-        </member>
         <member name="P:FileCabinetApp.FileCabinetMemoryService.DateFormat">
             <summary>
             Gets a value of the date format.
             </summary>
             <value>dateFormat.</value>
-        </member>
-        <member name="P:FileCabinetApp.FileCabinetMemoryService.MinDate">
-            <summary>
-            Gets minimum possible date.
-            </summary>
-            <value>this.minDate.</value>
         </member>
         <member name="P:FileCabinetApp.FileCabinetMemoryService.GetStat">
             <summary>
@@ -647,35 +611,11 @@
             Provides basic structure and methods of the file cabinet.
             </summary>
         </member>
-        <member name="P:FileCabinetApp.IFileCabinetService.MinNameLength">
-            <summary>
-            Gets minimal possible length of the name.
-            </summary>
-            <value>this.minNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.IFileCabinetService.MaxNameLength">
-            <summary>
-            Gets maximum possible length of the name.
-            </summary>
-            <value>this.maxNameLength.</value>
-        </member>
-        <member name="P:FileCabinetApp.IFileCabinetService.IsOnlyLetterName">
-            <summary>
-            Gets a value indicating whether the name should contain only letter characters or not.
-            </summary>
-            <value>isOnlyLetterName.</value>
-        </member>
         <member name="P:FileCabinetApp.IFileCabinetService.DateFormat">
             <summary>
             Gets a value of the date format.
             </summary>
             <value>dateFormat.</value>
-        </member>
-        <member name="P:FileCabinetApp.IFileCabinetService.MinDate">
-            <summary>
-            Gets minimum possible date.
-            </summary>
-            <value>this.minDate.</value>
         </member>
         <member name="P:FileCabinetApp.IFileCabinetService.GetStat">
             <summary>
@@ -799,6 +739,12 @@
             Gets a value of the date format.
             </summary>
             <value>dateFormat.</value>
+        </member>
+        <member name="P:FileCabinetApp.IRecordValidator.MinSalaryValue">
+            <summary>
+            Gets a value indicating minimum salary value.
+            </summary>
+            <value>isOnlyLetterName.</value>
         </member>
         <member name="M:FileCabinetApp.IRecordValidator.GetValidPermissions">
             <summary>

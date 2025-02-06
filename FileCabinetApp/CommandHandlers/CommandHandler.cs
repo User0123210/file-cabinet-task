@@ -123,7 +123,7 @@ namespace FileCabinetApp
             var dateOfBirth = ReadInput(DateConverter, DateOfBirthValidator);
 
             Console.Write("Status: ");
-            var status = ReadInput(ShortConverter, (short status) => new Tuple<bool, string>(true, "Everything alright"));
+            var status = ReadInput(ShortConverter, StatusValidator);
 
             Console.Write("Salary: ");
             var salary = ReadInput(DecimalConverter, SalaryValidator);
@@ -164,7 +164,7 @@ namespace FileCabinetApp
                 var dateOfBirth = ReadInput(DateConverter, DateOfBirthValidator);
 
                 Console.Write("Status: ");
-                var status = ReadInput(ShortConverter, (short status) => new Tuple<bool, string>(true, "Everything alright"));
+                var status = ReadInput(ShortConverter, StatusValidator);
 
                 Console.Write("Salary: ");
                 var salary = ReadInput(DecimalConverter, SalaryValidator);
@@ -217,51 +217,28 @@ namespace FileCabinetApp
 
         private static Tuple<bool, string> NameValidator(string name)
         {
-            int minLength = Program.FileCabinetService.MinNameLength;
-            int maxLength = Program.FileCabinetService.MaxNameLength;
-            bool isValid = false;
+            var validator = Program.FileCabinetService.ValidateName();
+            Tuple<bool, string> validationResult = validator(name);
 
-            if (!string.IsNullOrWhiteSpace(name))
+            if (!validationResult.Item1)
             {
-                if (name.Length < minLength || name.Length > maxLength)
-                {
-                    return new Tuple<bool, string>(isValid, $"Name's length should be more or equal {minLength} and less or equal {maxLength}");
-                }
-                else
-                {
-                    isValid = true;
-                }
-            }
-            else
-            {
-                return new Tuple<bool, string>(isValid, $"Name shouldn't be empty or whitespace");
+                return new Tuple<bool, string>(false, validationResult.Item2);
             }
 
-            if (Program.FileCabinetService.IsOnlyLetterName)
-            {
-                foreach (char character in name)
-                {
-                    if (!char.IsLetter(character))
-                    {
-                        isValid = false;
-                        return new Tuple<bool, string>(isValid, "Name should contain only letters.");
-                    }
-                }
-            }
-
-            return new Tuple<bool, string>(isValid, "Everything alright.");
+            return new Tuple<bool, string>(true, "Everything is alright");
         }
 
         private static Tuple<bool, string> DateOfBirthValidator(DateTime date)
         {
-            DateTime minDate = Program.FileCabinetService.MinDate;
+            var validator = Program.FileCabinetService.ValidateDateOfBirth();
+            Tuple<bool, string> validationResult = validator(date);
 
-            if (date < minDate || date > DateTime.Now)
+            if (!validationResult.Item1)
             {
-                return new Tuple<bool, string>(false, $"Date of birth shouldn't be less than {minDate} or more than current date");
+                return new Tuple<bool, string>(false, validationResult.Item2);
             }
 
-            return new Tuple<bool, string>(true, "Everything alright");
+            return new Tuple<bool, string>(true, "Everything is alright");
         }
 
         private static Tuple<bool, string, DateTime> DateConverter(string date)
@@ -273,33 +250,52 @@ namespace FileCabinetApp
                 return new Tuple<bool, string, DateTime>(isValid, $"Please, enter valid date of birth in format \"{Program.FileCabinetService.DateFormat}\"", default);
             }
 
-            return new Tuple<bool, string, DateTime>(isValid, "Everything alright", dateOfBirth);
+            return new Tuple<bool, string, DateTime>(isValid, "Everything is alright", dateOfBirth);
         }
 
-        private static Tuple<bool, string, short> ShortConverter(string value) => short.TryParse(value, out short newValue) ? new Tuple<bool, string, short>(true, "Everything alright", newValue) : new Tuple<bool, string, short>(false, $"Please, enter valid number in range from {short.MinValue} to {short.MaxValue}", default);
+        private static Tuple<bool, string, short> ShortConverter(string value) => short.TryParse(value, out short newValue) ? new Tuple<bool, string, short>(true, "Everything is alright", newValue) : new Tuple<bool, string, short>(false, $"Please, enter valid number in range from {short.MinValue} to {short.MaxValue}", default);
 
-        private static Tuple<bool, string, decimal> DecimalConverter(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newValue) ? new Tuple<bool, string, decimal>(true, "Everything alright", newValue) : new Tuple<bool, string, decimal>(false, "Please, enter valid decimal number", default);
+        private static Tuple<bool, string> StatusValidator(short status)
+        {
+            var validator = Program.FileCabinetService.ValidateStatus();
+            Tuple<bool, string> validationResult = validator(status);
 
-        private static Tuple<bool, string> SalaryValidator(decimal salary) => salary >= 0 ? new Tuple<bool, string>(true, "Everything alright") : new Tuple<bool, string>(false, "Salary should be more than 0");
+            if (!validationResult.Item1)
+            {
+                return new Tuple<bool, string>(false, validationResult.Item2);
+            }
 
-        private static Tuple<bool, string, char> CharConverter(string value) => char.TryParse(value, out char newValue) ? new Tuple<bool, string, char>(true, "Everything alright", newValue) : new Tuple<bool, string, char>(false, "Please, enter valid character", default);
+            return new Tuple<bool, string>(true, "Everything is alright");
+        }
+
+        private static Tuple<bool, string, decimal> DecimalConverter(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newValue) ? new Tuple<bool, string, decimal>(true, "Everything is alright", newValue) : new Tuple<bool, string, decimal>(false, "Please, enter valid decimal number", default);
+
+        private static Tuple<bool, string> SalaryValidator(decimal salary)
+        {
+            var validator = Program.FileCabinetService.ValidateSalary();
+            Tuple<bool, string> validationResult = validator(salary);
+
+            if (!validationResult.Item1)
+            {
+                return new Tuple<bool, string>(false, validationResult.Item2);
+            }
+
+            return new Tuple<bool, string>(true, "Everything is alright");
+        }
+
+        private static Tuple<bool, string, char> CharConverter(string value) => char.TryParse(value, out char newValue) ? new Tuple<bool, string, char>(true, "Everything is alright", newValue) : new Tuple<bool, string, char>(false, "Please, enter valid character", default);
 
         private static Tuple<bool, string> PermissionsValidator(char permissions)
         {
-            if (Program.FileCabinetService.GetValidPermissions().Count > 0)
-            {
-                foreach (char permission in Program.FileCabinetService.GetValidPermissions())
-                {
-                    if (char.Equals(char.ToLowerInvariant(permissions), permission))
-                    {
-                        return new Tuple<bool, string>(true, "Everything alright");
-                    }
-                }
+            var validator = Program.FileCabinetService.ValidatePermissions();
+            Tuple<bool, string> validationResult = validator(permissions);
 
-                return new Tuple<bool, string>(false, $"Permissions should be one of {string.Join(", ", Program.FileCabinetService.GetValidPermissions())}");
+            if (!validationResult.Item1)
+            {
+                return new Tuple<bool, string>(false, validationResult.Item2);
             }
 
-            return new Tuple<bool, string>(true, "Everything alright");
+            return new Tuple<bool, string>(true, "Everything is alright");
         }
 
         private static void Find(string parameters)
