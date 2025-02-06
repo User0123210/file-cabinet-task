@@ -54,7 +54,7 @@ namespace FileCabinetApp
                     recordWriter.Write(record);
                 }
 
-                writer.Close();
+                writer?.Close();
             }
         }
 
