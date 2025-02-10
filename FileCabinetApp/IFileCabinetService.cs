@@ -5,6 +5,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using FileCabinetApp.Validators;
+
+#pragma warning disable SA1011
 
 namespace FileCabinetApp
 {
@@ -31,10 +34,10 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Gets array of valid permissions.
+        /// Gets array of validators to validate records for the service.
         /// </summary>
-        /// <returns>An array of valid permissions.</returns>
-        public ReadOnlyCollection<char> GetValidPermissions();
+        /// <returns>Array of validators.</returns>
+        public IRecordValidator[]? GetValidators();
 
         /// <summary>
         /// Creates a new record and adds it into the records list.
@@ -109,15 +112,5 @@ namespace FileCabinetApp
         /// Removes deleted records from source database.
         /// </summary>
         public void Purge();
-
-        public Func<string?, Tuple<bool, string>> ValidateName();
-
-        public Func<DateTime?, Tuple<bool, string>> ValidateDateOfBirth();
-
-        public Func<short?, Tuple<bool, string>> ValidateStatus();
-
-        public Func<decimal?, Tuple<bool, string>> ValidateSalary();
-
-        public Func<char?, Tuple<bool, string>> ValidatePermissions();
     }
 }

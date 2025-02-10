@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
+    /// <summary>
+    /// Represents class of the command handler to handle help command.
+    /// </summary>
     public class HelpCommandHandler : CommandHandlerBase
     {
         private static readonly string[][] HelpMessages = new string[][]
@@ -27,10 +30,17 @@ namespace FileCabinetApp.CommandHandlers
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
 
+        /// <summary>
+        /// Initializes new instance of the HelpCommandHandler.
+        /// </summary>
         public HelpCommandHandler()
         {
         }
 
+        /// <summary>
+        /// Handles command.
+        /// </summary>
+        /// <param name="commandRequest">Command to handle.</param>
         public override void Handle(AppCommandRequest commandRequest)
         {
             if (commandRequest is not null)

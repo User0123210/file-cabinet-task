@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileCabinetApp.Validators;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -6,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+#pragma warning disable SA1011
 
 namespace FileCabinetApp
 {
@@ -16,7 +19,7 @@ namespace FileCabinetApp
     {
         private const int RecordSize = 292;
         private readonly FileStream stream;
-        private readonly IRecordValidator validator;
+        private IRecordValidator validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileCabinetFilesystemService"/> class.
@@ -33,7 +36,47 @@ namespace FileCabinetApp
         /// Gets a value of the date format.
         /// </summary>
         /// <value>dateFormat.</value>
-        public string DateFormat { get => this.validator.DateFormat; }
+        public string DateFormat
+        {
+            get
+            {
+                CompositeValidator? compositeValidator = this.validator as CompositeValidator;
+
+                if (compositeValidator is not null)
+                {
+                    foreach (var validator in compositeValidator.GetValidators())
+                    {
+                        if (validator.GetType() == typeof(DateOfBirthValidator))
+                        {
+                            DateOfBirthValidator? dateOfBirthValidator = validator as DateOfBirthValidator;
+
+                            if (dateOfBirthValidator is not null)
+                            {
+                                return dateOfBirthValidator.DateFormat;
+                            }
+                        }
+                    }
+                }
+
+                return "MM/dd/yyyy";
+            }
+        }
+
+        /// <summary>
+        /// Gets array of validators to validate records in the service.
+        /// </summary>
+        /// <returns>Array of validators.</returns>
+        public IRecordValidator[]? GetValidators()
+        {
+            CompositeValidator? compositeValidator = this.validator as CompositeValidator;
+
+            if (compositeValidator is not null)
+            {
+                return compositeValidator.GetValidators();
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Gets information about the number of records in the service.
@@ -63,12 +106,6 @@ namespace FileCabinetApp
                 return (numberOfRecords, numberOfDeleted);
             }
         }
-
-        /// <summary>
-        /// Gets array of valid permissions.
-        /// </summary>
-        /// <returns>An array of valid permissions.</returns>
-        public ReadOnlyCollection<char> GetValidPermissions() => this.validator.GetValidPermissions();
 
         /// <summary>
         /// Creates a new value and adds it into the records list.
@@ -360,12 +397,12 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
         /// </summary>
-        public void ChangeValidatorToCustom() => throw new NotImplementedException();
+        public void ChangeValidatorToCustom() => this.validator = new ValidatorBuilder().CreateCustom();
 
         /// <summary>
         /// Creates a copy of the FileCabinetMemoryService as FileCabinetCustomService.
         /// </summary>
-        public void ChangeValidatorToDefault() => throw new NotImplementedException();
+        public void ChangeValidatorToDefault() => this.validator = new ValidatorBuilder().CreateDefault();
 
         /// <summary>
         /// Makes snapshot of the IFileCabinetService with the copy of the records.
@@ -390,36 +427,25 @@ namespace FileCabinetApp
 
                 foreach (var rec in newRecords)
                 {
-                    Func<object, Tuple<bool, string>>[] validationMethods = new Func<object, Tuple<bool, string>>[] { p => this.validator.ValidateName(p as string), p => this.validator.ValidateName(p as string), p => this.validator.ValidateDateOfBirth(p as DateTime?), p => this.validator.ValidateStatus(p as short?), p => this.validator.ValidateSalary(p as decimal?), p => this.validator.ValidatePermissions(p as char?) };
-                    object[] parameters = new object[] { rec.FirstName, rec.LastName, rec.DateOfBirth, rec.Status, rec.Salary, rec.Permissions };
-                    bool isValid = true;
+                    Tuple<bool, string> validationResult = this.validator.ValidateParameters(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
 
-                    for (int i = 0; i < validationMethods.Length; i++)
+                    if (!validationResult.Item1)
                     {
-                        Tuple<bool, string> validationResult = validationMethods[i](parameters[i]);
-
-                        if (!validationResult.Item1)
-                        {
-                            Console.WriteLine($"Record #{rec.Id}, {validationResult.Item2}, skips.");
-                            isValid = false;
-                            break;
-                        }
+                        Console.WriteLine($"Record #{rec.Id}, {validationResult.Item2}, skips.");
+                        continue;
                     }
 
-                    if (isValid)
+                    if (existingIds.Contains(rec.Id))
                     {
-                        if (existingIds.Contains(rec.Id))
-                        {
-                            this.EditRecord(rec.Id, new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
-                        }
-                        else
-                        {
-                            this.CreateRecord(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
-                            this.stream.Position -= RecordSize;
-                            this.stream.Position += 2;
-                            this.stream.Write(BitConverter.GetBytes(rec.Id), 0, 4);
-                            this.stream.Flush();
-                        }
+                        this.EditRecord(rec.Id, new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                    }
+                    else
+                    {
+                        this.CreateRecord(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                        this.stream.Position -= RecordSize;
+                        this.stream.Position += 2;
+                        this.stream.Write(BitConverter.GetBytes(rec.Id), 0, 4);
+                        this.stream.Flush();
                     }
                 }
             }
@@ -525,31 +551,6 @@ namespace FileCabinetApp
             this.stream.Position = 0;
             this.stream.SetLength(RecordSize * records.Count);
             this.stream.Flush(false);
-        }
-
-        public Func<string?, Tuple<bool, string>> ValidateName()
-        {
-            return this.validator.ValidateName;
-        }
-
-        public Func<DateTime?, Tuple<bool, string>> ValidateDateOfBirth()
-        {
-            return this.validator.ValidateDateOfBirth;
-        }
-
-        public Func<short?, Tuple<bool, string>> ValidateStatus()
-        {
-            return this.validator.ValidateStatus;
-        }
-
-        public Func<decimal?, Tuple<bool, string>> ValidateSalary()
-        {
-            return this.validator.ValidateSalary;
-        }
-
-        public Func<char?, Tuple<bool, string>> ValidatePermissions()
-        {
-            return this.validator.ValidatePermissions;
         }
     }
 }

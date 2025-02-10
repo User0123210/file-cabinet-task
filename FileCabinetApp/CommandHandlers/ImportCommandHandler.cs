@@ -6,13 +6,24 @@ using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
+    /// <summary>
+    /// Represents class to handle import command in the IFileCabinetService.
+    /// </summary>
     public class ImportCommandHandler : ServiceCommandHandlerBase
     {
+        /// <summary>
+        /// Initializes new instance of the ImportCommandHandler class via the IFileCabinetService to handle commands in.
+        /// </summary>
+        /// <param name="service">Service to handle commands in.</param>
         public ImportCommandHandler(IFileCabinetService service)
             : base(service)
         {
         }
 
+        /// <summary>
+        /// Handles commands in the seervice.
+        /// </summary>
+        /// <param name="commandRequest">Command to handle.</param>
         public override void Handle(AppCommandRequest commandRequest)
         {
             if (commandRequest is not null)
@@ -30,7 +41,7 @@ namespace FileCabinetApp.CommandHandlers
                         try
                         {
                             Stream stream = File.OpenRead(source);
-                            using StreamReader reader = new(stream);
+                            using StreamReader reader = new (stream);
                             FileCabinetServiceSnapshot snapshot = this.service.MakeSnapshot();
 
                             if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
@@ -44,9 +55,17 @@ namespace FileCabinetApp.CommandHandlers
                                 this.service.Restore(snapshot);
                             }
                         }
-                        catch (Exception ex)
+                        catch (DirectoryNotFoundException ex)
                         {
-                            Console.WriteLine($"An error occured: {ex.Message}");
+                            Console.WriteLine($"Destination directory not found: {ex.Message}");
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            Console.WriteLine($"Invalid destination directory: {ex.Message}");
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            Console.WriteLine($"Can't get access to the destination directory: {ex.Message}");
                         }
                     }
                 }

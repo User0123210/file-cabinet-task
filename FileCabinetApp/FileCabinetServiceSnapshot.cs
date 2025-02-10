@@ -44,7 +44,7 @@ namespace FileCabinetApp
             if (writer is not null)
             {
                 writer.BaseStream.Seek(0, SeekOrigin.End);
-                FileCabinetRecordCsvWriter recordWriter = new(writer);
+                FileCabinetRecordCsvWriter recordWriter = new (writer);
                 string propertyNames = string.Join(",", typeof(FileCabinetRecord).GetProperties().Select(p => p.Name));
                 writer?.WriteLine(propertyNames);
 
@@ -68,7 +68,7 @@ namespace FileCabinetApp
             {
                 writer.BaseStream.Seek(0, SeekOrigin.End);
                 XmlWriter xmlWriter = XmlWriter.Create(writer, new XmlWriterSettings { Indent = true });
-                FileCabinetRecordXmlWriter recordWriter = new(xmlWriter);
+                FileCabinetRecordXmlWriter recordWriter = new (xmlWriter);
 
                 xmlWriter.WriteStartDocument();
                 xmlWriter.WriteStartElement("records");

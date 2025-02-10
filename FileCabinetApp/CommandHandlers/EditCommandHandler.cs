@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileCabinetApp.Validators;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -7,13 +8,24 @@ using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
+    /// <summary>
+    /// Represents class to handle edit command in the IFileCabinetService.
+    /// </summary>
     public class EditCommandHandler : ServiceCommandHandlerBase
     {
+        /// <summary>
+        /// Initializes new instance of the EditCommandHandler via the IFileCabinetService to handle commands in.
+        /// </summary>
+        /// <param name="service">IFileCabinetService to handle commands in.</param>
         public EditCommandHandler(IFileCabinetService service)
             : base(service)
         {
         }
 
+        /// <summary>
+        /// Handles commands in the service.
+        /// </summary>
+        /// <param name="commandRequest">Command to handle.</param>
         public override void Handle(AppCommandRequest commandRequest)
         {
             if (commandRequest is not null)
@@ -29,24 +41,24 @@ namespace FileCabinetApp.CommandHandlers
                     else
                     {
                         Console.Write("First name: ");
-                        var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.NameValidator);
+                        var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.GetValidator(typeof(DateOfBirthValidator)) is not null ? this.GetValidator(typeof(FirstNameValidator)) !.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
 
                         Console.Write("Last name: ");
-                        var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.NameValidator);
+                        var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.GetValidator(typeof(DateOfBirthValidator)) is not null ? this.GetValidator(typeof(LastNameValidator)) !.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
 
                         Console.Write("Date of birth: ");
-                        var dateOfBirth = ReadInput(this.DateConverter, this.DateOfBirthValidator);
+                        var dateOfBirth = ReadInput(this.DateConverter, this.GetValidator(typeof(DateOfBirthValidator)) is not null ? this.GetValidator(typeof(DateOfBirthValidator)) !.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
 
                         Console.Write("Status: ");
-                        var status = ReadInput(this.ShortConverter, this.StatusValidator);
+                        var status = ReadInput(ShortConverter, this.GetValidator(typeof(StatusValidator)) is not null ? this.GetValidator(typeof(StatusValidator)) !.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
 
                         Console.Write("Salary: ");
-                        var salary = ReadInput(this.DecimalConverter, this.SalaryValidator);
+                        var salary = ReadInput(DecimalConverter, this.GetValidator(typeof(SalaryValidator)) is not null ? this.GetValidator(typeof(SalaryValidator)) !.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
 
                         Console.Write("Permissions: ");
-                        var permissions = ReadInput(this.CharConverter, this.PermissionsValidator);
+                        var permissions = ReadInput(CharConverter, this.GetValidator(typeof(PermissionsValidator)) is not null ? this.GetValidator(typeof(PermissionsValidator)) !.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
 
-                        FileCabinetRecordParameterObject recordParameters = new() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
+                        FileCabinetRecordParameterObject recordParameters = new () { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
 
                         try
                         {
@@ -66,30 +78,20 @@ namespace FileCabinetApp.CommandHandlers
             }
         }
 
-        private Tuple<bool, string> NameValidator(string name)
+        private IRecordValidator? GetValidator(Type type)
         {
-            var validator = this.service.ValidateName();
-            Tuple<bool, string> validationResult = validator(name);
-
-            if (!validationResult.Item1)
+            if (this.service.GetValidators() is not null)
             {
-                return new Tuple<bool, string>(false, validationResult.Item2);
+                foreach (var recordValidator in this.service.GetValidators() !)
+                {
+                    if (recordValidator.GetType() == type)
+                    {
+                        return recordValidator;
+                    }
+                }
             }
 
-            return new Tuple<bool, string>(true, "Everything is alright");
-        }
-
-        private Tuple<bool, string> DateOfBirthValidator(DateTime date)
-        {
-            var validator = this.service.ValidateDateOfBirth();
-            Tuple<bool, string> validationResult = validator(date);
-
-            if (!validationResult.Item1)
-            {
-                return new Tuple<bool, string>(false, validationResult.Item2);
-            }
-
-            return new Tuple<bool, string>(true, "Everything is alright");
+            return null;
         }
 
         private Tuple<bool, string, DateTime> DateConverter(string date)
@@ -104,52 +106,13 @@ namespace FileCabinetApp.CommandHandlers
             return new Tuple<bool, string, DateTime>(isValid, "Everything is alright", dateOfBirth);
         }
 
-        private Tuple<bool, string, short> ShortConverter(string value) => short.TryParse(value, out short newValue) ? new Tuple<bool, string, short>(true, "Everything is alright", newValue) : new Tuple<bool, string, short>(false, $"Please, enter valid number in range from {short.MinValue} to {short.MaxValue}", default);
+        private static Tuple<bool, string, short> ShortConverter(string value) => short.TryParse(value, out short newValue) ? new Tuple<bool, string, short>(true, "Everything is alright", newValue) : new Tuple<bool, string, short>(false, $"Please, enter valid number in range from {short.MinValue} to {short.MaxValue}", default);
 
-        private Tuple<bool, string> StatusValidator(short status)
-        {
-            var validator = this.service.ValidateStatus();
-            Tuple<bool, string> validationResult = validator(status);
+        private static Tuple<bool, string, decimal> DecimalConverter(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newValue) ? new Tuple<bool, string, decimal>(true, "Everything is alright", newValue) : new Tuple<bool, string, decimal>(false, "Please, enter valid decimal number", default);
 
-            if (!validationResult.Item1)
-            {
-                return new Tuple<bool, string>(false, validationResult.Item2);
-            }
+        private static Tuple<bool, string, char> CharConverter(string value) => char.TryParse(value, out char newValue) ? new Tuple<bool, string, char>(true, "Everything is alright", newValue) : new Tuple<bool, string, char>(false, "Please, enter valid character", default);
 
-            return new Tuple<bool, string>(true, "Everything is alright");
-        }
-
-        private Tuple<bool, string, decimal> DecimalConverter(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newValue) ? new Tuple<bool, string, decimal>(true, "Everything is alright", newValue) : new Tuple<bool, string, decimal>(false, "Please, enter valid decimal number", default);
-
-        private Tuple<bool, string> SalaryValidator(decimal salary)
-        {
-            var validator = this.service.ValidateSalary();
-            Tuple<bool, string> validationResult = validator(salary);
-
-            if (!validationResult.Item1)
-            {
-                return new Tuple<bool, string>(false, validationResult.Item2);
-            }
-
-            return new Tuple<bool, string>(true, "Everything is alright");
-        }
-
-        private Tuple<bool, string, char> CharConverter(string value) => char.TryParse(value, out char newValue) ? new Tuple<bool, string, char>(true, "Everything is alright", newValue) : new Tuple<bool, string, char>(false, "Please, enter valid character", default);
-
-        private Tuple<bool, string> PermissionsValidator(char permissions)
-        {
-            var validator = this.service.ValidatePermissions();
-            Tuple<bool, string> validationResult = validator(permissions);
-
-            if (!validationResult.Item1)
-            {
-                return new Tuple<bool, string>(false, validationResult.Item2);
-            }
-
-            return new Tuple<bool, string>(true, "Everything is alright");
-        }
-
-        private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
+        private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<object, Tuple<bool, string>> validator)
         {
             do
             {
@@ -166,7 +129,7 @@ namespace FileCabinetApp.CommandHandlers
 
                 value = conversionResult.Item3;
 
-                var validationResult = validator(value);
+                var validationResult = value is not null ? validator(value) : new Tuple<bool, string>(false, "Something went wrong");
                 if (!validationResult.Item1)
                 {
                     Console.WriteLine($"Validation failed: {validationResult.Item2}. Please, correct your input.");

@@ -6,13 +6,24 @@ using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
+    /// <summary>
+    /// Handles stat command in the FileCabinetService.
+    /// </summary>
     public class StatCommandHandler : ServiceCommandHandlerBase
     {
+        /// <summary>
+        /// Initializes new instance of StatCommandHandler class.
+        /// </summary>
+        /// <param name="service"></param>
         public StatCommandHandler(IFileCabinetService service)
             : base(service)
         {
         }
 
+        /// <summary>
+        /// Handles the command.
+        /// </summary>
+        /// <param name="commandRequest">Command to handle.</param>
         public override void Handle(AppCommandRequest commandRequest)
         {
             if (commandRequest is not null)

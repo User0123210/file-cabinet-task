@@ -8,16 +8,28 @@ using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
+    /// <summary>
+    /// Represents class to handle find command in the IFileCabinetService.
+    /// </summary>
     public class FindCommandHandler : ServiceCommandHandlerBase
     {
         private readonly Action<IEnumerable<FileCabinetRecord>> print;
 
+        /// <summary>
+        /// Initializes new instance of the FindCommandHandler via the IFileCabinetService to handle commands in, and Action delegate to print results.
+        /// </summary>
+        /// <param name="service"></param>
+        /// <param name="print"></param>
         public FindCommandHandler(IFileCabinetService service, Action<IEnumerable<FileCabinetRecord>> print)
             : base(service)
         {
             this.print = print;
         }
 
+        /// <summary>
+        /// Handles commands in the service.
+        /// </summary>
+        /// <param name="commandRequest">Command to handle.</param>
         public override void Handle(AppCommandRequest commandRequest)
         {
             if (commandRequest is not null)
@@ -31,7 +43,7 @@ namespace FileCabinetApp.CommandHandlers
                     if (arguments.Length > 1)
                     {
                         var value = arguments[propertyIndex + 1];
-                        ReadOnlyCollection<FileCabinetRecord> found = new(Array.Empty<FileCabinetRecord>());
+                        ReadOnlyCollection<FileCabinetRecord> found = new (Array.Empty<FileCabinetRecord>());
 
                         if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
                         {

@@ -1,4 +1,5 @@
 ﻿using FileCabinetApp.CommandHandlers;
+using FileCabinetApp.Validators;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -8,7 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 
-#pragma warning disable IDE0060
+#pragma warning disable IDE0060, CA1303
 
 namespace FileCabinetApp
 {
@@ -22,7 +23,7 @@ namespace FileCabinetApp
         private static bool isRunning = true;
         private static string validationRules = "default";
         private static string storage = "memory";
-        private static IFileCabinetService fileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
+        private static IFileCabinetService fileCabinetService = new FileCabinetMemoryService(new ValidatorBuilder().CreateDefault());
 
         /// <summary>
         /// Runs Console Application.
@@ -78,12 +79,12 @@ namespace FileCabinetApp
                         switch (inputs[commandIndex + 1].ToUpperInvariant())
                         {
                             case "MEMORY":
-                                fileCabinetService = new FileCabinetMemoryService(new DefaultValidator());
+                                fileCabinetService = new FileCabinetMemoryService(new ValidatorBuilder().CreateDefault());
                                 storage = "memory";
                                 break;
                             case "FILE":
-                                fileStream = new(@"cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                                fileCabinetService = new FileCabinetFilesystemService(fileStream, new DefaultValidator());
+                                fileStream = new (@"cabinet-records.db", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                                fileCabinetService = new FileCabinetFilesystemService(fileStream, new ValidatorBuilder().CreateDefault());
                                 storage = "file";
                                 break;
                         }
