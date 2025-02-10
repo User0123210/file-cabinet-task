@@ -1,0 +1,45 @@
+{
+  "default": {
+    "firstName": {
+      "min": 2,
+      "max": 60,
+      "isOnlyLetters": false
+    },
+    "lastName": {
+      "min": 2,
+      "max": 60,
+      "isOnlyLetters": false
+    },
+    "dateOfBirth": {
+      "from": "1/1/1950",
+      "to": "2/14/2025",
+      "dateFormat": "MM/dd/yyyy"
+    },
+    "salary": {
+      "moreThan": 0
+    }
+  },
+  "custom": {
+    "firstName": {
+      "min": 2,
+      "max": 35,
+      "isOnlyLetters": true
+    },
+    "lastName": {
+      "min": 2,
+      "max": 35,
+      "isOnlyLetters": true
+    },
+    "dateOfBirth": {
+      "from": "6/8/1908",
+      "to": "2/14/2025",
+      "dateFormat": "MM/dd/yyyy"
+    },
+    "salary": {
+      "moreThan": 0
+    },
+    "permissions": {
+      "validPermissions": [ "r", "w", "x", "d", "c", "m", "f", "l", "a" ]
+    }
+  }
+}
