@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using Bogus;
 using Bogus.Extensions;
 using FileCabinetApp;
+using FileCabinetApp.Validators;
 
 #pragma warning disable CA1303, CA1031, IDE0060
 
@@ -16,7 +17,6 @@ namespace FileCabinetGenerator
     internal class Program
     {
         private const string DeveloperName = "Serafima Mochalova";
-        private static readonly IRecordValidator Validator = new DefaultValidator();
         private static string outputType = "csv";
         private static int recordsAmount;
         private static int startId = 1;
@@ -148,15 +148,15 @@ namespace FileCabinetGenerator
                     RuleFor(r => r.Id, i => startId++).
                     RuleFor(r => r.FirstName, f => f.Name.FirstName().
                     Trim().
-                    ClampLength(Validator.MinNameLength, Validator.MaxNameLength)).
+                    ClampLength(2, 60)).
                     RuleFor(r => r.LastName, l => l.Name.LastName().
                     Trim().
-                    ClampLength(Validator.MinNameLength, Validator.MaxNameLength)).
+                    ClampLength(2, 60)).
                     RuleFor(r => r.DateOfBirth, d =>
                     {
                         DateTime data = d.Date.
-                                        Between(Validator.MinDate, DateTime.Now);
-                        var result = DateTime.ParseExact(data.ToString(Validator.DateFormat, CultureInfo.InvariantCulture), Validator.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                                        Between(new DateTime(1950, 1, 1), DateTime.Now);
+                        var result = DateTime.ParseExact(data.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture), "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
                         return result;
                     }).
                     RuleFor(r => r.Status, st => st.Random.Short()).

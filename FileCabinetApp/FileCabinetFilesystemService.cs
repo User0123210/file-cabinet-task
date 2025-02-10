@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileCabinetApp.Validators;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -6,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+#pragma warning disable SA1011
 
 namespace FileCabinetApp
 {
@@ -16,7 +19,7 @@ namespace FileCabinetApp
     {
         private const int RecordSize = 292;
         private readonly FileStream stream;
-        private readonly IRecordValidator validator;
+        private IRecordValidator validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileCabinetFilesystemService"/> class.
@@ -30,34 +33,50 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Gets minimal possible length of the name.
-        /// </summary>
-        /// <value>this.minNameLength.</value>
-        public int MinNameLength { get => this.validator.MinNameLength; }
-
-        /// <summary>
-        /// Gets maximum possible length of the name.
-        /// </summary>
-        /// <value>this.maxNameLength.</value>
-        public int MaxNameLength { get => this.validator.MaxNameLength; }
-
-        /// <summary>
-        /// Gets a value indicating whether the name should contain only letter characters or not.
-        /// </summary>
-        /// <value>isOnlyLetterName.</value>
-        public bool IsOnlyLetterName { get => this.validator.IsOnlyLetterName; }
-
-        /// <summary>
         /// Gets a value of the date format.
         /// </summary>
         /// <value>dateFormat.</value>
-        public string DateFormat { get => this.validator.DateFormat; }
+        public string DateFormat
+        {
+            get
+            {
+                CompositeValidator? compositeValidator = this.validator as CompositeValidator;
+
+                if (compositeValidator is not null)
+                {
+                    foreach (var validator in compositeValidator.GetValidators())
+                    {
+                        if (validator.GetType() == typeof(DateOfBirthValidator))
+                        {
+                            DateOfBirthValidator? dateOfBirthValidator = validator as DateOfBirthValidator;
+
+                            if (dateOfBirthValidator is not null)
+                            {
+                                return dateOfBirthValidator.DateFormat;
+                            }
+                        }
+                    }
+                }
+
+                return "MM/dd/yyyy";
+            }
+        }
 
         /// <summary>
-        /// Gets minimum possible date.
+        /// Gets array of validators to validate records in the service.
         /// </summary>
-        /// <value>this.minDate.</value>
-        public DateTime MinDate { get => this.validator.MinDate; }
+        /// <returns>Array of validators.</returns>
+        public IRecordValidator[]? GetValidators()
+        {
+            CompositeValidator? compositeValidator = this.validator as CompositeValidator;
+
+            if (compositeValidator is not null)
+            {
+                return compositeValidator.GetValidators();
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Gets information about the number of records in the service.
@@ -87,12 +106,6 @@ namespace FileCabinetApp
                 return (numberOfRecords, numberOfDeleted);
             }
         }
-
-        /// <summary>
-        /// Gets array of valid permissions.
-        /// </summary>
-        /// <returns>An array of valid permissions.</returns>
-        public ReadOnlyCollection<char> GetValidPermissions() => this.validator.GetValidPermissions();
 
         /// <summary>
         /// Creates a new value and adds it into the records list.
@@ -337,9 +350,9 @@ namespace FileCabinetApp
         /// <summary>
         /// Looks for records with dateOfBirth property equal to the specified date parameter.
         /// </summary>
-        /// <param name="date">Date of birth of the records to seek.</param>
+        /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date)
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
         {
             List<FileCabinetRecord> records = new ();
             byte[] buffer = new byte[RecordSize];
@@ -360,9 +373,9 @@ namespace FileCabinetApp
                 year = BitConverter.ToInt32(buffer, 246);
                 month = BitConverter.ToInt32(buffer, 250);
                 day = BitConverter.ToInt32(buffer, 254);
-                DateTime dateOfBirth = new (year, month, day);
+                DateTime recordDateOfBirth = new (year, month, day);
 
-                if (dateOfBirth == date && ((buffer[0] & 4) == 0))
+                if (dateOfBirth == recordDateOfBirth && ((buffer[0] & 4) == 0))
                 {
                     id = BitConverter.ToInt32(buffer, 2);
                     firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
@@ -374,7 +387,7 @@ namespace FileCabinetApp
                     copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
                     salary = new decimal(copyDecimal);
                     permissions = BitConverter.ToChar(buffer, 290);
-                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = date, Status = status, Salary = salary, Permissions = permissions });
+                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = recordDateOfBirth, Status = status, Salary = salary, Permissions = permissions });
                 }
             }
 
@@ -384,12 +397,12 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
         /// </summary>
-        public void ChangeValidatorToCustom() => throw new NotImplementedException();
+        public void ChangeValidatorToCustom() => this.validator = new ValidatorBuilder().CreateCustom();
 
         /// <summary>
         /// Creates a copy of the FileCabinetMemoryService as FileCabinetCustomService.
         /// </summary>
-        public void ChangeValidatorToDefault() => throw new NotImplementedException();
+        public void ChangeValidatorToDefault() => this.validator = new ValidatorBuilder().CreateDefault();
 
         /// <summary>
         /// Makes snapshot of the IFileCabinetService with the copy of the records.
@@ -414,83 +427,12 @@ namespace FileCabinetApp
 
                 foreach (var rec in newRecords)
                 {
-                    if (string.IsNullOrWhiteSpace(rec.FirstName))
+                    Tuple<bool, string> validationResult = this.validator.ValidateParameters(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+
+                    if (!validationResult.Item1)
                     {
-                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace firstName, skips.");
+                        Console.WriteLine($"Record #{rec.Id}, {validationResult.Item2}, skips.");
                         continue;
-                    }
-
-                    if (rec.FirstName.Length > this.validator.MaxNameLength || rec.FirstName.Length < this.validator.MinNameLength)
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, firstName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
-                        continue;
-                    }
-
-                    if (this.validator.IsOnlyLetterName)
-                    {
-                        foreach (var letter in rec.FirstName)
-                        {
-                            if (!char.IsLetter(letter))
-                            {
-                                Console.WriteLine($"Record #{rec.Id}, firstName contains non letter characters, skips.");
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (string.IsNullOrWhiteSpace(rec.LastName))
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, empty or whitespace lastName, skips.");
-                        continue;
-                    }
-
-                    if (rec.LastName.Length > this.validator.MaxNameLength || rec.LastName.Length < this.validator.MinNameLength)
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, lastName length outside of {this.validator.MinNameLength}-{this.validator.MaxNameLength} range, skips.");
-                        continue;
-                    }
-
-                    if (this.validator.IsOnlyLetterName)
-                    {
-                        foreach (var letter in rec.LastName)
-                        {
-                            if (!char.IsLetter(letter))
-                            {
-                                Console.WriteLine($"Record #{rec.Id}, lastName contains non letter characters, skips.");
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (rec.DateOfBirth < this.validator.MinDate || rec.DateOfBirth > DateTime.Now)
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, dateOfBirth outside of range: ({this.validator.MinDate}) - ({DateTime.Now}), skips.");
-                        continue;
-                    }
-
-                    if (rec.Salary < 0)
-                    {
-                        Console.WriteLine($"Record #{rec.Id}, salary is less than zero, skips.");
-                        continue;
-                    }
-
-                    if (this.validator.GetValidPermissions().Count > 0)
-                    {
-                        bool isValid = false;
-
-                        foreach (char c in this.validator.GetValidPermissions())
-                        {
-                            if (c == rec.Permissions)
-                            {
-                                isValid = true;
-                            }
-                        }
-
-                        if (!isValid)
-                        {
-                            Console.WriteLine($"Record #{rec.Id}, permissions is not one of valid permissions, skips.");
-                            continue;
-                        }
                     }
 
                     if (existingIds.Contains(rec.Id))
@@ -500,6 +442,10 @@ namespace FileCabinetApp
                     else
                     {
                         this.CreateRecord(new FileCabinetRecordParameterObject() { FirstName = rec.FirstName, LastName = rec.LastName, DateOfBirth = rec.DateOfBirth, Status = rec.Status, Salary = rec.Salary, Permissions = rec.Permissions });
+                        this.stream.Position -= RecordSize;
+                        this.stream.Position += 2;
+                        this.stream.Write(BitConverter.GetBytes(rec.Id), 0, 4);
+                        this.stream.Flush();
                     }
                 }
             }

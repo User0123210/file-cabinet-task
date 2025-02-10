@@ -5,43 +5,22 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using FileCabinetApp.Validators;
+
+#pragma warning disable SA1011
 
 namespace FileCabinetApp
 {
     /// <summary>
     /// Provides basic structure and methods of the file cabinet.
     /// </summary>
-    internal interface IFileCabinetService
+    public interface IFileCabinetService
     {
-        /// <summary>
-        /// Gets minimal possible length of the name.
-        /// </summary>
-        /// <value>this.minNameLength.</value>
-        public int MinNameLength { get; }
-
-        /// <summary>
-        /// Gets maximum possible length of the name.
-        /// </summary>
-        /// <value>this.maxNameLength.</value>
-        public int MaxNameLength { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the name should contain only letter characters or not.
-        /// </summary>
-        /// <value>isOnlyLetterName.</value>
-        public bool IsOnlyLetterName { get; }
-
         /// <summary>
         /// Gets a value of the date format.
         /// </summary>
         /// <value>dateFormat.</value>
         public string DateFormat { get; }
-
-        /// <summary>
-        /// Gets minimum possible date.
-        /// </summary>
-        /// <value>this.minDate.</value>
-        public DateTime MinDate { get; }
 
         /// <summary>
         /// Gets information about the number of records in the service.
@@ -55,10 +34,10 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Gets array of valid permissions.
+        /// Gets array of validators to validate records for the service.
         /// </summary>
-        /// <returns>An array of valid permissions.</returns>
-        public ReadOnlyCollection<char> GetValidPermissions();
+        /// <returns>Array of validators.</returns>
+        public IRecordValidator[]? GetValidators();
 
         /// <summary>
         /// Creates a new record and adds it into the records list.
@@ -97,9 +76,9 @@ namespace FileCabinetApp
         /// <summary>
         /// Looks for records with dateOfBirth property equal to the specified date parameter.
         /// </summary>
-        /// <param name="date">Date of birth of the records to seek.</param>
+        /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime date);
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth);
 
         /// <summary>
         /// Creates a copy of the FileCabinetMemoryService as FileCabinetDefaultService.
