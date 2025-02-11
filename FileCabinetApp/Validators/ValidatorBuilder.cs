@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace FileCabinetApp.Validators
 {
@@ -94,10 +96,17 @@ namespace FileCabinetApp.Validators
         /// </summary>
         public IRecordValidator CreateDefault()
         {
-            this.ValidateFirstName(2, 60, false);
-            this.ValidateLastName(2, 60, false);
-            this.ValidateDateOfBirth(new DateTime(1950, 1, 1), DateTime.Now, "MM/dd/yyyy");
-            this.ValidateSalary(0);
+            string json = File.ReadAllText("validation-rules.json");
+
+            if (json is not null)
+            {
+                JsonValidators parameters = JsonConvert.DeserializeObject<JsonValidators>(json) ?? new JsonValidators();
+                this.ValidateFirstName(parameters.Default.FirstName.MinNameLength, parameters.Default.FirstName.MaxNameLength, parameters.Default.FirstName.IsOnlyLetters);
+                this.ValidateLastName(parameters.Default.LastName.MinNameLength, parameters.Default.LastName.MaxNameLength, parameters.Default.LastName.IsOnlyLetters);
+                this.ValidateDateOfBirth(parameters.Default.DateOfBirth.From, parameters.Default.DateOfBirth.To, parameters.Default.DateOfBirth.DateFormat);
+                this.ValidateSalary(parameters.Default.Salary.MinSalary);
+            }
+
             return this.Create();
         }
 
@@ -106,11 +115,18 @@ namespace FileCabinetApp.Validators
         /// </summary>
         public IRecordValidator CreateCustom()
         {
-            this.ValidateFirstName(2, 35, true);
-            this.ValidateLastName(2, 35, true);
-            this.ValidateDateOfBirth(new DateTime(1908, 6, 8), DateTime.Now, "MM/dd/yyyy");
-            this.ValidateSalary(0);
-            this.ValidatePermissions(new char[] { 'r', 'w', 'x', 'd', 'c', 'm', 'f', 'l', 'a' });
+            string json = File.ReadAllText("validation-rules.json");
+
+            if (json is not null)
+            {
+                JsonValidators parameters = JsonConvert.DeserializeObject<JsonValidators>(json) ?? new JsonValidators();
+                this.ValidateFirstName(parameters.Custom.FirstName.MinNameLength, parameters.Custom.FirstName.MaxNameLength, parameters.Custom.FirstName.IsOnlyLetters);
+                this.ValidateLastName(parameters.Custom.LastName.MinNameLength, parameters.Custom.LastName.MaxNameLength, parameters.Custom.LastName.IsOnlyLetters);
+                this.ValidateDateOfBirth(parameters.Custom.DateOfBirth.From, parameters.Custom.DateOfBirth.To, parameters.Custom.DateOfBirth.DateFormat);
+                this.ValidateSalary(parameters.Custom.Salary.MinSalary);
+                this.ValidatePermissions(parameters.Custom.Permissions.ValidPermissions.ToArray());
+            }
+
             return this.Create();
         }
     }

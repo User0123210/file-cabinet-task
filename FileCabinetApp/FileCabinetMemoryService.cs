@@ -131,7 +131,7 @@ namespace FileCabinetApp
 
             int newId = 1;
 
-            while (this.GetRecords().Select(r => r.Id).Contains(newId))
+            while (this.recordIdDictionary.ContainsKey(newId))
             {
                 newId++;
             }

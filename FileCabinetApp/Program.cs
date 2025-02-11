@@ -94,6 +94,20 @@ namespace FileCabinetApp
 
                     continue;
                 }
+                else if (command == "use-stopwatch")
+                {
+                    fileCabinetService = new ServiceMeter(fileCabinetService);
+                    Console.WriteLine($"Using stopwatch.");
+
+                    continue;
+                }
+                else if (command == "use-logger")
+                {
+                    fileCabinetService = new ServiceLogger(fileCabinetService);
+                    Console.WriteLine($"Using logging.");
+
+                    continue;
+                }
 
                 var handler = CreateCommandHandlers();
 
