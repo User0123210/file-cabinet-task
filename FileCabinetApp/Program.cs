@@ -101,6 +101,13 @@ namespace FileCabinetApp
 
                     continue;
                 }
+                else if (command == "use-logger")
+                {
+                    fileCabinetService = new ServiceLogger(fileCabinetService);
+                    Console.WriteLine($"Using logging.");
+
+                    continue;
+                }
 
                 var handler = CreateCommandHandlers();
 

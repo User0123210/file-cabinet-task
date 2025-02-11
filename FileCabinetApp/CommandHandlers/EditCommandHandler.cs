@@ -40,23 +40,35 @@ namespace FileCabinetApp.CommandHandlers
                     }
                     else
                     {
+                        var firstNameValidator = this.GetValidator(typeof(FirstNameValidator));
+
                         Console.Write("First name: ");
-                        var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.GetValidator(typeof(DateOfBirthValidator)) is not null ? this.GetValidator(typeof(FirstNameValidator)) !.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
+                        var firstName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), firstNameValidator is not null ? firstNameValidator.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
+
+                        var lastNameValidator = this.GetValidator(typeof(LastNameValidator));
 
                         Console.Write("Last name: ");
-                        var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), this.GetValidator(typeof(DateOfBirthValidator)) is not null ? this.GetValidator(typeof(LastNameValidator)) !.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
+                        var lastName = ReadInput((string name) => new Tuple<bool, string, string>(true, "String is a string", name), lastNameValidator is not null ? lastNameValidator.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
+
+                        var dateValidator = this.GetValidator(typeof(DateOfBirthValidator));
 
                         Console.Write("Date of birth: ");
-                        var dateOfBirth = ReadInput(this.DateConverter, this.GetValidator(typeof(DateOfBirthValidator)) is not null ? this.GetValidator(typeof(DateOfBirthValidator)) !.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
+                        var dateOfBirth = ReadInput(this.DateConverter, dateValidator is not null ? dateValidator.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
+
+                        var statusValidator = this.GetValidator(typeof(StatusValidator));
 
                         Console.Write("Status: ");
-                        var status = ReadInput(ShortConverter, this.GetValidator(typeof(StatusValidator)) is not null ? this.GetValidator(typeof(StatusValidator)) !.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+                        var status = ReadInput(ShortConverter, statusValidator is not null ? statusValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+
+                        var salaryValidator = this.GetValidator(typeof(SalaryValidator));
 
                         Console.Write("Salary: ");
-                        var salary = ReadInput(DecimalConverter, this.GetValidator(typeof(SalaryValidator)) is not null ? this.GetValidator(typeof(SalaryValidator)) !.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+                        var salary = ReadInput(DecimalConverter,  salaryValidator is not null ? salaryValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+
+                        var permissionsValidator = this.GetValidator(typeof(PermissionsValidator));
 
                         Console.Write("Permissions: ");
-                        var permissions = ReadInput(CharConverter, this.GetValidator(typeof(PermissionsValidator)) is not null ? this.GetValidator(typeof(PermissionsValidator)) !.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+                        var permissions = ReadInput(CharConverter, permissionsValidator is not null ? permissionsValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
 
                         FileCabinetRecordParameterObject recordParameters = new () { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
 
@@ -80,9 +92,11 @@ namespace FileCabinetApp.CommandHandlers
 
         private IRecordValidator? GetValidator(Type type)
         {
-            if (this.service.GetValidators() is not null)
+            var validators = this.service.GetValidators();
+
+            if (validators is not null)
             {
-                foreach (var recordValidator in this.service.GetValidators() !)
+                foreach (var recordValidator in validators)
                 {
                     if (recordValidator.GetType() == type)
                     {

@@ -16,7 +16,7 @@ namespace FileCabinetApp
     /// </summary>
     public class ServiceMeter : IFileCabinetService
     {
-        private IFileCabinetService service;
+        private readonly IFileCabinetService service;
 
         /// <summary>
         /// Initializes new instance of the ServiceMeter class.
