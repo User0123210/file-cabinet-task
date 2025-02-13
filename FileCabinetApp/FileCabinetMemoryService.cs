@@ -395,43 +395,19 @@ namespace FileCabinetApp
                     this.records.Remove(record);
                     this.recordIdDictionary.Remove(record.Id);
 
-                    foreach (var dictElement in this.firstNameDictionary)
+                    if (this.firstNameDictionary.ContainsKey(record.FirstName.ToUpperInvariant()))
                     {
-                        for (int i = 0; i < dictElement.Value.Count; i++)
-                        {
-                            var dictRecord = dictElement.Value[i];
-
-                            if (dictRecord.Id == id)
-                            {
-                                dictElement.Value.Remove(dictRecord);
-                            }
-                        }
+                        this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Remove(record);
                     }
 
-                    foreach (var dictElement in this.lastNameDictionary)
+                    if (this.lastNameDictionary.ContainsKey(record.LastName.ToUpperInvariant()))
                     {
-                        for (int i = 0; i < dictElement.Value.Count; i++)
-                        {
-                            var dictRecord = dictElement.Value[i];
-
-                            if (dictRecord.Id == id)
-                            {
-                                dictElement.Value.Remove(dictRecord);
-                            }
-                        }
+                        this.lastNameDictionary[record.LastName.ToUpperInvariant()].Remove(record);
                     }
 
-                    foreach (var dictElement in this.dateOfBirthDictionary)
+                    if (this.dateOfBirthDictionary.ContainsKey(record.DateOfBirth))
                     {
-                        for (int i = 0; i < dictElement.Value.Count; i++)
-                        {
-                            var dictRecord = dictElement.Value[i];
-
-                            if (dictRecord.Id == id)
-                            {
-                                dictElement.Value.Remove(dictRecord);
-                            }
-                        }
+                        this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
                     }
                 }
             }
