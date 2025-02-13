@@ -80,11 +80,11 @@ namespace FileCabinetApp
         /// Gets copy of the records as record array.
         /// </summary>
         /// <returns>Array of the records.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> GetRecords()
+        public IEnumerable<FileCabinetRecord> GetRecords()
         {
             Stopwatch measure = new ();
             measure.Start();
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.GetRecords();
+            IEnumerable<FileCabinetRecord> records = this.service.GetRecords();
             measure.Stop();
             Console.WriteLine($"Get records method execution duration is {measure.ElapsedTicks} ticks.");
             return records;
@@ -109,11 +109,11 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="firstName">First name of the records to seek.</param>
         /// <returns>Array of the found records with the specified firstName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string firstName)
+        public IEnumerable<FileCabinetRecord> FindByFirstName(string firstName)
         {
             Stopwatch measure = new ();
             measure.Start();
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.FindByFirstName(firstName);
+            IEnumerable<FileCabinetRecord> records = this.service.FindByFirstName(firstName);
             measure.Stop();
             Console.WriteLine($"Find by first name method execution duration is {measure.ElapsedTicks} ticks.");
             return records;
@@ -124,11 +124,11 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="lastName">Last name of the records to seek.</param>
         /// <returns>Array of the found records with the specified lastName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string lastName)
+        public IEnumerable<FileCabinetRecord> FindByLastName(string lastName)
         {
             Stopwatch measure = new ();
             measure.Start();
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.FindByLastName(lastName);
+            IEnumerable<FileCabinetRecord> records = this.service.FindByLastName(lastName);
             measure.Stop();
             Console.WriteLine($"Find by last name method execution duration is {measure.ElapsedTicks} ticks.");
             return records;
@@ -139,11 +139,11 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
+        public IEnumerable<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
         {
             Stopwatch measure = new ();
             measure.Start();
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.FindByDateOfBirth(dateOfBirth);
+            IEnumerable<FileCabinetRecord> records = this.service.FindByDateOfBirth(dateOfBirth);
             measure.Stop();
             Console.WriteLine($"Find by date of birth method execution duration is {measure.ElapsedTicks} ticks.");
             return records;

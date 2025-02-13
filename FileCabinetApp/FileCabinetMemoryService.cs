@@ -161,7 +161,7 @@ namespace FileCabinetApp
         /// Gets copy of the records as record array.
         /// </summary>
         /// <returns>Array of the records.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> GetRecords()
+        public IEnumerable<FileCabinetRecord> GetRecords()
         {
             return this.records.AsReadOnly();
         }
@@ -212,7 +212,7 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="firstName">First name of the records to seek.</param>
         /// <returns>Array of the found records with the specified firstName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string firstName)
+        public IEnumerable<FileCabinetRecord> FindByFirstName(string firstName)
         {
             List<FileCabinetRecord> foundRecords = new ();
 
@@ -229,7 +229,7 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="lastName">Last name of the records to seek.</param>
         /// <returns>Array of the found records with the specified lastName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string lastName)
+        public IEnumerable<FileCabinetRecord> FindByLastName(string lastName)
         {
             List<FileCabinetRecord> foundRecords = new ();
 
@@ -246,7 +246,7 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
+        public IEnumerable<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
         {
             List<FileCabinetRecord> foundRecords = new ();
 
@@ -395,43 +395,19 @@ namespace FileCabinetApp
                     this.records.Remove(record);
                     this.recordIdDictionary.Remove(record.Id);
 
-                    foreach (var dictElement in this.firstNameDictionary)
+                    if (this.firstNameDictionary.ContainsKey(record.FirstName.ToUpperInvariant()))
                     {
-                        for (int i = 0; i < dictElement.Value.Count; i++)
-                        {
-                            var dictRecord = dictElement.Value[i];
-
-                            if (dictRecord.Id == id)
-                            {
-                                dictElement.Value.Remove(dictRecord);
-                            }
-                        }
+                        this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Remove(record);
                     }
 
-                    foreach (var dictElement in this.lastNameDictionary)
+                    if (this.lastNameDictionary.ContainsKey(record.LastName.ToUpperInvariant()))
                     {
-                        for (int i = 0; i < dictElement.Value.Count; i++)
-                        {
-                            var dictRecord = dictElement.Value[i];
-
-                            if (dictRecord.Id == id)
-                            {
-                                dictElement.Value.Remove(dictRecord);
-                            }
-                        }
+                        this.lastNameDictionary[record.LastName.ToUpperInvariant()].Remove(record);
                     }
 
-                    foreach (var dictElement in this.dateOfBirthDictionary)
+                    if (this.dateOfBirthDictionary.ContainsKey(record.DateOfBirth))
                     {
-                        for (int i = 0; i < dictElement.Value.Count; i++)
-                        {
-                            var dictRecord = dictElement.Value[i];
-
-                            if (dictRecord.Id == id)
-                            {
-                                dictElement.Value.Remove(dictRecord);
-                            }
-                        }
+                        this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
                     }
                 }
             }

@@ -43,7 +43,7 @@ namespace FileCabinetApp.CommandHandlers
                     if (arguments.Length > 1)
                     {
                         var value = arguments[propertyIndex + 1];
-                        ReadOnlyCollection<FileCabinetRecord> found = new (Array.Empty<FileCabinetRecord>());
+                        IEnumerable<FileCabinetRecord> found = new List<FileCabinetRecord>();
 
                         if (string.Equals(property, "FirstName", StringComparison.OrdinalIgnoreCase))
                         {

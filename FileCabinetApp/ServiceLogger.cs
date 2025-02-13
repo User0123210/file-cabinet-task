@@ -142,14 +142,14 @@ namespace FileCabinetApp
         /// Gets copy of the records as record array.
         /// </summary>
         /// <returns>Array of the records.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> GetRecords()
+        public IEnumerable<FileCabinetRecord> GetRecords()
         {
             FileStream fileStream = new (this.path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
             using StreamWriter writer = new (fileStream);
 
             writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Calling GetRecords().");
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.GetRecords();
-            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - GetRecords() returned {records.Count} records.");
+            IEnumerable<FileCabinetRecord> records = this.service.GetRecords();
+            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - GetRecords() returned {records.Count()} records.");
             return records;
         }
 
@@ -186,13 +186,13 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="firstName">First name of the records to seek.</param>
         /// <returns>Array of the found records with the specified firstName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string firstName)
+        public IEnumerable<FileCabinetRecord> FindByFirstName(string firstName)
         {
             FileStream fileStream = new (this.path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
             using StreamWriter writer = new (fileStream);
             writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Calling FindByFirstName() with firstName = {firstName}.");
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.FindByFirstName(firstName);
-            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - FindByFirstName() returned {records.Count} records.");
+            IEnumerable<FileCabinetRecord> records = this.service.FindByFirstName(firstName);
+            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - FindByFirstName() returned {records.Count()} records.");
             return records;
         }
 
@@ -201,13 +201,13 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="lastName">Last name of the records to seek.</param>
         /// <returns>Array of the found records with the specified lastName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string lastName)
+        public IEnumerable<FileCabinetRecord> FindByLastName(string lastName)
         {
             FileStream fileStream = new (this.path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
             using StreamWriter writer = new (fileStream);
             writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Calling FindByLastName() with lastName = {lastName}.");
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.FindByLastName(lastName);
-            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - FindByLastName() returned {records.Count} records.");
+            IEnumerable<FileCabinetRecord> records = this.service.FindByLastName(lastName);
+            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - FindByLastName() returned {records.Count()} records.");
             return records;
         }
 
@@ -216,13 +216,13 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
+        public IEnumerable<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
         {
             FileStream fileStream = new (this.path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
             using StreamWriter writer = new (fileStream);
             writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Calling FindByDateOfBirth() with dateOfBirth = {dateOfBirth}.");
-            ReadOnlyCollection<FileCabinetRecord> records = this.service.FindByDateOfBirth(dateOfBirth);
-            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - FindByDateOfBirth() returned {records.Count} records.");
+            IEnumerable<FileCabinetRecord> records = this.service.FindByDateOfBirth(dateOfBirth);
+            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - FindByDateOfBirth() returned {records.Count()} records.");
             return records;
         }
 
