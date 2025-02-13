@@ -171,9 +171,8 @@ namespace FileCabinetApp
         /// Gets copy of the records as value array.
         /// </summary>
         /// <returns>Array of the records.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> GetRecords()
+        public IEnumerable<FileCabinetRecord> GetRecords()
         {
-            List<FileCabinetRecord> records = new ();
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
             int id;
@@ -243,11 +242,10 @@ namespace FileCabinetApp
                     this.dateOfBirthDictionary[dateOfBirth].Add(recordIndex);
                 }
 
-                records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status,  Salary = salary, Permissions = permissions });
+                yield return new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status,  Salary = salary, Permissions = permissions };
             }
 
             this.stream.Position = 0;
-            return records.AsReadOnly();
         }
 
         /// <summary>
@@ -355,9 +353,8 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="firstName">First name of the records to seek.</param>
         /// <returns>Array of the found records with the specified firstName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string firstName)
+        public IEnumerable<FileCabinetRecord> FindByFirstName(string firstName)
         {
-            List<FileCabinetRecord> records = new ();
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
             int id;
@@ -371,6 +368,7 @@ namespace FileCabinetApp
             char permissions;
             int[] copyDecimal = new int[4];
             bool isValid;
+            FileCabinetRecord rec;
 
             if (firstName is not null)
             {
@@ -380,11 +378,15 @@ namespace FileCabinetApp
                     {
                         this.stream.Position = (long)(this.firstNameDictionary[firstName.ToUpperInvariant()][index] * RecordSize);
                         this.stream.Read(buffer, 0, RecordSize);
-                        isValid = IfValidAddToRecords(buffer, firstName, ref records);
+                        (isValid, rec) = IfValidAddToRecords(buffer, firstName);
 
                         if (!isValid)
                         {
                             this.firstNameDictionary[firstName.ToUpperInvariant()].Remove(this.firstNameDictionary[firstName.ToUpperInvariant()][index]);
+                        }
+                        else
+                        {
+                            yield return rec;
                         }
                     }
                 }
@@ -392,20 +394,19 @@ namespace FileCabinetApp
                 {
                     while (this.stream.Read(buffer, 0, RecordSize) != 0)
                     {
-                        isValid = IfValidAddToRecords(buffer, firstName!, ref records);
+                        (isValid, rec) = IfValidAddToRecords(buffer, firstName!);
 
                         if (isValid)
                         {
                             ulong recordIndex = (ulong)(this.stream.Position - RecordSize) / RecordSize;
                             AddToDictionary(this.firstNameDictionary, firstName, recordIndex);
+                            yield return rec;
                         }
                     }
                 }
             }
 
-            return records.AsReadOnly();
-
-            bool IfValidAddToRecords(byte[] buffer, string firstName, ref List<FileCabinetRecord> records)
+            (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, string firstName)
             {
                 recordFirstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
 
@@ -424,11 +425,10 @@ namespace FileCabinetApp
                     copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
                     salary = new decimal(copyDecimal);
                     permissions = BitConverter.ToChar(buffer, 290);
-                    records.Add(new FileCabinetRecord() { Id = id, FirstName = recordFirstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
-                    return true;
+                    return (true, new FileCabinetRecord() { Id = id, FirstName = recordFirstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
                 }
 
-                return false;
+                return (false, new FileCabinetRecord());
             }
         }
 
@@ -437,9 +437,8 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="lastName">Last name of the records to seek.</param>
         /// <returns>Array of the found records with the specified lastName.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string lastName)
+        public IEnumerable<FileCabinetRecord> FindByLastName(string lastName)
         {
-            List<FileCabinetRecord> records = new ();
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
             int id;
@@ -453,6 +452,7 @@ namespace FileCabinetApp
             char permissions;
             int[] copyDecimal = new int[4];
             bool isValid;
+            FileCabinetRecord rec;
 
             if (lastName is not null)
             {
@@ -462,11 +462,15 @@ namespace FileCabinetApp
                     {
                         this.stream.Position = (long)(this.lastNameDictionary[lastName.ToUpperInvariant()][index] * RecordSize);
                         this.stream.Read(buffer, 0, RecordSize);
-                        isValid = IfValidAddToRecords(buffer, lastName, ref records);
+                        (isValid, rec) = IfValidAddToRecords(buffer, lastName);
 
                         if (!isValid)
                         {
                             this.lastNameDictionary[lastName.ToUpperInvariant()].Remove(this.lastNameDictionary[lastName.ToUpperInvariant()][index]);
+                        }
+                        else
+                        {
+                            yield return rec;
                         }
                     }
                 }
@@ -474,20 +478,19 @@ namespace FileCabinetApp
                 {
                     while (this.stream.Read(buffer, 0, RecordSize) != 0)
                     {
-                        isValid = IfValidAddToRecords(buffer, lastName!, ref records);
+                        (isValid, rec) = IfValidAddToRecords(buffer, lastName!);
 
                         if (isValid)
                         {
                             ulong recordIndex = (ulong)(this.stream.Position - RecordSize) / RecordSize;
                             AddToDictionary(this.firstNameDictionary, lastName, recordIndex);
+                            yield return rec;
                         }
                     }
                 }
             }
 
-            return records.AsReadOnly();
-
-            bool IfValidAddToRecords(byte[] buffer, string lastName, ref List<FileCabinetRecord> records)
+            (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, string lastName)
             {
                 recordLastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
 
@@ -506,11 +509,10 @@ namespace FileCabinetApp
                     copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
                     salary = new decimal(copyDecimal);
                     permissions = BitConverter.ToChar(buffer, 290);
-                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = recordLastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
-                    return true;
+                    return (true, new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = recordLastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
                 }
 
-                return false;
+                return (false, new FileCabinetRecord());
             }
         }
 
@@ -519,9 +521,8 @@ namespace FileCabinetApp
         /// </summary>
         /// <param name="dateOfBirth">Date of birth of the records to seek.</param>
         /// <returns>Array of the found records with the specified dateOfBirth.</returns>
-        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
+        public IEnumerable<FileCabinetRecord> FindByDateOfBirth(DateTime dateOfBirth)
         {
-            List<FileCabinetRecord> records = new ();
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
             int id;
@@ -535,6 +536,7 @@ namespace FileCabinetApp
             char permissions;
             int[] copyDecimal = new int[4];
             bool isValid;
+            FileCabinetRecord rec;
 
             if (this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
             {
@@ -542,11 +544,15 @@ namespace FileCabinetApp
                 {
                     this.stream.Position = (long)(this.dateOfBirthDictionary[dateOfBirth][index] * RecordSize);
                     this.stream.Read(buffer, 0, RecordSize);
-                    isValid = IfValidAddToRecords(buffer, dateOfBirth, ref records);
+                    (isValid, rec) = IfValidAddToRecords(buffer, dateOfBirth);
 
                     if (!isValid)
                     {
                         this.dateOfBirthDictionary[dateOfBirth].Remove(this.dateOfBirthDictionary[dateOfBirth][index]);
+                    }
+                    else
+                    {
+                        yield return rec;
                     }
                 }
             }
@@ -554,19 +560,18 @@ namespace FileCabinetApp
             {
                 while (this.stream.Read(buffer, 0, RecordSize) != 0)
                 {
-                    isValid = IfValidAddToRecords(buffer, dateOfBirth!, ref records);
+                    (isValid, rec) = IfValidAddToRecords(buffer, dateOfBirth!);
 
                     if (isValid)
                     {
                         ulong recordIndex = (ulong)(this.stream.Position - RecordSize) / RecordSize;
                         AddToDictionary(this.dateOfBirthDictionary, dateOfBirth, recordIndex);
+                        yield return rec;
                     }
                 }
             }
 
-            return records.AsReadOnly();
-
-            bool IfValidAddToRecords(byte[] buffer, DateTime dateOfBirth, ref List<FileCabinetRecord> records)
+            (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, DateTime dateOfBirth)
             {
                 year = BitConverter.ToInt32(buffer, 246);
                 month = BitConverter.ToInt32(buffer, 250);
@@ -585,11 +590,10 @@ namespace FileCabinetApp
                     copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
                     salary = new decimal(copyDecimal);
                     permissions = BitConverter.ToChar(buffer, 290);
-                    records.Add(new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = recordDateOfBirth, Status = status, Salary = salary, Permissions = permissions });
-                    return true;
+                    return (true, new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = recordDateOfBirth, Status = status, Salary = salary, Permissions = permissions });
                 }
 
-                return false;
+                return (false, new FileCabinetRecord());
             }
         }
 

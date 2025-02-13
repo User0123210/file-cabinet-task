@@ -19,7 +19,7 @@ namespace FileCabinetApp
         /// Initializes a new instance of the <see cref="FileCabinetServiceSnapshot"/> class.
         /// </summary>
         /// <param name="records">Records of the snapshotted IFileCabinetService instance.</param>
-        public FileCabinetServiceSnapshot(IReadOnlyCollection<FileCabinetRecord> records)
+        public FileCabinetServiceSnapshot(IEnumerable<FileCabinetRecord> records)
         {
             this.records = records.ToArray();
         }
