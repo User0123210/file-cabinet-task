@@ -26,6 +26,7 @@ namespace FileCabinetApp.CommandHandlers
             new string[] { "purge", "purge removes deleted records from the database", "The 'purge' command purge removes deleted records from the database." },
             new string[] { "insert", "inserts new record with the specified values", "The 'insert' command inserts new record with the specified values." },
             new string[] { "delete", "deletes records based on the specified criteria", "The 'delete' command deletes records based on the specified criteria." },
+            new string[] { "select", "selects info about records based on the specified criteria", "The 'select' command selects info about records based on the specified criteria." },
             new string[] { "--validation-rules", "sets current validation rules as custom or default, short form -v", "The '--validation-rules' parameter sets current validation rules as custom or default, short form -v." },
             new string[] { "--storage", "sets current storage as file or memory, short form -s", "The '--storage' parameter sets current storage as file or memory, short form -s." },
             new string[] { "use-stopwatch", "enables using stopwatch for the current file cabinet service", "The 'use-stopwatch' enables using stopwatch for the current file cabinet service." },

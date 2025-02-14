@@ -144,7 +144,6 @@ namespace FileCabinetApp
                 decimal.GetBits(recordParameters.Salary, copyDecimal);
                 byte[] value = new byte[RecordSize];
                 this.stream.Position = 0;
-                byte[] buffer = new byte[RecordSize];
 
                 this.stream.Seek(0, SeekOrigin.End);
 
