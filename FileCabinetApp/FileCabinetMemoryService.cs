@@ -115,20 +115,15 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a new record and adds it into the records list.
         /// </summary>
-        /// <param name="recordParameters">Parameters of the record to change.</param>
+        /// <param name="recordParameters">Parameters of the record to add.</param>
         /// <exception cref="ArgumentNullException">Thrown when recordParameters are null.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when firstName or lastName is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
-        /// <exception cref="ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
-        /// <exception cref="ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
-        /// <exception cref="ArgumentException">Thrown when salary less than 0.</exception>
+        /// <exception cref="ArgumentException">Thrown when firstName isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when lastName isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when dateOfBirth isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when salary isn't valid.</exception>
         /// <returns>Id of the created record.</returns>
         public int CreateRecord(FileCabinetRecordParameterObject recordParameters)
         {
-            ArgumentNullException.ThrowIfNull(recordParameters);
-
-            this.validator.ValidateParameters(recordParameters);
-
             int newId = 1;
 
             while (this.recordIdDictionary.ContainsKey(newId))
@@ -136,9 +131,40 @@ namespace FileCabinetApp
                 newId++;
             }
 
+            return this.CreateRecord(newId, recordParameters);
+        }
+
+        /// <summary>
+        /// Creates a new record and adds it into the records list.
+        /// </summary>
+        /// <param name="id">Id of the record to add.</param>
+        /// <param name="recordParameters">Parameters of the record to add.</param>
+        /// <exception cref="ArgumentNullException">Thrown when recordParameters are null.</exception>
+        /// <exception cref="ArgumentException">Thrown when firstName isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when lastName isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when dateOfBirth isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when salary isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when record with the specified id already exists.</exception>
+        /// <returns>Id of the created record.</returns>
+        public int CreateRecord(int id, FileCabinetRecordParameterObject recordParameters)
+        {
+            ArgumentNullException.ThrowIfNull(recordParameters);
+
+            (bool isValid, string message) = this.validator.ValidateParameters(recordParameters);
+
+            if (!isValid)
+            {
+                throw new ArgumentException(message);
+            }
+
+            if (this.recordIdDictionary.ContainsKey(id))
+            {
+                throw new ArgumentException("Record with the specified id already exists.", nameof(id));
+            }
+
             var record = new FileCabinetRecord
             {
-                Id = newId,
+                Id = id,
                 FirstName = recordParameters.FirstName,
                 LastName = recordParameters.LastName,
                 DateOfBirth = recordParameters.DateOfBirth,
@@ -172,15 +198,20 @@ namespace FileCabinetApp
         /// <param name="id">Id of the record to edit.</param>
         /// <param name="recordParameters">Parameters of the record to change.</param>
         /// <exception cref="ArgumentNullException">Thrown when recordParameters are null.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when firstName or lastName is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when firstName or lastName less than 2 or more than 60.</exception>
-        /// <exception cref="ArgumentException">Thrown when firstName or lastName empty or whitespace.</exception>
-        /// <exception cref="ArgumentException">Thrown when dateOfBirth less than "01-01-1950" or more than current date.</exception>
-        /// <exception cref="ArgumentException">Thrown when salary less than 0.</exception>
+        /// <exception cref="ArgumentException">Thrown when firstName isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when lastName isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when dateOfBirth isn't valid.</exception>
+        /// <exception cref="ArgumentException">Thrown when salary isn't valid.</exception>
         /// <exception cref="ArgumentException">Thrown when record with the specified id isn't found.</exception>
         public void EditRecord(int id, FileCabinetRecordParameterObject recordParameters)
         {
-            this.validator.ValidateParameters(recordParameters);
+            (bool isValid, string message) = this.validator.ValidateParameters(recordParameters);
+
+            if (!isValid)
+            {
+                throw new ArgumentException(message);
+            }
+
             bool isExistent = this.recordIdDictionary.ContainsKey(id);
 
             if (isExistent && recordParameters is not null)
@@ -386,30 +417,29 @@ namespace FileCabinetApp
         /// <param name="id">Id of the record to remove.</param>
         public void RemoveRecord(int id)
         {
-            for (int j = 0; j < this.records.Count; j++)
+            if (this.recordIdDictionary.ContainsKey(id))
             {
-                var record = this.records[j];
+                FileCabinetRecord record = this.recordIdDictionary[id];
 
-                if (record.Id == id)
+                this.records.Remove(record);
+
+                this.recordIdDictionary.Remove(id);
+
+                if (this.firstNameDictionary.ContainsKey(record.FirstName.ToUpperInvariant()))
                 {
-                    this.records.Remove(record);
-                    this.recordIdDictionary.Remove(record.Id);
-
-                    if (this.firstNameDictionary.ContainsKey(record.FirstName.ToUpperInvariant()))
-                    {
-                        this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Remove(record);
-                    }
-
-                    if (this.lastNameDictionary.ContainsKey(record.LastName.ToUpperInvariant()))
-                    {
-                        this.lastNameDictionary[record.LastName.ToUpperInvariant()].Remove(record);
-                    }
-
-                    if (this.dateOfBirthDictionary.ContainsKey(record.DateOfBirth))
-                    {
-                        this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
-                    }
+                     this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Remove(record);
                 }
+
+                if (this.lastNameDictionary.ContainsKey(record.LastName.ToUpperInvariant()))
+                {
+                    this.lastNameDictionary[record.LastName.ToUpperInvariant()].Remove(record);
+                }
+
+                if (this.dateOfBirthDictionary.ContainsKey(record.DateOfBirth))
+                {
+                    this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
+                }
+
             }
         }
 

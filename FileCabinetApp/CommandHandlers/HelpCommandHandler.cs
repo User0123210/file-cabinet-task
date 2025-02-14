@@ -24,6 +24,12 @@ namespace FileCabinetApp.CommandHandlers
             new string[] { "import", "imports data from the specified file in the specified format to the service", "The 'import' command imports data from the specified file in the specified format to the service." },
             new string[] { "remove", "removes record with the specified id from the service", "The 'remove' command removes record with the specified id from the service." },
             new string[] { "purge", "purge removes deleted records from the database", "The 'purge' command purge removes deleted records from the database." },
+            new string[] { "insert", "inserts new record with the specified values", "The 'insert' command inserts new record with the specified values." },
+            new string[] { "delete", "deletes records based on the specified criteria", "The 'delete' command deletes records based on the specified criteria." },
+            new string[] { "-v or --validation-rules", "sets current validation rules as custom or default", "The '--validation-rules' parameter sets current validation rules as custom or default." },
+            new string[] { "-s or --storage", "sets current storage as file or memory", "The '--storage' parameter sets current storage as file or memory." },
+            new string[] { "use-stopwatch", "enables using stopwatch for the current file cabinet service", "The 'use-stopwatch' enables using stopwatch for the current file cabinet service." },
+            new string[] { "use-logger", "enables using logger for the current file cabinet service", "The 'use-logger' parameter enables using logger for the current file cabinet service." },
 };
 
         private const int CommandHelpIndex = 0;

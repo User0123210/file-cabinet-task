@@ -64,7 +64,7 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a new record and adds it into the records list.
         /// </summary>
-        /// <param name="recordParameters">Parameters of the record to change.</param>
+        /// <param name="recordParameters">Parameters of the record to add.</param>
         /// <returns>Id of the created record.</returns>
         public int CreateRecord(FileCabinetRecordParameterObject recordParameters)
         {
@@ -74,6 +74,22 @@ namespace FileCabinetApp
             measure.Stop();
             Console.WriteLine($"Create method execution duration is {measure.ElapsedTicks} ticks.");
             return id;
+        }
+
+        /// <summary>
+        /// Creates a new record and adds it into the records list.
+        /// </summary>
+        /// <param name="recordParameters">Parameters of the record to add.</param>
+        /// <returns>Id of the created record.</returns>
+        public int CreateRecord(int id, FileCabinetRecordParameterObject recordParameters)
+        {
+            Stopwatch measure = new ();
+            measure.Start();
+            this.service.CreateRecord(id, recordParameters);
+            measure.Stop();
+            Console.WriteLine($"Create method execution duration is {measure.ElapsedTicks} ticks.");
+            return id;
+
         }
 
         /// <summary>

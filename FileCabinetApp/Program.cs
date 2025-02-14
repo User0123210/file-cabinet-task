@@ -129,7 +129,9 @@ namespace FileCabinetApp
             var exportHandler = new ExportCommandHandler(fileCabinetService);
             var removeHandler = new RemoveCommandHandler(fileCabinetService);
             var findHandler = new FindCommandHandler(fileCabinetService, DefaultRecordPrint);
+            var insertHandler = new InsertCommandHandler(fileCabinetService);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
+            var deleteHandler = new DeleteCommandHandler(fileCabinetService);
             var exitHandler = new ExitCommandHandler(b =>
             {
                 if (b)
@@ -148,7 +150,9 @@ namespace FileCabinetApp
             listHandler.SetNext(statHandler);
             createHandler.SetNext(listHandler);
             helpHandler.SetNext(createHandler);
-            return helpHandler;
+            insertHandler.SetNext(helpHandler);
+            deleteHandler.SetNext(insertHandler);
+            return deleteHandler;
         }
 
         private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> records)
