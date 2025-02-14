@@ -138,6 +138,37 @@ namespace FileCabinetApp
             }
         }
 
+                /// <summary>
+        /// Creates a new record and adds it into the records list.
+        /// </summary>
+        /// <param name="id">Id of the record to add.</param>
+        /// <param name="recordParameters">Parameters of the record to add.</param>
+        /// <returns>Id of the created record.</returns>
+        public int CreateRecord(int id, FileCabinetRecordParameterObject recordParameters)
+        {
+            FileStream fileStream = new (this.path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+            using StreamWriter writer = new (fileStream);
+
+            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Calling CreateRecord() with FirstName = {recordParameters?.FirstName}, LastName = {recordParameters?.LastName}, DateOfBirth = {recordParameters?.DateOfBirth}, Status = {recordParameters?.Status}, Salary = {recordParameters?.Salary}, Permissions = {recordParameters?.Permissions}.");
+
+            try
+            {
+                this.service.CreateRecord(id, recordParameters!);
+                writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - CreateRecord() returned {id}.");
+                return id;
+            }
+            catch (ArgumentNullException ex)
+            {
+                writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - CreateRecord() throw argumentNull exception with the message {ex.Message}.");
+                throw;
+            }
+            catch (ArgumentException ex)
+            {
+                writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - CreateRecord() throw argument exception with the message {ex.Message}.");
+                throw;
+            }
+        }
+
         /// <summary>
         /// Gets copy of the records as record array.
         /// </summary>

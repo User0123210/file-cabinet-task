@@ -124,12 +124,14 @@ namespace FileCabinetApp
             var createHandler = new CreateCommandHandler(fileCabinetService);
             var listHandler = new ListCommandHandler(fileCabinetService, DefaultRecordPrint);
             var statHandler = new StatCommandHandler(fileCabinetService);
-            var editHandler = new EditCommandHandler(fileCabinetService);
             var importHandler = new ImportCommandHandler(fileCabinetService);
             var exportHandler = new ExportCommandHandler(fileCabinetService);
-            var removeHandler = new RemoveCommandHandler(fileCabinetService);
             var findHandler = new FindCommandHandler(fileCabinetService, DefaultRecordPrint);
+            var insertHandler = new InsertCommandHandler(fileCabinetService);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
+            var deleteHandler = new DeleteCommandHandler(fileCabinetService);
+            var updateHandler = new UpdateCommandHandler(fileCabinetService);
+
             var exitHandler = new ExitCommandHandler(b =>
             {
                 if (b)
@@ -138,17 +140,18 @@ namespace FileCabinetApp
                 }
             });
 
+            exitHandler.SetNext(helpHandler);
             purgeHandler.SetNext(exitHandler);
             findHandler.SetNext(purgeHandler);
-            removeHandler.SetNext(findHandler);
-            exportHandler.SetNext(removeHandler);
+            exportHandler.SetNext(findHandler);
             importHandler.SetNext(exportHandler);
-            editHandler.SetNext(importHandler);
-            statHandler.SetNext(editHandler);
+            statHandler.SetNext(importHandler);
             listHandler.SetNext(statHandler);
             createHandler.SetNext(listHandler);
-            helpHandler.SetNext(createHandler);
-            return helpHandler;
+            insertHandler.SetNext(createHandler);
+            deleteHandler.SetNext(insertHandler);
+            updateHandler.SetNext(deleteHandler);
+            return updateHandler;
         }
 
         private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> records)

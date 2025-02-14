@@ -116,9 +116,27 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a new value and adds it into the records list.
         /// </summary>
-        /// <param name="recordParameters">Parameters of the value to change.</param>
+        /// <param name="recordParameters">Parameters of the record to add.</param>
         /// <returns>Id of the created value.</returns>
         public int CreateRecord(FileCabinetRecordParameterObject recordParameters)
+        {
+            int newId = 1;
+
+            while (this.recordIdDictionary.ContainsKey(newId))
+            {
+                newId++;
+            }
+
+            return this.CreateRecord(newId, recordParameters);
+        }
+
+        /// <summary>
+        /// Creates a new value and adds it into the records list.
+        /// </summary>
+        /// <param name="id">Parameters of the record to add.</param>
+        /// <param name="recordParameters">Parameters of the record to add.</param>
+        /// <returns>Id of the created value.</returns>
+        public int CreateRecord(int id, FileCabinetRecordParameterObject recordParameters)
         {
             if (recordParameters is not null)
             {
@@ -128,18 +146,15 @@ namespace FileCabinetApp
                 this.stream.Position = 0;
                 byte[] buffer = new byte[RecordSize];
 
-                int newId = 1;
-                List<FileCabinetRecord> records = this.GetRecords().ToList();
-
-                while (records.Select(r => r.Id).Contains(newId))
-                {
-                    newId++;
-                }
-
                 this.stream.Seek(0, SeekOrigin.End);
 
+                if (this.recordIdDictionary.ContainsKey(id))
+                {
+                    throw new ArgumentException("Record with this id already exists.");
+                }
+
                 BitConverter.GetBytes(1).CopyTo(value, 0);
-                BitConverter.GetBytes(newId).CopyTo(value, 2);
+                BitConverter.GetBytes(id).CopyTo(value, 2);
                 Encoding.UTF8.GetBytes(recordParameters.FirstName.PadRight(120, '\0')).CopyTo(value, 6);
                 Encoding.UTF8.GetBytes(recordParameters.LastName.PadRight(120, '\0')).CopyTo(value, 126);
                 BitConverter.GetBytes(recordParameters.DateOfBirth.Year).CopyTo(value, 246);
@@ -156,12 +171,12 @@ namespace FileCabinetApp
 
                 ulong recordIndex = (ulong)(this.stream.Position - RecordSize) / RecordSize;
 
-                this.recordIdDictionary.Add(newId, recordIndex);
+                this.recordIdDictionary.Add(id, recordIndex);
 
                 AddToDictionary(this.firstNameDictionary, recordParameters.FirstName.ToUpperInvariant(), recordIndex);
                 AddToDictionary(this.lastNameDictionary, recordParameters.LastName.ToUpperInvariant(), recordIndex);
                 AddToDictionary(this.dateOfBirthDictionary, recordParameters.DateOfBirth, recordIndex);
-                return newId;
+                return id;
             }
 
             return 0;
