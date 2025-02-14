@@ -132,6 +132,7 @@ namespace FileCabinetApp
             var insertHandler = new InsertCommandHandler(fileCabinetService);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
             var deleteHandler = new DeleteCommandHandler(fileCabinetService);
+            var updateHandler = new UpdateCommandHandler(fileCabinetService);
             var exitHandler = new ExitCommandHandler(b =>
             {
                 if (b)
@@ -152,7 +153,8 @@ namespace FileCabinetApp
             helpHandler.SetNext(createHandler);
             insertHandler.SetNext(helpHandler);
             deleteHandler.SetNext(insertHandler);
-            return deleteHandler;
+            updateHandler.SetNext(deleteHandler);
+            return updateHandler;
         }
 
         private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> records)

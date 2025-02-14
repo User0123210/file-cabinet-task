@@ -89,9 +89,9 @@ namespace FileCabinetApp.CommandHandlers
 
                                     break;
                                 case "PERMISSIONS":
-                                    if (record.Permissions == char.Parse(value))
+                                    if (record.Permissions != char.Parse(value))
                                     {
-                                        this.service.RemoveRecord(record.Id);
+                                        toDelete = false;
                                     }
 
                                     break;

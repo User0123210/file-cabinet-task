@@ -79,6 +79,7 @@ namespace FileCabinetApp
         /// <summary>
         /// Creates a new record and adds it into the records list.
         /// </summary>
+        /// <param name="id">Id of the record to add.</param>
         /// <param name="recordParameters">Parameters of the record to add.</param>
         /// <returns>Id of the created record.</returns>
         public int CreateRecord(int id, FileCabinetRecordParameterObject recordParameters)
@@ -89,7 +90,6 @@ namespace FileCabinetApp
             measure.Stop();
             Console.WriteLine($"Create method execution duration is {measure.ElapsedTicks} ticks.");
             return id;
-
         }
 
         /// <summary>

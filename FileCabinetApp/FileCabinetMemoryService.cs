@@ -439,7 +439,6 @@ namespace FileCabinetApp
                 {
                     this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
                 }
-
             }
         }
 
