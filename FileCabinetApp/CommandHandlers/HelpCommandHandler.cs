@@ -26,8 +26,8 @@ namespace FileCabinetApp.CommandHandlers
             new string[] { "purge", "purge removes deleted records from the database", "The 'purge' command purge removes deleted records from the database." },
             new string[] { "insert", "inserts new record with the specified values", "The 'insert' command inserts new record with the specified values." },
             new string[] { "delete", "deletes records based on the specified criteria", "The 'delete' command deletes records based on the specified criteria." },
-            new string[] { "-v or --validation-rules", "sets current validation rules as custom or default", "The '--validation-rules' parameter sets current validation rules as custom or default." },
-            new string[] { "-s or --storage", "sets current storage as file or memory", "The '--storage' parameter sets current storage as file or memory." },
+            new string[] { "--validation-rules", "sets current validation rules as custom or default, short form -v", "The '--validation-rules' parameter sets current validation rules as custom or default, short form -v." },
+            new string[] { "--storage", "sets current storage as file or memory, short form -s", "The '--storage' parameter sets current storage as file or memory, short form -s." },
             new string[] { "use-stopwatch", "enables using stopwatch for the current file cabinet service", "The 'use-stopwatch' enables using stopwatch for the current file cabinet service." },
             new string[] { "use-logger", "enables using logger for the current file cabinet service", "The 'use-logger' parameter enables using logger for the current file cabinet service." },
 };
@@ -79,6 +79,16 @@ namespace FileCabinetApp.CommandHandlers
                 }
                 else
                 {
+                    Console.WriteLine($"The {commandRequest.Command} is not one of possible commands.");
+
+                    string[] mostSimisliar = HelpMessages.Select(m => m[0]).Where(s => string.Join(string.Empty, commandRequest.Command.Distinct()).Count(c => s.Contains(c, StringComparison.InvariantCultureIgnoreCase)) >= Math.Ceiling((double)s.Length / 2)).ToArray();
+                    Console.WriteLine("The most similiar commands are:");
+
+                    foreach (var command in mostSimisliar)
+                    {
+                        Console.WriteLine(command);
+                    }
+
                     this.nextHandler?.Handle(commandRequest);
                 }
             }
