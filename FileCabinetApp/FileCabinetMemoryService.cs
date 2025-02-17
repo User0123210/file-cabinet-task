@@ -1,6 +1,7 @@
 ﻿using FileCabinetApp.Validators;
 using System;
 using System.Collections;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace FileCabinetApp
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthDictionary = new ();
         private readonly Dictionary<int, FileCabinetRecord> recordIdDictionary = new ();
         private IRecordValidator validator;
+        private readonly Dictionary<ImmutableArray<(string, string)>, IReadOnlyCollection<FileCabinetRecord>> searchCache = new (new CacheKeyComparer());
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileCabinetMemoryService"/> class.
@@ -83,7 +85,15 @@ namespace FileCabinetApp
         }
 
         /// <summary>
-        /// Gets array of the validators to validate records in the service.
+        /// Gets cached search data
+        /// </summary>
+        /// <value>Copy of the search cache dictionary.</value>
+        public Dictionary<ImmutableArray<(string, string)>, IReadOnlyCollection<FileCabinetRecord>> SearchCache
+        {
+            get => this.searchCache;
+        }
+
+        /// Gets array of the validators to validate records in the service.        /// <summary>
         /// </summary>
         /// <returns>Array of validators.</returns>
         public IRecordValidator[]? GetValidators()
@@ -179,6 +189,7 @@ namespace FileCabinetApp
             AddToDictionary(this.lastNameDictionary, recordParameters.LastName.ToUpperInvariant(), record);
             AddToDictionary(this.dateOfBirthDictionary, recordParameters.DateOfBirth, record);
             this.records.Add(record);
+            this.searchCache.Clear();
 
             return record.Id;
         }
@@ -231,6 +242,7 @@ namespace FileCabinetApp
                 AddToDictionary(this.firstNameDictionary, recordParameters.FirstName.ToUpperInvariant(), record);
                 AddToDictionary(this.lastNameDictionary, recordParameters.LastName.ToUpperInvariant(), record);
                 AddToDictionary(this.dateOfBirthDictionary, recordParameters.DateOfBirth, record);
+                this.searchCache.Clear();
             }
             else
             {
@@ -315,6 +327,17 @@ namespace FileCabinetApp
         }
 
         /// <summary>
+        /// Adds cache data to the cache.
+        /// </summary>
+        public void AddToSearchCache(ImmutableArray<(string, string)> criteria, IReadOnlyCollection<FileCabinetRecord> data)
+        {
+            if (!this.searchCache.ContainsKey(criteria))
+            {
+                this.searchCache.Add(criteria, data);
+            }
+        }
+
+        /// <summary>
         /// Compares data from snapshot and updates records.
         /// </summary>
         /// <param name="snapshot">Snapshot to compare with.</param>
@@ -395,6 +418,8 @@ namespace FileCabinetApp
                         this.dateOfBirthDictionary.Add(rec.DateOfBirth, new () { rec });
                     }
                 }
+
+                this.searchCache.Clear();
             }
         }
 
@@ -439,6 +464,8 @@ namespace FileCabinetApp
                 {
                     this.dateOfBirthDictionary[record.DateOfBirth].Remove(record);
                 }
+
+                this.searchCache.Clear();
             }
         }
 

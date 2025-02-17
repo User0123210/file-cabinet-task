@@ -5,8 +5,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Xml.Linq;
 
 #pragma warning disable IDE0060, CA1303
@@ -122,16 +124,14 @@ namespace FileCabinetApp
         {
             var helpHandler = new HelpCommandHandler();
             var createHandler = new CreateCommandHandler(fileCabinetService);
-            var listHandler = new ListCommandHandler(fileCabinetService, DefaultRecordPrint);
             var statHandler = new StatCommandHandler(fileCabinetService);
             var importHandler = new ImportCommandHandler(fileCabinetService);
             var exportHandler = new ExportCommandHandler(fileCabinetService);
-            var findHandler = new FindCommandHandler(fileCabinetService, DefaultRecordPrint);
             var insertHandler = new InsertCommandHandler(fileCabinetService);
             var purgeHandler = new PurgeCommandHandler(fileCabinetService);
             var deleteHandler = new DeleteCommandHandler(fileCabinetService);
             var updateHandler = new UpdateCommandHandler(fileCabinetService);
-
+            var selectHandler = new SelectCommandHandler(fileCabinetService, DefaultRecordPrint);
             var exitHandler = new ExitCommandHandler(b =>
             {
                 if (b)
@@ -142,27 +142,78 @@ namespace FileCabinetApp
 
             exitHandler.SetNext(helpHandler);
             purgeHandler.SetNext(exitHandler);
-            findHandler.SetNext(purgeHandler);
-            exportHandler.SetNext(findHandler);
+            exportHandler.SetNext(purgeHandler);
             importHandler.SetNext(exportHandler);
             statHandler.SetNext(importHandler);
-            listHandler.SetNext(statHandler);
-            createHandler.SetNext(listHandler);
+            createHandler.SetNext(statHandler);
             insertHandler.SetNext(createHandler);
             deleteHandler.SetNext(insertHandler);
             updateHandler.SetNext(deleteHandler);
-            return updateHandler;
+            selectHandler.SetNext(updateHandler);
+            return selectHandler;
         }
 
-        private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> records)
+        private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> recs, string[] arguments)
         {
-            if (records is not null)
-            {
-                foreach (var record in records)
-                {
-                    Console.WriteLine($"#{record.Id}, {record.FirstName}, {record.LastName}, {record.DateOfBirth:yyyy-MM-dd}, {record.Status}, {record.Salary}, {record.Permissions}");
-                }
-            }
+
+                    StringBuilder row = new ();
+                    PropertyInfo[] initialProperties = typeof(FileCabinetRecord).GetProperties(bindingAttr: BindingFlags.Public | BindingFlags.Instance);
+                    PropertyInfo[] properties = initialProperties.Where(p => arguments.Any(a => a.Trim().ToUpperInvariant() == p.Name.ToUpperInvariant())).ToArray();
+                    properties = properties.Length > 0 ? properties : initialProperties;
+                    int cols = properties.Length;
+                    int[] widths = new int[cols];
+                    StringBuilder edge = new ();
+
+                    for (int c = 0; c < cols; c++)
+                    {
+                        var pr = properties[c];
+
+                        if (pr is not null)
+                        {
+                            var lengths = recs.Select(e => e is not null && pr.GetValue(e) is not null ? pr.GetValue(e) !.ToString() !.Length : 0);
+                            int max = 0;
+
+                            if (lengths is not null && lengths.Any())
+                            {
+                                max = lengths.Max(e => e);
+                            }
+
+                            widths[c] = pr.Name.Length > max ? pr.Name.Length : max;
+                        }
+
+                        edge = edge.Append("+" + new string('-', widths[c] + 2));
+                    }
+
+                    edge = edge.Append(CultureInfo.InvariantCulture, $"+{Environment.NewLine}");
+                    int colNum = 0;
+
+                    Console.WriteLine(edge);
+
+                    foreach (var p in properties)
+                    {
+                        row = row.Append(string.Format(CultureInfo.InvariantCulture, "| {0} ", p.Name + new string(' ', widths[colNum] - p!.Name.ToString() !.Length)));
+                        colNum++;
+                    }
+
+                    row = row.Append(CultureInfo.InvariantCulture, $"|{Environment.NewLine}");
+
+                    Console.WriteLine(row);
+                    Console.WriteLine(edge);
+
+                    foreach (var rec in recs)
+                    {
+                        row = new StringBuilder();
+
+                        for (int j = 0; j < cols; j++)
+                        {
+                            var p = properties[j].GetValue(rec);
+                            row = row.Append(string.Format(CultureInfo.InvariantCulture, "| {0} ", p is string || p is char ? p + new string(' ', widths[j] - p!.ToString() !.Length) : new string(' ', widths[j] - p!.ToString() !.Length) + p!.ToString()));
+                        }
+
+                        row = row.Append(CultureInfo.InvariantCulture, $"|{Environment.NewLine}");
+                        Console.WriteLine(row);
+                        Console.WriteLine(edge);
+                    }
         }
     }
 }

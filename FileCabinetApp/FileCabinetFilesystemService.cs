@@ -1,6 +1,7 @@
 ﻿using FileCabinetApp.Validators;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Globalization;
@@ -36,6 +37,10 @@ namespace FileCabinetApp
         {
             this.stream = stream;
             this.validator = validator;
+
+            foreach (var record in this.GetRecords())
+            {
+            }
         }
 
         /// <summary>
@@ -114,6 +119,15 @@ namespace FileCabinetApp
         }
 
         /// <summary>
+        /// Gets cached search data
+        /// </summary>
+        /// <value>Copy of the search cache dictionary.</value>
+        public Dictionary<ImmutableArray<(string, string)>, IReadOnlyCollection<FileCabinetRecord>> SearchCache
+        {
+            get => new ();
+        }
+
+        /// <summary>
         /// Creates a new value and adds it into the records list.
         /// </summary>
         /// <param name="recordParameters">Parameters of the record to add.</param>
@@ -144,7 +158,6 @@ namespace FileCabinetApp
                 decimal.GetBits(recordParameters.Salary, copyDecimal);
                 byte[] value = new byte[RecordSize];
                 this.stream.Position = 0;
-                byte[] buffer = new byte[RecordSize];
 
                 this.stream.Seek(0, SeekOrigin.End);
 
@@ -629,6 +642,13 @@ namespace FileCabinetApp
         public FileCabinetServiceSnapshot MakeSnapshot()
         {
             return new FileCabinetServiceSnapshot(this.GetRecords());
+        }
+
+        /// <summary>
+        /// Adds cache data to the cache.
+        /// </summary>
+        public void AddToSearchCache(ImmutableArray<(string, string)> criteria, IReadOnlyCollection<FileCabinetRecord> data)
+        {
         }
 
         /// <summary>

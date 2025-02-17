@@ -1,11 +1,14 @@
 ﻿using FileCabinetApp.Validators;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -76,6 +79,21 @@ namespace FileCabinetApp
         }
 
         /// <summary>
+        /// Gets cached search data
+        /// </summary>
+        /// <value>Copy of the search cache dictionary.</value>
+        public Dictionary<ImmutableArray<(string, string)>, IReadOnlyCollection<FileCabinetRecord>> SearchCache
+        {
+            get
+            {
+                FileStream fileStream = new (this.path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                using StreamWriter writer = new (fileStream);
+                writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Getting SearchCache.");
+                return this.service.SearchCache;
+            }
+        }
+
+        /// <summary>
         /// Gets information about the number of records in the service.
         /// </summary>
         /// <value>
@@ -106,6 +124,17 @@ namespace FileCabinetApp
             var validators = this.service.GetValidators();
             writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Calling GetValidators() returned {validators?.Length} validators.");
             return validators;
+        }
+
+        /// <summary>
+        /// Adds cache data to the cache.
+        /// </summary>
+        public void AddToSearchCache(ImmutableArray<(string, string)> criteria, IReadOnlyCollection<FileCabinetRecord> data)
+        {
+            FileStream fileStream = new (this.path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+            using StreamWriter writer = new (fileStream);
+            writer.WriteLine($"{DateTime.Now:MM/dd/yyyy HH:mm} - Calling AddToSearchCache() with key = {string.Join(", ", criteria.Select(c => c.Item1 + "=" + c.Item2))}.");
+            this.service.AddToSearchCache(criteria, data);
         }
 
         /// <summary>

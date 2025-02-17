@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
@@ -34,6 +35,15 @@ namespace FileCabinetApp
         }
 
         /// <summary>
+        /// Gets cached search data
+        /// </summary>
+        /// <value>Copy of the search cache dictionary.</value>
+        public Dictionary<ImmutableArray<(string, string)>, IReadOnlyCollection<FileCabinetRecord>> SearchCache
+        {
+            get;
+        }
+
+        /// <summary>
         /// Gets array of validators to validate records for the service.
         /// </summary>
         /// <returns>Array of validators.</returns>
@@ -53,6 +63,11 @@ namespace FileCabinetApp
         /// <param name="recordParameters">Parameters of the record to add.</param>
         /// <returns>Id of the created record.</returns>
         public int CreateRecord(int id, FileCabinetRecordParameterObject recordParameters);
+
+        /// <summary>
+        /// Adds cache data to the cache.
+        /// </summary>
+        public void AddToSearchCache(ImmutableArray<(string, string)> criteria, IReadOnlyCollection<FileCabinetRecord> data);
 
         /// <summary>
         /// Gets copy of the records as record array.
