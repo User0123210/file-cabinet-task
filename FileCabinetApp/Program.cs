@@ -155,7 +155,6 @@ namespace FileCabinetApp
 
         private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> recs, string[] arguments)
         {
-
                     StringBuilder row = new ();
                     PropertyInfo[] initialProperties = typeof(FileCabinetRecord).GetProperties(bindingAttr: BindingFlags.Public | BindingFlags.Instance);
                     PropertyInfo[] properties = initialProperties.Where(p => arguments.Any(a => a.Trim().ToUpperInvariant() == p.Name.ToUpperInvariant())).ToArray();

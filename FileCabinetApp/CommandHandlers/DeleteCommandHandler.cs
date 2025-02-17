@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -32,75 +33,133 @@ namespace FileCabinetApp.CommandHandlers
                 if (commandRequest.Command == "delete")
                 {
                     string[] arguments = commandRequest.Parameters.Split(" ", 2);
-                    string[] criteria = arguments[1].Split(", ");
-                    var records = this.service.GetRecords().ToArray();
 
-                    foreach (var record in records)
+                    if (arguments.Length > 1)
                     {
-                        bool toDelete = true;
+                        string[] criteria = arguments[1].Split(", ");
+                        HashSet<FileCabinetRecord> records = new ();
 
-                        for (int i = 0; i < criteria.Length; i++)
+                        for (int j = 0; j < criteria.Length; j++)
                         {
-                            string property = criteria[i].Split("=", 2)[0].Trim();
-                            string value = criteria[i].Split("=", 2)[1].Trim();
+                            string property = criteria[j].Split("=", 2)[0].Trim();
+                            string value = criteria[j].Split("=", 2)[1].Trim();
 
                             switch (property.ToUpperInvariant())
                             {
-                                case "ID":
-                                    if (record.Id != int.Parse(value, CultureInfo.InvariantCulture))
-                                    {
-                                        toDelete = false;
-                                    }
-
-                                    break;
                                 case "FIRSTNAME":
-                                    if (record.FirstName.ToUpperInvariant() != value.ToUpperInvariant())
+                                    var firstNameRecords = this.service.FindByFirstName(value.ToUpperInvariant());
+
+                                    foreach (var record in firstNameRecords)
                                     {
-                                        toDelete = false;
+                                        if (!records.Contains(record))
+                                        {
+                                            records.Add(record);
+                                        }
                                     }
 
                                     break;
                                 case "LASTNAME":
-                                    if (record.LastName.ToUpperInvariant() != value.ToUpperInvariant())
+                                    var lastNameRecords = this.service.FindByLastName(value.ToUpperInvariant());
+
+                                    foreach (var record in lastNameRecords)
                                     {
-                                        toDelete = false;
+                                        if (!records.Contains(record))
+                                        {
+                                            records.Add(record);
+                                        }
                                     }
 
                                     break;
                                 case "DATEOFBIRTH":
-                                    if (record.DateOfBirth != DateTime.ParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None))
+                                    if (DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime newDate))
                                     {
-                                        toDelete = false;
-                                    }
+                                        var dateRecords = this.service.FindByDateOfBirth(newDate);
 
-                                    break;
-                                case "STATUS":
-                                    if (record.Status != short.Parse(value, CultureInfo.InvariantCulture))
-                                    {
-                                        toDelete = false;
-                                    }
-
-                                    break;
-                                case "SALARY":
-                                    if (record.Salary != decimal.Parse(value, CultureInfo.InvariantCulture))
-                                    {
-                                        toDelete = false;
-                                    }
-
-                                    break;
-                                case "PERMISSIONS":
-                                    if (record.Permissions != char.Parse(value))
-                                    {
-                                        toDelete = false;
+                                        foreach (var record in dateRecords)
+                                        {
+                                            if (!records.Contains(record))
+                                            {
+                                                records.Add(record);
+                                            }
+                                        }
                                     }
 
                                     break;
                             }
                         }
 
-                        if (toDelete)
+                        if (records.Count == 0)
                         {
-                            this.service.RemoveRecord(record.Id);
+                            records = this.service.GetRecords().ToHashSet();
+                        }
+
+                        foreach (var record in records)
+                        {
+                            bool toDelete = true;
+
+                            for (int i = 0; i < criteria.Length; i++)
+                            {
+                                string property = criteria[i].Split("=", 2)[0].Trim();
+                                string value = criteria[i].Split("=", 2)[1].Trim();
+
+                                switch (property.ToUpperInvariant())
+                                {
+                                    case "ID":
+                                        if (record.Id != int.Parse(value, CultureInfo.InvariantCulture))
+                                        {
+                                            toDelete = false;
+                                        }
+
+                                        break;
+                                    case "FIRSTNAME":
+                                        if (record.FirstName.ToUpperInvariant() != value.ToUpperInvariant())
+                                        {
+                                            toDelete = false;
+                                        }
+
+                                        break;
+                                    case "LASTNAME":
+                                        if (record.LastName.ToUpperInvariant() != value.ToUpperInvariant())
+                                        {
+                                            toDelete = false;
+                                        }
+
+                                        break;
+                                    case "DATEOFBIRTH":
+                                        if (record.DateOfBirth != DateTime.ParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None))
+                                        {
+                                            toDelete = false;
+                                        }
+
+                                        break;
+                                    case "STATUS":
+                                        if (record.Status != short.Parse(value, CultureInfo.InvariantCulture))
+                                        {
+                                            toDelete = false;
+                                        }
+
+                                        break;
+                                    case "SALARY":
+                                        if (record.Salary != decimal.Parse(value, CultureInfo.InvariantCulture))
+                                        {
+                                            toDelete = false;
+                                        }
+
+                                        break;
+                                    case "PERMISSIONS":
+                                        if (record.Permissions != char.Parse(value))
+                                        {
+                                            toDelete = false;
+                                        }
+
+                                        break;
+                                }
+                            }
+
+                            if (toDelete)
+                            {
+                                this.service.RemoveRecord(record.Id);
+                            }
                         }
                     }
                 }

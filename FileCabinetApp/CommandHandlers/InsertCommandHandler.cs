@@ -34,56 +34,61 @@ namespace FileCabinetApp.CommandHandlers
                 {
                     string[] arguments = commandRequest.Parameters.Split("values", 2);
                     string[] properties = arguments[0].Replace('(', ' ').Replace(')', ' ').Trim().Split(", ");
-                    string[] values = arguments[1].Replace('(', ' ').Replace(')', ' ').Trim().Split(", ");
-                    FileCabinetRecordParameterObject newParams = new ();
-                    int minNum = Math.Min(properties.Length, values.Length);
 
-                    string firstName = string.Empty;
-                    string lastName = string.Empty;
-                    DateTime dateOfBirth = DateTime.Now;
-                    short status = 0;
-                    decimal salary = 0m;
-                    char permissions = ' ';
-                    bool isValid = false;
-                    int? id = null;
-
-                    for (int i = 0; i < minNum; i++)
+                    if (arguments.Length > 1)
                     {
-                        switch (properties[i].ToUpperInvariant())
+                        string[] values = arguments[1].Replace('(', ' ').Replace(')', ' ').Trim().Split(", ");
+                        FileCabinetRecordParameterObject newParams = new ();
+                        int minNum = Math.Min(properties.Length, values.Length);
+
+                        string firstName = string.Empty;
+                        string lastName = string.Empty;
+                        DateTime dateOfBirth = DateTime.Now;
+                        short status = 0;
+                        decimal salary = 0m;
+                        char permissions = ' ';
+                        bool isValid = false;
+                        int? id = null;
+
+                        for (int i = 0; i < minNum; i++)
                         {
-                            case "ID":
-                                isValid = int.TryParse(values[i], out int num);
-                                id = isValid ? num : null;
-                                break;
-                            case "FIRSTNAME":
-                                firstName = values[i];
-                                break;
-                            case "LASTNAME":
-                                lastName = values[i];
-                                break;
-                            case "DATEOFBIRTH":
-                                isValid = DateTime.TryParseExact(values[i], this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfBirth);
-                                break;
-                            case "STATUS":
-                                isValid = short.TryParse(values[i], out status);
-                                break;
-                            case "SALARY":
-                                isValid = decimal.TryParse(values[i], out salary);
-                                break;
-                            case "PERMISSIONS":
-                                isValid = char.TryParse(values[i], out permissions);
-                                break;
+                            switch (properties[i].ToUpperInvariant())
+                            {
+                                case "ID":
+                                    isValid = int.TryParse(values[i], out int num);
+                                    id = isValid ? num : null;
+                                    break;
+                                case "FIRSTNAME":
+                                    firstName = values[i];
+                                    break;
+                                case "LASTNAME":
+                                    lastName = values[i];
+                                    break;
+                                case "DATEOFBIRTH":
+                                    isValid = DateTime.TryParseExact(values[i], this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateOfBirth);
+                                    break;
+                                case "STATUS":
+                                    isValid = short.TryParse(values[i], out status);
+                                    break;
+                                case "SALARY":
+                                    isValid = decimal.TryParse(values[i], out salary);
+                                    break;
+                                case "PERMISSIONS":
+                                    isValid = char.TryParse(values[i], out permissions);
+                                    break;
+                            }
                         }
-                    }
 
-                    FileCabinetRecordParameterObject parameterObject = new FileCabinetRecordParameterObject() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
-                    if (id is null)
-                    {
-                        this.service.CreateRecord(parameterObject);
-                    }
-                    else
-                    {
-                        this.service.CreateRecord((int)id, parameterObject);
+                        FileCabinetRecordParameterObject parameterObject = new FileCabinetRecordParameterObject() { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
+                        
+                        if (id is null)
+                        {
+                            this.service.CreateRecord(parameterObject);
+                        }
+                        else
+                        {
+                            this.service.CreateRecord((int)id, parameterObject);
+                        }
                     }
                 }
                 else
