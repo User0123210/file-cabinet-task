@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
+using System.Collections.Immutable;
 
 #pragma warning disable SA1011
 
@@ -48,6 +49,23 @@ namespace FileCabinetApp
                 var stat = this.service.GetStat;
                 measure.Stop();
                 Console.WriteLine($"Get statistics method execution duration is {measure.ElapsedTicks} ticks.");
+                return stat;
+            }
+        }
+
+        /// <summary>
+        /// Gets cached search data
+        /// </summary>
+        /// <value>Copy of the search cache dictionary.</value>
+        public Dictionary<ImmutableArray<(string, string)>, IReadOnlyCollection<FileCabinetRecord>> SearchCache
+        {
+            get
+            {
+                Stopwatch measure = new ();
+                measure.Start();
+                var stat = this.service.SearchCache;
+                measure.Stop();
+                Console.WriteLine($"Get search cache execution duration is {measure.ElapsedTicks} ticks.");
                 return stat;
             }
         }
@@ -104,6 +122,18 @@ namespace FileCabinetApp
             measure.Stop();
             Console.WriteLine($"Get records method execution duration is {measure.ElapsedTicks} ticks.");
             return records;
+        }
+
+        /// <summary>
+        /// Adds cache data to the cache.
+        /// </summary>
+        public void AddToSearchCache(ImmutableArray<(string, string)> criteria, IReadOnlyCollection<FileCabinetRecord> data)
+        {
+            Stopwatch measure = new ();
+            measure.Start();
+            this.service.AddToSearchCache(criteria, data);
+            measure.Stop();
+            Console.WriteLine($"Add to search cache method execution duration is {measure.ElapsedTicks} ticks.");
         }
 
         /// <summary>
