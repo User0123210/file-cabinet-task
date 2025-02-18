@@ -210,32 +210,9 @@ namespace FileCabinetApp
                     this.recordIdDictionary.Add(record.Id, recordIndex);
                 }
 
-                if (!this.firstNameDictionary.ContainsKey(record.FirstName.ToUpperInvariant()))
-                {
-                    this.firstNameDictionary.Add(record.FirstName.ToUpperInvariant(), new List<ulong>() { recordIndex });
-                }
-                else if (!this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Contains(recordIndex))
-                {
-                    this.firstNameDictionary[record.FirstName.ToUpperInvariant()].Add(recordIndex);
-                }
-
-                if (!this.lastNameDictionary.ContainsKey(record.LastName.ToUpperInvariant()))
-                {
-                    this.lastNameDictionary.Add(record.LastName.ToUpperInvariant(), new List<ulong>() { recordIndex });
-                }
-                else if (!this.lastNameDictionary[record.LastName.ToUpperInvariant()].Contains(recordIndex))
-                {
-                    this.lastNameDictionary[record.LastName.ToUpperInvariant()].Add(recordIndex);
-                }
-
-                if (!this.dateOfBirthDictionary.ContainsKey(record.DateOfBirth))
-                {
-                    this.dateOfBirthDictionary.Add(record.DateOfBirth, new List<ulong>() { recordIndex });
-                }
-                else if (!this.dateOfBirthDictionary[record.DateOfBirth].Contains(recordIndex))
-                {
-                    this.dateOfBirthDictionary[record.DateOfBirth].Add(recordIndex);
-                }
+                AddToDictionary(this.firstNameDictionary, record.FirstName.ToUpperInvariant(), recordIndex);
+                AddToDictionary(this.lastNameDictionary, record.LastName.ToUpperInvariant(), recordIndex);
+                AddToDictionary(this.dateOfBirthDictionary, record.DateOfBirth, recordIndex);
 
                 yield return record;
             }
@@ -721,7 +698,10 @@ namespace FileCabinetApp
         {
             if (targetDictionary.ContainsKey(key))
             {
-                targetDictionary[key].Add(position);
+                if (!targetDictionary[key].Contains(position))
+                {
+                    targetDictionary[key].Add(position);
+                }
             }
             else
             {

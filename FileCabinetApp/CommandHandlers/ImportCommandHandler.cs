@@ -25,47 +25,52 @@
                 if (commandRequest.Command == "import")
                 {
                     string[] arguments = commandRequest.Parameters is not null ? commandRequest.Parameters.Split(' ', 2) : new string[] { string.Empty, string.Empty };
-                    const int propertyIndex = 0;
-                    var sourceName = arguments[propertyIndex];
-
-                    if (arguments.Length > 1)
-                    {
-                        var source = arguments[propertyIndex + 1];
-
-                        try
-                        {
-                            Stream stream = File.OpenRead(source);
-                            using StreamReader reader = new (stream);
-                            FileCabinetServiceSnapshot snapshot = this.service.MakeSnapshot();
-
-                            if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
-                            {
-                                snapshot.LoadFromCsv(reader);
-                                this.service.Restore(snapshot);
-                            }
-                            else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
-                            {
-                                snapshot.LoadFromXml(reader);
-                                this.service.Restore(snapshot);
-                            }
-                        }
-                        catch (DirectoryNotFoundException ex)
-                        {
-                            Console.WriteLine($"Destination directory not found: {ex.Message}");
-                        }
-                        catch (ArgumentException ex)
-                        {
-                            Console.WriteLine($"Invalid destination directory: {ex.Message}");
-                        }
-                        catch (UnauthorizedAccessException ex)
-                        {
-                            Console.WriteLine($"Can't get access to the destination directory: {ex.Message}");
-                        }
-                    }
+                    this.ParseArguments(arguments);
                 }
                 else
                 {
                     this.nextHandler?.Handle(commandRequest);
+                }
+            }
+        }
+
+        private void ParseArguments(string[] arguments)
+        {
+            const int propertyIndex = 0;
+            var sourceName = arguments[propertyIndex];
+
+            if (arguments.Length > 1)
+            {
+                var source = arguments[propertyIndex + 1];
+
+                try
+                {
+                    Stream stream = File.OpenRead(source);
+                    using StreamReader reader = new (stream);
+                    FileCabinetServiceSnapshot snapshot = this.service.MakeSnapshot();
+
+                    if (string.Equals(sourceName, "csv", StringComparison.OrdinalIgnoreCase))
+                    {
+                        snapshot.LoadFromCsv(reader);
+                        this.service.Restore(snapshot);
+                    }
+                    else if (string.Equals(sourceName, "xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        snapshot.LoadFromXml(reader);
+                        this.service.Restore(snapshot);
+                    }
+                }
+                catch (DirectoryNotFoundException ex)
+                {
+                    Console.WriteLine($"Destination directory not found: {ex.Message}");
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine($"Invalid destination directory: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Can't get access to the destination directory: {ex.Message}");
                 }
             }
         }
