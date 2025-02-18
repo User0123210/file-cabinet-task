@@ -145,6 +145,15 @@ namespace FileCabinetApp
         {
             if (recordParameters is not null)
             {
+                ArgumentNullException.ThrowIfNull(recordParameters);
+
+                (bool isValid, string message) = this.validator.ValidateParameters(recordParameters);
+
+                if (!isValid)
+                {
+                    throw new ArgumentException(message);
+                }
+
                 Span<int> copyDecimal = new (new int[4]);
                 decimal.GetBits(recordParameters.Salary, copyDecimal);
                 byte[] value = new byte[RecordSize];
@@ -243,12 +252,19 @@ namespace FileCabinetApp
         {
             if (recordParameters is not null)
             {
+                ArgumentNullException.ThrowIfNull(recordParameters);
+
+                (bool isValid, string message) = this.validator.ValidateParameters(recordParameters);
+
+                if (!isValid)
+                {
+                    throw new ArgumentException(message);
+                }
+
                 byte[] buffer = new byte[RecordSize];
                 this.stream.Position = 0;
                 int recordId;
 
-                Span<int> copyDecimal = new (new int[4]);
-                decimal.GetBits(recordParameters.Salary, copyDecimal);
                 byte[] value = new byte[RecordSize];
                 bool isFound = false;
 

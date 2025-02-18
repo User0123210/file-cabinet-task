@@ -35,7 +35,6 @@ namespace FileCabinetApp.CommandHandlers
                     if (arguments.Length > 1)
                     {
                         string[] values = arguments[1].Trim().Split(", ");
-                        FileCabinetRecordParameterObject newParams = new ();
 
                         string? firstName = null;
                         string? lastName = null;
@@ -178,7 +177,7 @@ namespace FileCabinetApp.CommandHandlers
                                 salary = salary is null ? record.Salary : salary;
                                 permissions = permissions is null ? record.Permissions : permissions;
 
-                                FileCabinetRecordParameterObject parameterObject = new FileCabinetRecordParameterObject() { FirstName = firstName, LastName = lastName, DateOfBirth = (DateTime)dateOfBirth, Status = (short)status, Salary = (decimal)salary, Permissions = (char)permissions };
+                                FileCabinetRecordParameterObject parameterObject = new () { FirstName = firstName, LastName = lastName, DateOfBirth = (DateTime)dateOfBirth, Status = (short)status, Salary = (decimal)salary, Permissions = (char)permissions };
                                 this.service.EditRecord(record.Id, parameterObject);
                             }
                         }
