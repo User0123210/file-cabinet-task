@@ -1,10 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 
 namespace FileCabinetApp.CommandHandlers
 {
@@ -37,54 +31,40 @@ namespace FileCabinetApp.CommandHandlers
                     if (arguments.Length > 1)
                     {
                         string[] criteria = arguments[1].Split(", ");
-                        HashSet<FileCabinetRecord> records = new ();
+                        HashSet<FileCabinetRecord> records = new (new FileCabinetRecordComparer());
 
                         for (int j = 0; j < criteria.Length; j++)
                         {
                             string property = criteria[j].Split("=", 2)[0].Trim();
                             string value = criteria[j].Split("=", 2)[1].Trim();
+                            IEnumerable<FileCabinetRecord>? recordsToAdd = null;
 
                             switch (property.ToUpperInvariant())
                             {
                                 case "FIRSTNAME":
-                                    var firstNameRecords = this.service.FindByFirstName(value.ToUpperInvariant());
-
-                                    foreach (var record in firstNameRecords)
-                                    {
-                                        if (!records.Contains(record))
-                                        {
-                                            records.Add(record);
-                                        }
-                                    }
-
+                                    recordsToAdd = this.service.FindByFirstName(value.ToUpperInvariant());
                                     break;
                                 case "LASTNAME":
-                                    var lastNameRecords = this.service.FindByLastName(value.ToUpperInvariant());
-
-                                    foreach (var record in lastNameRecords)
-                                    {
-                                        if (!records.Contains(record))
-                                        {
-                                            records.Add(record);
-                                        }
-                                    }
-
+                                    recordsToAdd = this.service.FindByLastName(value.ToUpperInvariant());
                                     break;
                                 case "DATEOFBIRTH":
                                     if (DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime newDate))
                                     {
-                                        var dateRecords = this.service.FindByDateOfBirth(newDate);
-
-                                        foreach (var record in dateRecords)
-                                        {
-                                            if (!records.Contains(record))
-                                            {
-                                                records.Add(record);
-                                            }
-                                        }
+                                        recordsToAdd = this.service.FindByDateOfBirth(newDate);
                                     }
 
                                     break;
+                            }
+
+                            if (recordsToAdd is not null)
+                            {
+                                foreach (var record in recordsToAdd)
+                                {
+                                    if (!records.Contains(record))
+                                    {
+                                        records.Add(record);
+                                    }
+                                }
                             }
                         }
 
@@ -105,53 +85,30 @@ namespace FileCabinetApp.CommandHandlers
                                 switch (property.ToUpperInvariant())
                                 {
                                     case "ID":
-                                        if (record.Id != int.Parse(value, CultureInfo.InvariantCulture))
-                                        {
-                                            toDelete = false;
-                                        }
-
+                                        bool isInt = int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out int id);
+                                        toDelete = isInt && record.Id == id && toDelete;
                                         break;
                                     case "FIRSTNAME":
-                                        if (record.FirstName.ToUpperInvariant() != value.ToUpperInvariant())
-                                        {
-                                            toDelete = false;
-                                        }
-
+                                        toDelete = record.FirstName.ToUpperInvariant() == value.ToUpperInvariant() && toDelete;
                                         break;
                                     case "LASTNAME":
-                                        if (record.LastName.ToUpperInvariant() != value.ToUpperInvariant())
-                                        {
-                                            toDelete = false;
-                                        }
-
+                                        toDelete = record.LastName.ToUpperInvariant() == value.ToUpperInvariant() && toDelete;
                                         break;
                                     case "DATEOFBIRTH":
-                                        if (record.DateOfBirth != DateTime.ParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None))
-                                        {
-                                            toDelete = false;
-                                        }
-
+                                        bool isDate = DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+                                        toDelete = isDate && record.DateOfBirth == date && toDelete;
                                         break;
                                     case "STATUS":
-                                        if (record.Status != short.Parse(value, CultureInfo.InvariantCulture))
-                                        {
-                                            toDelete = false;
-                                        }
-
+                                        bool isShort = short.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out short newStatus);
+                                        toDelete = isShort && record.Status == newStatus && toDelete;
                                         break;
                                     case "SALARY":
-                                        if (record.Salary != decimal.Parse(value, CultureInfo.InvariantCulture))
-                                        {
-                                            toDelete = false;
-                                        }
-
+                                        bool isDecimal = decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newSalary);
+                                        toDelete = isDecimal && record.Salary == newSalary && toDelete;
                                         break;
                                     case "PERMISSIONS":
-                                        if (record.Permissions != char.Parse(value))
-                                        {
-                                            toDelete = false;
-                                        }
-
+                                        bool isChar = char.TryParse(value, out char newPermissions);
+                                        toDelete = isChar && record.Permissions == newPermissions && toDelete;
                                         break;
                                 }
                             }

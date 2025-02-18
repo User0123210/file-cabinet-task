@@ -1,6 +1,4 @@
-﻿using System;
-
-#pragma warning disable CA1051, SA1401
+﻿#pragma warning disable CA1051, SA1401
 
 namespace FileCabinetApp.CommandHandlers
 {

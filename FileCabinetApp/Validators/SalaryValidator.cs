@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FileCabinetApp.Validators
+﻿namespace FileCabinetApp.Validators
 {
     /// <summary>
     /// Represents salary validator for the record.

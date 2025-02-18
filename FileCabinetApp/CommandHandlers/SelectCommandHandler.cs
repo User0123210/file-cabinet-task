@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.Design;
+﻿using System.Collections.Immutable;
 using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
@@ -41,7 +32,7 @@ namespace FileCabinetApp.CommandHandlers
                 if (commandRequest.Command == "select")
                 {
                     string[] arguments = commandRequest.Parameters.Split("where", 2);
-                    List<FileCabinetRecord> recs = new ();
+                    HashSet<FileCabinetRecord> recs = new (new FileCabinetRecordComparer());
 
                     if (arguments.Length > 1)
                     {
@@ -61,54 +52,40 @@ namespace FileCabinetApp.CommandHandlers
                             }
                             else
                             {
-                                HashSet<FileCabinetRecord> initialRecords = new ();
+                                HashSet<FileCabinetRecord> initialRecords = new (new FileCabinetRecordComparer());
 
                                 for (int j = 0; j < ands.Length; j++)
                                 {
                                     string property = ands[j].Split("=", 2)[0].Trim();
                                     string value = ands[j].Split("=", 2)[1].Trim();
+                                    IEnumerable<FileCabinetRecord>? recordsToAdd = null;
 
                                     switch (property.ToUpperInvariant())
                                     {
                                         case "FIRSTNAME":
-                                            var firstNameRecords = this.service.FindByFirstName(value.ToUpperInvariant());
-
-                                            foreach (var record in firstNameRecords)
-                                            {
-                                                if (!initialRecords.Contains(record))
-                                                {
-                                                    initialRecords.Add(record);
-                                                }
-                                            }
-
+                                            recordsToAdd = this.service.FindByFirstName(value.ToUpperInvariant());
                                             break;
                                         case "LASTNAME":
-                                            var lastNameRecords = this.service.FindByLastName(value.ToUpperInvariant());
-
-                                            foreach (var record in lastNameRecords)
-                                            {
-                                                if (!initialRecords.Contains(record))
-                                                {
-                                                    initialRecords.Add(record);
-                                                }
-                                            }
-
+                                            recordsToAdd = this.service.FindByLastName(value.ToUpperInvariant());
                                             break;
                                         case "DATEOFBIRTH":
                                             if (DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime newDate))
                                             {
-                                                var dateRecords = this.service.FindByDateOfBirth(newDate);
-
-                                                foreach (var record in dateRecords)
-                                                {
-                                                    if (!initialRecords.Contains(record))
-                                                    {
-                                                        initialRecords.Add(record);
-                                                    }
-                                                }
+                                                recordsToAdd = this.service.FindByDateOfBirth(newDate);
                                             }
 
                                             break;
+                                    }
+
+                                    if (recordsToAdd is not null)
+                                    {
+                                        foreach (var record in recordsToAdd)
+                                        {
+                                            if (!initialRecords.Contains(record))
+                                            {
+                                                initialRecords.Add(record);
+                                            }
+                                        }
                                     }
                                 }
 
@@ -129,53 +106,30 @@ namespace FileCabinetApp.CommandHandlers
                                         switch (property.ToUpperInvariant())
                                         {
                                             case "ID":
-                                                if (record.Id != int.Parse(value, CultureInfo.InvariantCulture))
-                                                {
-                                                    isAndsTrue = false;
-                                                }
-
+                                                bool isInt = int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out int id);
+                                                isAndsTrue = isInt && record.Id == id && isAndsTrue;
                                                 break;
                                             case "FIRSTNAME":
-                                                if (record.FirstName.ToUpperInvariant() != value.ToUpperInvariant())
-                                                {
-                                                    isAndsTrue = false;
-                                                }
-
+                                                isAndsTrue = record.FirstName.ToUpperInvariant() == value.ToUpperInvariant() && isAndsTrue;
                                                 break;
                                             case "LASTNAME":
-                                                if (record.LastName.ToUpperInvariant() != value.ToUpperInvariant())
-                                                {
-                                                    isAndsTrue = false;
-                                                }
-
+                                                isAndsTrue = record.LastName.ToUpperInvariant() == value.ToUpperInvariant() && isAndsTrue;
                                                 break;
                                             case "DATEOFBIRTH":
-                                                if (record.DateOfBirth != DateTime.ParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None))
-                                                {
-                                                    isAndsTrue = false;
-                                                }
-
+                                                bool isDate = DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime newDate);
+                                                isAndsTrue = isDate && record.DateOfBirth == newDate && isAndsTrue;
                                                 break;
                                             case "STATUS":
-                                                if (record.Status != short.Parse(value, CultureInfo.InvariantCulture))
-                                                {
-                                                    isAndsTrue = false;
-                                                }
-
+                                                bool isShort = short.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out short status);
+                                                isAndsTrue = isShort && record.Status == status && isAndsTrue;
                                                 break;
                                             case "SALARY":
-                                                if (record.Salary != decimal.Parse(value, CultureInfo.InvariantCulture))
-                                                {
-                                                    isAndsTrue = false;
-                                                }
-
+                                                bool isDecimal = decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal salary);
+                                                isAndsTrue = isDecimal && record.Salary == salary && isAndsTrue;
                                                 break;
                                             case "PERMISSIONS":
-                                                if (record.Permissions != char.Parse(value))
-                                                {
-                                                    isAndsTrue = false;
-                                                }
-
+                                                bool isChar = char.TryParse(value, out char permissions);
+                                                isAndsTrue = isChar && record.Permissions == permissions && isAndsTrue;
                                                 break;
                                         }
                                     }
@@ -189,12 +143,19 @@ namespace FileCabinetApp.CommandHandlers
 
                             IReadOnlyCollection<FileCabinetRecord> cacheValue = newRecords.AsReadOnly();
                             this.service.AddToSearchCache(cacheKey, cacheValue);
-                            recs.AddRange(newRecords);
+
+                            foreach (var record in newRecords)
+                            {
+                                if (!recs.Contains(record))
+                                {
+                                    recs.Add(record);
+                                }
+                            }
                         }
                     }
                     else
                     {
-                        recs = this.service.GetRecords().ToList();
+                        recs = this.service.GetRecords().ToHashSet();
                     }
 
                     this.print(recs, arguments[0].Split(", "));

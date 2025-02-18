@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FileCabinetApp.Validators
+﻿namespace FileCabinetApp.Validators
 {
     /// <summary>
     /// Represents class to validate date of birth of the record.

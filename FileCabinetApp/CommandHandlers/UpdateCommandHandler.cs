@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
@@ -82,7 +77,7 @@ namespace FileCabinetApp.CommandHandlers
                             }
                         }
 
-                        HashSet<FileCabinetRecord> records = new ();
+                        HashSet<FileCabinetRecord> records = new (new FileCabinetRecordComparer());
 
                         for (int j = 0; j < values.Length; j++)
                         {
@@ -92,48 +87,34 @@ namespace FileCabinetApp.CommandHandlers
                             {
                                 string property = propertyValue[0].Trim();
                                 string value = propertyValue[1].Trim();
+                                IEnumerable<FileCabinetRecord>? recordsToAdd = null;
 
                                 switch (property.ToUpperInvariant())
                                 {
                                     case "FIRSTNAME":
-                                        var firstNameRecords = this.service.FindByFirstName(value.ToUpperInvariant());
-
-                                        foreach (var record in firstNameRecords)
-                                        {
-                                            if (!records.Contains(record))
-                                            {
-                                                records.Add(record);
-                                            }
-                                        }
-
+                                        recordsToAdd = this.service.FindByFirstName(value.ToUpperInvariant());
                                         break;
                                     case "LASTNAME":
-                                        var lastNameRecords = this.service.FindByLastName(value.ToUpperInvariant());
-
-                                        foreach (var record in lastNameRecords)
-                                        {
-                                            if (!records.Contains(record))
-                                            {
-                                                records.Add(record);
-                                            }
-                                        }
-
+                                        recordsToAdd = this.service.FindByLastName(value.ToUpperInvariant());
                                         break;
                                     case "DATEOFBIRTH":
                                         if (DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime newDate))
                                         {
-                                            var dateRecords = this.service.FindByDateOfBirth(newDate);
-
-                                            foreach (var record in dateRecords)
-                                            {
-                                                if (!records.Contains(record))
-                                                {
-                                                    records.Add(record);
-                                                }
-                                            }
+                                            recordsToAdd = this.service.FindByDateOfBirth(newDate);
                                         }
 
                                         break;
+                                }
+
+                                if (recordsToAdd is not null)
+                                {
+                                     foreach (var record in recordsToAdd)
+                                     {
+                                         if (!records.Contains(record))
+                                         {
+                                             records.Add(record);
+                                         }
+                                     }
                                 }
                             }
                         }
@@ -159,53 +140,30 @@ namespace FileCabinetApp.CommandHandlers
                                     switch (property.ToUpperInvariant())
                                     {
                                         case "ID":
-                                            if (record.Id != int.Parse(value, CultureInfo.InvariantCulture))
-                                            {
-                                                toEdit = false;
-                                            }
-
+                                            bool isInt = int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out int id);
+                                            toEdit = isInt && record.Id == id && toEdit;
                                             break;
                                         case "FIRSTNAME":
-                                            if (record.FirstName.ToUpperInvariant() != value.ToUpperInvariant())
-                                            {
-                                                toEdit = false;
-                                            }
-
+                                            toEdit = record.FirstName.ToUpperInvariant() == value.ToUpperInvariant() && toEdit;
                                             break;
                                         case "LASTNAME":
-                                            if (record.LastName.ToUpperInvariant() != value.ToUpperInvariant())
-                                            {
-                                                toEdit = false;
-                                            }
-
+                                            toEdit = record.LastName.ToUpperInvariant() == value.ToUpperInvariant() && toEdit;
                                             break;
                                         case "DATEOFBIRTH":
-                                            if (record.DateOfBirth != DateTime.ParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None))
-                                            {
-                                                toEdit = false;
-                                            }
-
+                                            bool isDate = DateTime.TryParseExact(value, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+                                            toEdit = isDate && record.DateOfBirth == date && toEdit;
                                             break;
                                         case "STATUS":
-                                            if (record.Status != short.Parse(value, CultureInfo.InvariantCulture))
-                                            {
-                                                toEdit = false;
-                                            }
-
+                                            bool isShort = short.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out short newStatus);
+                                            toEdit = isShort && record.Status == newStatus && toEdit;
                                             break;
                                         case "SALARY":
-                                            if (record.Salary != decimal.Parse(value, CultureInfo.InvariantCulture))
-                                            {
-                                                toEdit = false;
-                                            }
-
+                                            bool isDecimal = decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newSalary);
+                                            toEdit = isDecimal && record.Salary == newSalary && toEdit;
                                             break;
                                         case "PERMISSIONS":
-                                            if (record.Permissions != char.Parse(value))
-                                            {
-                                                toEdit = false;
-                                            }
-
+                                            bool isChar = char.TryParse(value, out char newPermissions);
+                                            toEdit = isChar && record.Permissions == newPermissions && toEdit;
                                             break;
                                     }
                                 }

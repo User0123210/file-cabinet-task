@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-
-namespace FileCabinetApp.Validators
+﻿namespace FileCabinetApp.Validators
 {
     /// <summary>
     /// Represents class to validate first name in the record.

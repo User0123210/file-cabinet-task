@@ -1,16 +1,5 @@
 ﻿using FileCabinetApp.Validators;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.Design.Serialization;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Security;
-using System.Text;
-using System.Threading.Tasks;
 
 #pragma warning disable SA1011
 

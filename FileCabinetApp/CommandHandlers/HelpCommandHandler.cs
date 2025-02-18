@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FileCabinetApp.CommandHandlers
+﻿namespace FileCabinetApp.CommandHandlers
 {
     /// <summary>
     /// Represents class of the command handler to handle help command.
@@ -54,6 +48,7 @@ namespace FileCabinetApp.CommandHandlers
                     if (!string.IsNullOrEmpty(commandRequest.Parameters))
                     {
                         var index = Array.FindIndex(HelpMessages, 0, HelpMessages.Length, i => string.Equals(i[CommandHelpIndex], commandRequest.Parameters, StringComparison.OrdinalIgnoreCase));
+
                         if (index >= 0)
                         {
                             Console.WriteLine(HelpMessages[index][ExplanationHelpIndex]);
