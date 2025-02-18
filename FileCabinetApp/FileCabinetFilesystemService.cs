@@ -1,15 +1,6 @@
 ﻿using FileCabinetApp.Validators;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.ComponentModel.Design;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 #pragma warning disable SA1011
 
@@ -154,6 +145,15 @@ namespace FileCabinetApp
         {
             if (recordParameters is not null)
             {
+                ArgumentNullException.ThrowIfNull(recordParameters);
+
+                (bool isValid, string message) = this.validator.ValidateParameters(recordParameters);
+
+                if (!isValid)
+                {
+                    throw new ArgumentException(message);
+                }
+
                 Span<int> copyDecimal = new (new int[4]);
                 decimal.GetBits(recordParameters.Salary, copyDecimal);
                 byte[] value = new byte[RecordSize];
@@ -168,17 +168,7 @@ namespace FileCabinetApp
 
                 BitConverter.GetBytes(1).CopyTo(value, 0);
                 BitConverter.GetBytes(id).CopyTo(value, 2);
-                Encoding.UTF8.GetBytes(recordParameters.FirstName.PadRight(120, '\0')).CopyTo(value, 6);
-                Encoding.UTF8.GetBytes(recordParameters.LastName.PadRight(120, '\0')).CopyTo(value, 126);
-                BitConverter.GetBytes(recordParameters.DateOfBirth.Year).CopyTo(value, 246);
-                BitConverter.GetBytes(recordParameters.DateOfBirth.Month).CopyTo(value, 250);
-                BitConverter.GetBytes(recordParameters.DateOfBirth.Day).CopyTo(value, 254);
-                BitConverter.GetBytes(recordParameters.Status).CopyTo(value, 258);
-                BitConverter.GetBytes(copyDecimal[0]).CopyTo(value, 274);
-                BitConverter.GetBytes(copyDecimal[1]).CopyTo(value, 278);
-                BitConverter.GetBytes(copyDecimal[2]).CopyTo(value, 282);
-                BitConverter.GetBytes(copyDecimal[3]).CopyTo(value, 286);
-                BitConverter.GetBytes(recordParameters.Permissions).CopyTo(value, 290);
+                GetBytes(recordParameters, ref value);
                 this.stream.Write(value, 0, RecordSize);
                 this.stream.Flush();
 
@@ -203,16 +193,6 @@ namespace FileCabinetApp
         {
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
-            int id;
-            string firstName;
-            string lastName;
-            int year;
-            int month;
-            int day;
-            short status;
-            decimal salary;
-            char permissions;
-            int[] copyDecimal = new int[4];
 
             while (this.stream.Read(buffer, 0, RecordSize) != 0)
             {
@@ -221,56 +201,20 @@ namespace FileCabinetApp
                     continue;
                 }
 
-                id = BitConverter.ToInt32(buffer, 2);
-                firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
-                lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
-                year = BitConverter.ToInt32(buffer, 246);
-                month = BitConverter.ToInt32(buffer, 250);
-                day = BitConverter.ToInt32(buffer, 254);
-                DateTime dateOfBirth = new (year, month, day);
-                status = BitConverter.ToInt16(buffer, 258);
-                copyDecimal[0] = BitConverter.ToInt32(buffer, 274);
-                copyDecimal[1] = BitConverter.ToInt32(buffer, 278);
-                copyDecimal[2] = BitConverter.ToInt32(buffer, 282);
-                copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
-                salary = new decimal(copyDecimal);
-                permissions = BitConverter.ToChar(buffer, 290);
+                FileCabinetRecord record = GetRecordFromBytes(buffer);
 
                 ulong recordIndex = (ulong)(this.stream.Position - RecordSize) / RecordSize;
 
-                if (!this.recordIdDictionary.ContainsKey(id))
+                if (!this.recordIdDictionary.ContainsKey(record.Id))
                 {
-                    this.recordIdDictionary.Add(id, recordIndex);
+                    this.recordIdDictionary.Add(record.Id, recordIndex);
                 }
 
-                if (!this.firstNameDictionary.ContainsKey(firstName.ToUpperInvariant()))
-                {
-                    this.firstNameDictionary.Add(firstName.ToUpperInvariant(), new List<ulong>() { recordIndex });
-                }
-                else if (!this.firstNameDictionary[firstName.ToUpperInvariant()].Contains(recordIndex))
-                {
-                    this.firstNameDictionary[firstName.ToUpperInvariant()].Add(recordIndex);
-                }
+                AddToDictionary(this.firstNameDictionary, record.FirstName.ToUpperInvariant(), recordIndex);
+                AddToDictionary(this.lastNameDictionary, record.LastName.ToUpperInvariant(), recordIndex);
+                AddToDictionary(this.dateOfBirthDictionary, record.DateOfBirth, recordIndex);
 
-                if (!this.lastNameDictionary.ContainsKey(lastName.ToUpperInvariant()))
-                {
-                    this.lastNameDictionary.Add(lastName.ToUpperInvariant(), new List<ulong>() { recordIndex });
-                }
-                else if (!this.lastNameDictionary[lastName.ToUpperInvariant()].Contains(recordIndex))
-                {
-                    this.lastNameDictionary[lastName.ToUpperInvariant()].Add(recordIndex);
-                }
-
-                if (!this.dateOfBirthDictionary.ContainsKey(dateOfBirth))
-                {
-                    this.dateOfBirthDictionary.Add(dateOfBirth, new List<ulong>() { recordIndex });
-                }
-                else if (!this.dateOfBirthDictionary[dateOfBirth].Contains(recordIndex))
-                {
-                    this.dateOfBirthDictionary[dateOfBirth].Add(recordIndex);
-                }
-
-                yield return new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status,  Salary = salary, Permissions = permissions };
+                yield return record;
             }
 
             this.stream.Position = 0;
@@ -285,26 +229,33 @@ namespace FileCabinetApp
         {
             if (recordParameters is not null)
             {
+                ArgumentNullException.ThrowIfNull(recordParameters);
+
+                (bool isValid, string message) = this.validator.ValidateParameters(recordParameters);
+
+                if (!isValid)
+                {
+                    throw new ArgumentException(message);
+                }
+
                 byte[] buffer = new byte[RecordSize];
                 this.stream.Position = 0;
                 int recordId;
 
-                Span<int> copyDecimal = new (new int[4]);
-                decimal.GetBits(recordParameters.Salary, copyDecimal);
-                byte[] value = new byte[RecordSize - 6];
+                byte[] value = new byte[RecordSize];
                 bool isFound = false;
 
                 if (this.recordIdDictionary.ContainsKey(id))
                 {
                     this.stream.Position = (long)(this.recordIdDictionary[id] * RecordSize);
                     this.stream.Read(buffer, 0, RecordSize);
-                    isFound = EditIfFound(buffer, id, copyDecimal);
+                    isFound = EditIfFound(buffer, id);
                 }
                 else
                 {
                     while (this.stream.Read(buffer, 0, RecordSize) != 0)
                     {
-                        isFound = EditIfFound(buffer, id, copyDecimal);
+                        isFound = EditIfFound(buffer, id);
 
                         if (isFound)
                         {
@@ -318,26 +269,16 @@ namespace FileCabinetApp
                     throw new ArgumentException("Record is not found");
                 }
 
-                bool EditIfFound(byte[] buffer, int id, Span<int> copyDecimal)
+                bool EditIfFound(byte[] buffer, int id)
                 {
                     recordId = BitConverter.ToInt32(buffer, 2);
 
                     if (recordId == id && ((buffer[0] & 4) == 0))
                     {
-                        Encoding.UTF8.GetBytes(recordParameters.FirstName.PadRight(120, '\0')).CopyTo(value, 0);
-                        Encoding.UTF8.GetBytes(recordParameters.LastName.PadRight(120, '\0')).CopyTo(value, 120);
-                        BitConverter.GetBytes(recordParameters.DateOfBirth.Year).CopyTo(value, 240);
-                        BitConverter.GetBytes(recordParameters.DateOfBirth.Month).CopyTo(value, 244);
-                        BitConverter.GetBytes(recordParameters.DateOfBirth.Day).CopyTo(value, 248);
-                        BitConverter.GetBytes(recordParameters.Status).CopyTo(value, 252);
-                        BitConverter.GetBytes(copyDecimal[0]).CopyTo(value, 268);
-                        BitConverter.GetBytes(copyDecimal[1]).CopyTo(value, 272);
-                        BitConverter.GetBytes(copyDecimal[2]).CopyTo(value, 276);
-                        BitConverter.GetBytes(copyDecimal[3]).CopyTo(value, 280);
-                        BitConverter.GetBytes(recordParameters.Permissions).CopyTo(value, 284);
+                        GetBytes(recordParameters, ref value);
                         this.stream.Position -= RecordSize;
                         this.stream.Position += 6;
-                        this.stream.Write(value, 0, RecordSize - 6);
+                        this.stream.Write(value[6..], 0, RecordSize - 6);
                         this.stream.Flush();
 
                         string firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
@@ -385,16 +326,6 @@ namespace FileCabinetApp
         {
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
-            int id;
-            string recordFirstName;
-            string lastName;
-            int year;
-            int month;
-            int day;
-            short status;
-            decimal salary;
-            char permissions;
-            int[] copyDecimal = new int[4];
             bool isValid;
             FileCabinetRecord rec;
 
@@ -427,33 +358,21 @@ namespace FileCabinetApp
                         if (isValid)
                         {
                             ulong recordIndex = (ulong)(this.stream.Position - RecordSize) / RecordSize;
-                            AddToDictionary(this.firstNameDictionary, firstName, recordIndex);
+                            AddToDictionary(this.firstNameDictionary, firstName.ToUpperInvariant(), recordIndex);
                             yield return rec;
                         }
                     }
                 }
             }
 
-            (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, string firstName)
+            static (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, string firstName)
             {
-                recordFirstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
+                string recordFirstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
 
                 if (string.Equals(recordFirstName, firstName, StringComparison.OrdinalIgnoreCase) && ((buffer[0] & 4) == 0))
                 {
-                    id = BitConverter.ToInt32(buffer, 2);
-                    lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
-                    year = BitConverter.ToInt32(buffer, 246);
-                    month = BitConverter.ToInt32(buffer, 250);
-                    day = BitConverter.ToInt32(buffer, 254);
-                    DateTime dateOfBirth = new (year, month, day);
-                    status = BitConverter.ToInt16(buffer, 258);
-                    copyDecimal[0] = BitConverter.ToInt32(buffer, 274);
-                    copyDecimal[1] = BitConverter.ToInt32(buffer, 278);
-                    copyDecimal[2] = BitConverter.ToInt32(buffer, 282);
-                    copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
-                    salary = new decimal(copyDecimal);
-                    permissions = BitConverter.ToChar(buffer, 290);
-                    return (true, new FileCabinetRecord() { Id = id, FirstName = recordFirstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
+                    FileCabinetRecord rec = GetRecordFromBytes(buffer);
+                    return (true, rec);
                 }
 
                 return (false, new FileCabinetRecord());
@@ -469,16 +388,6 @@ namespace FileCabinetApp
         {
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
-            int id;
-            string firstName;
-            string recordLastName;
-            int year;
-            int month;
-            int day;
-            short status;
-            decimal salary;
-            char permissions;
-            int[] copyDecimal = new int[4];
             bool isValid;
             FileCabinetRecord rec;
 
@@ -511,33 +420,21 @@ namespace FileCabinetApp
                         if (isValid)
                         {
                             ulong recordIndex = (ulong)(this.stream.Position - RecordSize) / RecordSize;
-                            AddToDictionary(this.firstNameDictionary, lastName, recordIndex);
+                            AddToDictionary(this.lastNameDictionary, lastName.ToUpperInvariant(), recordIndex);
                             yield return rec;
                         }
                     }
                 }
             }
 
-            (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, string lastName)
+            static (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, string lastName)
             {
-                recordLastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
+                string recordLastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
 
                 if (string.Equals(recordLastName, lastName, StringComparison.OrdinalIgnoreCase) && ((buffer[0] & 4) == 0))
                 {
-                    id = BitConverter.ToInt32(buffer, 2);
-                    firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
-                    year = BitConverter.ToInt32(buffer, 246);
-                    month = BitConverter.ToInt32(buffer, 250);
-                    day = BitConverter.ToInt32(buffer, 254);
-                    DateTime dateOfBirth = new (year, month, day);
-                    status = BitConverter.ToInt16(buffer, 258);
-                    copyDecimal[0] = BitConverter.ToInt32(buffer, 274);
-                    copyDecimal[1] = BitConverter.ToInt32(buffer, 278);
-                    copyDecimal[2] = BitConverter.ToInt32(buffer, 282);
-                    copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
-                    salary = new decimal(copyDecimal);
-                    permissions = BitConverter.ToChar(buffer, 290);
-                    return (true, new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = recordLastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions });
+                    FileCabinetRecord rec = GetRecordFromBytes(buffer);
+                    return (true, rec);
                 }
 
                 return (false, new FileCabinetRecord());
@@ -553,16 +450,6 @@ namespace FileCabinetApp
         {
             byte[] buffer = new byte[RecordSize];
             this.stream.Position = 0;
-            int id;
-            string firstName;
-            string lastName;
-            int year;
-            int month;
-            int day;
-            short status;
-            decimal salary;
-            char permissions;
-            int[] copyDecimal = new int[4];
             bool isValid;
             FileCabinetRecord rec;
 
@@ -599,26 +486,17 @@ namespace FileCabinetApp
                 }
             }
 
-            (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, DateTime dateOfBirth)
+            static (bool, FileCabinetRecord) IfValidAddToRecords(byte[] buffer, DateTime dateOfBirth)
             {
-                year = BitConverter.ToInt32(buffer, 246);
-                month = BitConverter.ToInt32(buffer, 250);
-                day = BitConverter.ToInt32(buffer, 254);
+                int year = BitConverter.ToInt32(buffer, 246);
+                int month = BitConverter.ToInt32(buffer, 250);
+                int day = BitConverter.ToInt32(buffer, 254);
                 DateTime recordDateOfBirth = new (year, month, day);
 
                 if (dateOfBirth == recordDateOfBirth && ((buffer[0] & 4) == 0))
                 {
-                    id = BitConverter.ToInt32(buffer, 2);
-                    firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
-                    lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
-                    status = BitConverter.ToInt16(buffer, 258);
-                    copyDecimal[0] = BitConverter.ToInt32(buffer, 274);
-                    copyDecimal[1] = BitConverter.ToInt32(buffer, 278);
-                    copyDecimal[2] = BitConverter.ToInt32(buffer, 282);
-                    copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
-                    salary = new decimal(copyDecimal);
-                    permissions = BitConverter.ToChar(buffer, 290);
-                    return (true, new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = recordDateOfBirth, Status = status, Salary = salary, Permissions = permissions });
+                    FileCabinetRecord rec = GetRecordFromBytes(buffer);
+                    return (true, rec);
                 }
 
                 return (false, new FileCabinetRecord());
@@ -661,7 +539,7 @@ namespace FileCabinetApp
             if (snapshot is not null)
             {
                 List<FileCabinetRecord> newRecords = snapshot.Records.ToList();
-                int[] existingIds = this.GetRecords().Select(r => r.Id).ToArray();
+                int[] existingIds = this.recordIdDictionary.Select(v => v.Key).ToArray();
 
                 foreach (var rec in newRecords)
                 {
@@ -763,47 +641,23 @@ namespace FileCabinetApp
             this.stream.Position = 0;
             byte[] value = new byte[RecordSize];
             byte[] buffer = new byte[RecordSize];
-            int id;
-            string firstName;
-            string lastName;
-            int year;
-            int month;
-            int day;
-            short status;
-            decimal salary;
-            char permissions;
-            int[] copyDecimal = new int[4];
             byte[] recordStatus;
 
             while (this.stream.Read(buffer, 0, RecordSize) != 0)
             {
-                id = BitConverter.ToInt32(buffer, 2);
-
                 if ((buffer[0] & 4) != 0)
                 {
                     continue;
                 }
 
                 recordStatus = buffer[0..2];
-                firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
-                lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
-                year = BitConverter.ToInt32(buffer, 246);
-                month = BitConverter.ToInt32(buffer, 250);
-                day = BitConverter.ToInt32(buffer, 254);
-                DateTime dateOfBirth = new (year, month, day);
-                status = BitConverter.ToInt16(buffer, 258);
-                copyDecimal[0] = BitConverter.ToInt32(buffer, 274);
-                copyDecimal[1] = BitConverter.ToInt32(buffer, 278);
-                copyDecimal[2] = BitConverter.ToInt32(buffer, 282);
-                copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
-                salary = new decimal(copyDecimal);
-                permissions = BitConverter.ToChar(buffer, 290);
+                FileCabinetRecord rec = GetRecordFromBytes(buffer);
 
-                this.firstNameDictionary.Remove(firstName.ToUpperInvariant());
-                this.lastNameDictionary.Remove(lastName.ToUpperInvariant());
-                this.dateOfBirthDictionary.Remove(dateOfBirth);
+                this.firstNameDictionary.Remove(rec.FirstName.ToUpperInvariant());
+                this.lastNameDictionary.Remove(rec.LastName.ToUpperInvariant());
+                this.dateOfBirthDictionary.Remove(rec.DateOfBirth);
 
-                records.Add((recordStatus, new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions }));
+                records.Add((recordStatus, rec));
             }
 
             this.stream.Position = 0;
@@ -813,18 +667,8 @@ namespace FileCabinetApp
                 BitConverter.GetBytes(record.Item1[0]).CopyTo(value, 0);
                 BitConverter.GetBytes(record.Item1[1]).CopyTo(value, 1);
                 BitConverter.GetBytes(record.Item2.Id).CopyTo(value, 2);
-                Encoding.UTF8.GetBytes(record.Item2.FirstName.PadRight(120, '\0')).CopyTo(value, 6);
-                Encoding.UTF8.GetBytes(record.Item2.LastName.PadRight(120, '\0')).CopyTo(value, 126);
-                BitConverter.GetBytes(record.Item2.DateOfBirth.Year).CopyTo(value, 246);
-                BitConverter.GetBytes(record.Item2.DateOfBirth.Month).CopyTo(value, 250);
-                BitConverter.GetBytes(record.Item2.DateOfBirth.Day).CopyTo(value, 254);
-                BitConverter.GetBytes(record.Item2.Status).CopyTo(value, 258);
-                decimal.GetBits(record.Item2.Salary, copyDecimal);
-                BitConverter.GetBytes(copyDecimal[0]).CopyTo(value, 274);
-                BitConverter.GetBytes(copyDecimal[1]).CopyTo(value, 278);
-                BitConverter.GetBytes(copyDecimal[2]).CopyTo(value, 282);
-                BitConverter.GetBytes(copyDecimal[3]).CopyTo(value, 286);
-                BitConverter.GetBytes(record.Item2.Permissions).CopyTo(value, 290);
+                FileCabinetRecordParameterObject parameters = new () { FirstName = record.Item2.FirstName, LastName = record.Item2.LastName, DateOfBirth = record.Item2.DateOfBirth, Status = record.Item2.Status, Salary = record.Item2.Salary, Permissions = record.Item2.Permissions };
+                GetBytes(parameters, ref value);
                 this.stream.Write(value, 0, RecordSize);
                 this.stream.Flush(true);
 
@@ -854,12 +698,55 @@ namespace FileCabinetApp
         {
             if (targetDictionary.ContainsKey(key))
             {
-                targetDictionary[key].Add(position);
+                if (!targetDictionary[key].Contains(position))
+                {
+                    targetDictionary[key].Add(position);
+                }
             }
             else
             {
                 targetDictionary.Add(key, new List<ulong>() { position });
             }
+        }
+
+        private static void GetBytes(FileCabinetRecordParameterObject record, ref byte[] value)
+        {
+                int[] copyDecimal = new int[4];
+                Encoding.UTF8.GetBytes(record.FirstName.PadRight(120, '\0')).CopyTo(value, 6);
+                Encoding.UTF8.GetBytes(record.LastName.PadRight(120, '\0')).CopyTo(value, 126);
+                BitConverter.GetBytes(record.DateOfBirth.Year).CopyTo(value, 246);
+                BitConverter.GetBytes(record.DateOfBirth.Month).CopyTo(value, 250);
+                BitConverter.GetBytes(record.DateOfBirth.Day).CopyTo(value, 254);
+                BitConverter.GetBytes(record.Status).CopyTo(value, 258);
+                decimal.GetBits(record.Salary, copyDecimal);
+                BitConverter.GetBytes(copyDecimal[0]).CopyTo(value, 274);
+                BitConverter.GetBytes(copyDecimal[1]).CopyTo(value, 278);
+                BitConverter.GetBytes(copyDecimal[2]).CopyTo(value, 282);
+                BitConverter.GetBytes(copyDecimal[3]).CopyTo(value, 286);
+                BitConverter.GetBytes(record.Permissions).CopyTo(value, 290);
+        }
+
+        private static FileCabinetRecord GetRecordFromBytes(byte[] buffer)
+        {
+            int year;
+            int month;
+            int day;
+            int[] copyDecimal = new int[4];
+            int id = BitConverter.ToInt32(buffer, 2);
+            string firstName = Encoding.UTF8.GetString(buffer[6..126]).TrimEnd('\0');
+            string lastName = Encoding.UTF8.GetString(buffer[126..246]).TrimEnd('\0');
+            year = BitConverter.ToInt32(buffer, 246);
+            month = BitConverter.ToInt32(buffer, 250);
+            day = BitConverter.ToInt32(buffer, 254);
+            DateTime dateOfBirth = new (year, month, day);
+            short status = BitConverter.ToInt16(buffer, 258);
+            copyDecimal[0] = BitConverter.ToInt32(buffer, 274);
+            copyDecimal[1] = BitConverter.ToInt32(buffer, 278);
+            copyDecimal[2] = BitConverter.ToInt32(buffer, 282);
+            copyDecimal[3] = BitConverter.ToInt32(buffer, 286);
+            decimal salary = new (copyDecimal);
+            char permissions = BitConverter.ToChar(buffer, 290);
+            return new FileCabinetRecord() { Id = id, FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status,  Salary = salary, Permissions = permissions };
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FileCabinetApp.CommandHandlers
+﻿namespace FileCabinetApp.CommandHandlers
 {
     /// <summary>
     /// Represents command request, made to the app.

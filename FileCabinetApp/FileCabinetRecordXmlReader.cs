@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 
 namespace FileCabinetApp
@@ -37,7 +30,15 @@ namespace FileCabinetApp
             if (this.reader is not null)
             {
                 XmlSerializer serializer = new (typeof(FileCabinetRecord[]), new XmlRootAttribute("records"));
-                records = serializer.Deserialize(this.reader) as FileCabinetRecord[] ?? Array.Empty<FileCabinetRecord>();
+
+                try
+                {
+                    records = serializer.Deserialize(this.reader) as FileCabinetRecord[] ?? Array.Empty<FileCabinetRecord>();
+                }
+                catch (InvalidOperationException e)
+                {
+                    Console.WriteLine($"Can't read file as xml: {e.Message}");
+                }
             }
 
             return records.ToList();

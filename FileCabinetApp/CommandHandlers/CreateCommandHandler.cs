@@ -1,11 +1,5 @@
 ﻿using FileCabinetApp.Validators;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileCabinetApp.CommandHandlers
 {
@@ -46,21 +40,21 @@ namespace FileCabinetApp.CommandHandlers
                     var dateValidator = this.GetValidator(typeof(DateOfBirthValidator));
 
                     Console.Write("Date of birth: ");
-                    var dateOfBirth = ReadInput(this.DateConverter, dateValidator is not null ? dateValidator.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
+                    var dateOfBirth = ReadInput(this.ConvertToDate, dateValidator is not null ? dateValidator.ValidateParameters : (d => new Tuple<bool, string>(true, "Everything is alright")));
 
                     var statusValidator = this.GetValidator(typeof(StatusValidator));
                     Console.Write("Status: ");
-                    var status = ReadInput(ShortConverter, statusValidator is not null ? statusValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+                    var status = ReadInput(ConvertToShort, statusValidator is not null ? statusValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
 
                     var salaryValidator = this.GetValidator(typeof(SalaryValidator));
 
                     Console.Write("Salary: ");
-                    var salary = ReadInput(DecimalConverter, salaryValidator is not null ? salaryValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+                    var salary = ReadInput(ConvertToDecimal, salaryValidator is not null ? salaryValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
 
                     var permissionsValidator = this.GetValidator(typeof(PermissionsValidator));
 
                     Console.Write("Permissions: ");
-                    var permissions = ReadInput(CharConverter, permissionsValidator is not null ? permissionsValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
+                    var permissions = ReadInput(ConvertToChar, permissionsValidator is not null ? permissionsValidator.ValidateParameters : (s => new Tuple<bool, string>(true, "Everything is alright")));
 
                     FileCabinetRecordParameterObject recordParameters = new () { FirstName = firstName, LastName = lastName, DateOfBirth = dateOfBirth, Status = status, Salary = salary, Permissions = permissions };
                     int recordId = this.service.CreateRecord(recordParameters);
@@ -91,7 +85,7 @@ namespace FileCabinetApp.CommandHandlers
             return null;
         }
 
-        private Tuple<bool, string, DateTime> DateConverter(string date)
+        private Tuple<bool, string, DateTime> ConvertToDate(string date)
         {
             bool isValid = DateTime.TryParseExact(date, this.service.DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateOfBirth);
 
@@ -103,11 +97,11 @@ namespace FileCabinetApp.CommandHandlers
             return new Tuple<bool, string, DateTime>(isValid, "Everything is alright", dateOfBirth);
         }
 
-        private static Tuple<bool, string, short> ShortConverter(string value) => short.TryParse(value, out short newValue) ? new Tuple<bool, string, short>(true, "Everything is alright", newValue) : new Tuple<bool, string, short>(false, $"Please, enter valid number in range from {short.MinValue} to {short.MaxValue}", default);
+        private static Tuple<bool, string, short> ConvertToShort(string value) => short.TryParse(value, out short newValue) ? new Tuple<bool, string, short>(true, "Everything is alright", newValue) : new Tuple<bool, string, short>(false, $"Please, enter valid number in range from {short.MinValue} to {short.MaxValue}", default);
 
-        private static Tuple<bool, string, decimal> DecimalConverter(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newValue) ? new Tuple<bool, string, decimal>(true, "Everything is alright", newValue) : new Tuple<bool, string, decimal>(false, "Please, enter valid decimal number", default);
+        private static Tuple<bool, string, decimal> ConvertToDecimal(string value) => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal newValue) ? new Tuple<bool, string, decimal>(true, "Everything is alright", newValue) : new Tuple<bool, string, decimal>(false, "Please, enter valid decimal number", default);
 
-        private static Tuple<bool, string, char> CharConverter(string value) => char.TryParse(value, out char newValue) ? new Tuple<bool, string, char>(true, "Everything is alright", newValue) : new Tuple<bool, string, char>(false, "Please, enter valid character", default);
+        private static Tuple<bool, string, char> ConvertToChar(string value) => char.TryParse(value, out char newValue) ? new Tuple<bool, string, char>(true, "Everything is alright", newValue) : new Tuple<bool, string, char>(false, "Please, enter valid character", default);
 
         private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<object, Tuple<bool, string>> validator)
         {

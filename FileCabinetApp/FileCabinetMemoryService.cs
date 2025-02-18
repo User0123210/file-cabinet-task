@@ -1,12 +1,6 @@
 ﻿using FileCabinetApp.Validators;
-using System;
-using System.Collections;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Diagnostics;
 
 #pragma warning disable SA1011
 
@@ -361,65 +355,37 @@ namespace FileCabinetApp
                     this.records.Add(rec);
                     this.recordIdDictionary[rec.Id] = rec;
 
-                    if (this.firstNameDictionary.ContainsKey(rec.FirstName.ToUpperInvariant()))
-                    {
-                        for (int i = 0; i < this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Count; i++)
-                        {
-                            FileCabinetRecord fnameRec = this.firstNameDictionary[rec.FirstName.ToUpperInvariant()][i];
-
-                            if (fnameRec.Id == rec.Id)
-                            {
-                                this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Remove(fnameRec);
-                            }
-
-                            this.firstNameDictionary[rec.FirstName.ToUpperInvariant()].Add(rec);
-                        }
-                    }
-                    else
-                    {
-                        this.firstNameDictionary.Add(rec.FirstName.ToUpperInvariant(), new () { rec });
-                    }
-
-                    if (this.lastNameDictionary.ContainsKey(rec.LastName.ToUpperInvariant()))
-                    {
-                        for (int i = 0; i < this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Count; i++)
-                        {
-                           FileCabinetRecord lnameRec = this.lastNameDictionary[rec.LastName.ToUpperInvariant()][i];
-
-                           if (lnameRec.Id == rec.Id)
-                           {
-                               this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Remove(lnameRec);
-                           }
-
-                           this.lastNameDictionary[rec.LastName.ToUpperInvariant()].Add(rec);
-                        }
-                    }
-                    else
-                    {
-                        this.lastNameDictionary.Add(rec.LastName.ToUpperInvariant(), new () { rec });
-                    }
-
-                    if (this.dateOfBirthDictionary.ContainsKey(rec.DateOfBirth))
-                    {
-                        for (int i = 0; i < this.dateOfBirthDictionary[rec.DateOfBirth].Count; i++)
-                        {
-                            FileCabinetRecord dateRec = this.dateOfBirthDictionary[rec.DateOfBirth][i];
-
-                            if (dateRec.Id == rec.Id)
-                            {
-                                this.dateOfBirthDictionary[rec.DateOfBirth].Remove(dateRec);
-                            }
-
-                            this.dateOfBirthDictionary[rec.DateOfBirth].Add(rec);
-                        }
-                    }
-                    else
-                    {
-                        this.dateOfBirthDictionary.Add(rec.DateOfBirth, new () { rec });
-                    }
+                    EditRecordInDictionary(this.firstNameDictionary, rec.FirstName.ToUpperInvariant(), rec);
+                    EditRecordInDictionary(this.lastNameDictionary, rec.LastName.ToUpperInvariant(), rec);
+                    EditRecordInDictionary(this.dateOfBirthDictionary, rec.DateOfBirth, rec);
                 }
 
                 this.searchCache.Clear();
+            }
+        }
+
+        private static void EditRecordInDictionary<T>(Dictionary<T, List<FileCabinetRecord>> targetDictionary, T key, FileCabinetRecord newRecord)
+            where T : notnull
+        {
+            if (targetDictionary.ContainsKey(key))
+            {
+                List<FileCabinetRecord> values = targetDictionary[key];
+
+                for (int i = 0; i < values.Count; i++)
+                {
+                    FileCabinetRecord oldRecord = values[i];
+
+                    if (oldRecord.Id == newRecord.Id)
+                    {
+                        targetDictionary[key].Remove(oldRecord);
+                    }
+
+                    targetDictionary[key].Add(newRecord);
+                }
+            }
+            else
+            {
+                targetDictionary.Add(key, new () { newRecord });
             }
         }
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FileCabinetApp.CommandHandlers
+﻿namespace FileCabinetApp.CommandHandlers
 {
     /// <summary>
     /// Represents class of the command handler to handle help command.
@@ -17,10 +11,9 @@ namespace FileCabinetApp.CommandHandlers
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
             new string[] { "stat", "displays statistics on records", "The 'stat' command displays statistics on records." },
             new string[] { "create", "creates a new record", "The 'create' command creates a new record." },
-            new string[] { "edit", "edits record with the specified id", "The 'edit' command edits record with the specified id." },
+            new string[] { "update", "updates records based on the specified criteria", "The 'update' command updates records based on the specified criteria." },
             new string[] { "export", "exports data from the service into the specified format and file", "The 'export' command exports data from the service into the specified format and file." },
             new string[] { "import", "imports data from the specified file in the specified format to the service", "The 'import' command imports data from the specified file in the specified format to the service." },
-            new string[] { "remove", "removes record with the specified id from the service", "The 'remove' command removes record with the specified id from the service." },
             new string[] { "purge", "purge removes deleted records from the database", "The 'purge' command purge removes deleted records from the database." },
             new string[] { "insert", "inserts new record with the specified values", "The 'insert' command inserts new record with the specified values." },
             new string[] { "delete", "deletes records based on the specified criteria", "The 'delete' command deletes records based on the specified criteria." },
@@ -55,6 +48,7 @@ namespace FileCabinetApp.CommandHandlers
                     if (!string.IsNullOrEmpty(commandRequest.Parameters))
                     {
                         var index = Array.FindIndex(HelpMessages, 0, HelpMessages.Length, i => string.Equals(i[CommandHelpIndex], commandRequest.Parameters, StringComparison.OrdinalIgnoreCase));
+
                         if (index >= 0)
                         {
                             Console.WriteLine(HelpMessages[index][ExplanationHelpIndex]);

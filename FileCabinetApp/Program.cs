@@ -1,15 +1,8 @@
 ﻿using FileCabinetApp.CommandHandlers;
 using FileCabinetApp.Validators;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using System.Text;
-using System.Xml.Linq;
 
 #pragma warning disable IDE0060, CA1303
 
@@ -155,65 +148,64 @@ namespace FileCabinetApp
 
         private static void DefaultRecordPrint(IEnumerable<FileCabinetRecord> recs, string[] arguments)
         {
+            StringBuilder row = new ();
+            PropertyInfo[] initialProperties = typeof(FileCabinetRecord).GetProperties(bindingAttr: BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] properties = initialProperties.Where(p => arguments.Any(a => a.Trim().ToUpperInvariant() == p.Name.ToUpperInvariant())).ToArray();
+            properties = properties.Length > 0 ? properties : initialProperties;
+            int cols = properties.Length;
+            int[] widths = new int[cols];
+            StringBuilder edge = new ();
 
-                    StringBuilder row = new ();
-                    PropertyInfo[] initialProperties = typeof(FileCabinetRecord).GetProperties(bindingAttr: BindingFlags.Public | BindingFlags.Instance);
-                    PropertyInfo[] properties = initialProperties.Where(p => arguments.Any(a => a.Trim().ToUpperInvariant() == p.Name.ToUpperInvariant())).ToArray();
-                    properties = properties.Length > 0 ? properties : initialProperties;
-                    int cols = properties.Length;
-                    int[] widths = new int[cols];
-                    StringBuilder edge = new ();
+            for (int c = 0; c < cols; c++)
+            {
+                var pr = properties[c];
 
-                    for (int c = 0; c < cols; c++)
+                if (pr is not null)
+                {
+                    var lengths = recs.Select(e => e is not null && pr.GetValue(e) is not null ? pr.GetValue(e) !.ToString() !.Length : 0);
+                    int max = 0;
+
+                    if (lengths is not null && lengths.Any())
                     {
-                        var pr = properties[c];
-
-                        if (pr is not null)
-                        {
-                            var lengths = recs.Select(e => e is not null && pr.GetValue(e) is not null ? pr.GetValue(e) !.ToString() !.Length : 0);
-                            int max = 0;
-
-                            if (lengths is not null && lengths.Any())
-                            {
-                                max = lengths.Max(e => e);
-                            }
-
-                            widths[c] = pr.Name.Length > max ? pr.Name.Length : max;
-                        }
-
-                        edge = edge.Append("+" + new string('-', widths[c] + 2));
+                        max = lengths.Max(e => e);
                     }
 
-                    edge = edge.Append(CultureInfo.InvariantCulture, $"+{Environment.NewLine}");
-                    int colNum = 0;
+                    widths[c] = pr.Name.Length > max ? pr.Name.Length : max;
+                }
 
-                    Console.WriteLine(edge);
+                edge = edge.Append("+" + new string('-', widths[c] + 2));
+            }
 
-                    foreach (var p in properties)
-                    {
-                        row = row.Append(string.Format(CultureInfo.InvariantCulture, "| {0} ", p.Name + new string(' ', widths[colNum] - p!.Name.ToString() !.Length)));
-                        colNum++;
-                    }
+            edge = edge.Append(CultureInfo.InvariantCulture, $"+{Environment.NewLine}");
+            int colNum = 0;
 
-                    row = row.Append(CultureInfo.InvariantCulture, $"|{Environment.NewLine}");
+            Console.WriteLine(edge);
 
-                    Console.WriteLine(row);
-                    Console.WriteLine(edge);
+            foreach (var p in properties)
+            {
+                row = row.Append(string.Format(CultureInfo.InvariantCulture, "| {0} ", p.Name + new string(' ', widths[colNum] - p!.Name.ToString() !.Length)));
+                colNum++;
+            }
 
-                    foreach (var rec in recs)
-                    {
-                        row = new StringBuilder();
+            row = row.Append(CultureInfo.InvariantCulture, $"|{Environment.NewLine}");
 
-                        for (int j = 0; j < cols; j++)
-                        {
-                            var p = properties[j].GetValue(rec);
-                            row = row.Append(string.Format(CultureInfo.InvariantCulture, "| {0} ", p is string || p is char ? p + new string(' ', widths[j] - p!.ToString() !.Length) : new string(' ', widths[j] - p!.ToString() !.Length) + p!.ToString()));
-                        }
+            Console.WriteLine(row);
+            Console.WriteLine(edge);
 
-                        row = row.Append(CultureInfo.InvariantCulture, $"|{Environment.NewLine}");
-                        Console.WriteLine(row);
-                        Console.WriteLine(edge);
-                    }
+            foreach (var rec in recs)
+            {
+                row = new StringBuilder();
+
+                for (int j = 0; j < cols; j++)
+                {
+                    var p = properties[j].GetValue(rec);
+                    row = row.Append(string.Format(CultureInfo.InvariantCulture, "| {0} ", p is string || p is char ? p + new string(' ', widths[j] - p!.ToString() !.Length) : new string(' ', widths[j] - p!.ToString() !.Length) + p!.ToString()));
+                }
+
+                row = row.Append(CultureInfo.InvariantCulture, $"|{Environment.NewLine}");
+                Console.WriteLine(row);
+                Console.WriteLine(edge);
+            }
         }
     }
 }
